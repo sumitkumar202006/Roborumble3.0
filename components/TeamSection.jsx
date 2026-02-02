@@ -273,13 +273,13 @@ export default function TeamSection() {
                   href={s.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="
+                  className={`
                                 w-9 h-9 rounded-full border border-yellow-500/60 
                                 flex items-center justify-center 
                                 text-yellow-400 transition-all duration-300
                                 hover:bg-yellow-400 hover:text-black hover:scale-110
                                 shadow-[0_0_10px_rgba(250,204,21,0.2)] bg-black/30
-                            "
+                            `}
                 >
                   <Icon size={16} />
                 </a>
