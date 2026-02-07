@@ -31,10 +31,11 @@ export default function RootLayout({
           <link rel="icon" href="/skull-1.png" />
         </head>
         <body>
-          <ParticleBackground />
+          {!isDashboard && <ParticleBackground />}
           <AuthProvider>
             {showNavbar && <Navbar />}
             {children}
+            <CustomCursor />
           </AuthProvider>
         </body>
       </html>
