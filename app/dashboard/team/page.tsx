@@ -1,14 +1,37 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
-import { Users, UserPlus, Search, Check, X } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Users,
+    UserPlus,
+    Search,
+    Check,
+    X,
+    Crown,
+    Mail,
+    LogOut,
+    Loader2,
+    UserCircle,
+    School,
+    Send,
+    AlertCircle,
+    CheckCircle,
+    XCircle,
+    Clock,
+    Sparkles,
+} from "lucide-react";
 
+// Types
 interface Member {
     _id: string;
     username: string;
     email: string;
+    firstName?: string;
+    lastName?: string;
     avatarUrl?: string;
+    college?: string;
 }
 
 interface TeamData {
@@ -25,6 +48,23 @@ interface Invitation {
     leaderId: { username: string; email: string };
 }
 
+interface SearchResult {
+    _id: string;
+    username: string;
+    email: string;
+    fullName: string;
+    avatarUrl?: string;
+    college?: string;
+}
+
+interface PendingInvite {
+    _id: string;
+    username: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+}
+
 interface JoinRequest {
     _id: string;
     username: string;
@@ -32,48 +72,197 @@ interface JoinRequest {
     college?: string;
 }
 
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.1 },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100 } },
+};
+
+// Avatar Component
+function Avatar({ user, size = "md" }: { user: { username?: string; avatarUrl?: string; firstName?: string }; size?: "sm" | "md" | "lg" }) {
+    const sizes = { sm: "w-8 h-8 text-xs", md: "w-10 h-10 text-sm", lg: "w-12 h-12 text-base" };
+    const initial = user.firstName?.[0] || user.username?.[0] || "?";
+
+    if (user.avatarUrl) {
+        return (
+            <img
+                src={user.avatarUrl}
+                alt={user.username || "User"}
+                className={`${sizes[size]} rounded-full object-cover border-2 border-gray-700`}
+            />
+        );
+    }
+
+    return (
+        <div className={`${sizes[size]} rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold`}>
+            {initial.toUpperCase()}
+        </div>
+    );
+}
+
+// Toast/Message Component
+function Toast({ message, type, onClose }: { message: string; type: "success" | "error" | "info"; onClose: () => void }) {
+    const colors = {
+        success: "from-green-500/20 to-green-500/10 border-green-500/50 text-green-400",
+        error: "from-red-500/20 to-red-500/10 border-red-500/50 text-red-400",
+        info: "from-cyan-500/20 to-cyan-500/10 border-cyan-500/50 text-cyan-400",
+    };
+    const icons = {
+        success: <CheckCircle size={18} />,
+        error: <XCircle size={18} />,
+        info: <AlertCircle size={18} />,
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(onClose, 5000);
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl border bg-gradient-to-r ${colors[type]} flex items-center gap-3 shadow-lg max-w-md`}
+        >
+            {icons[type]}
+            <span className="flex-1">{message}</span>
+            <button onClick={onClose} className="hover:opacity-70">
+                <X size={16} />
+            </button>
+        </motion.div>
+    );
+}
+
+// Loading Skeleton
+function LoadingSkeleton() {
+    return (
+        <div className="space-y-6 animate-pulse">
+            <div className="h-10 w-64 bg-gray-800 rounded-lg" />
+            <div className="h-64 bg-gray-800/50 rounded-2xl" />
+            <div className="h-48 bg-gray-800/50 rounded-2xl" />
+        </div>
+    );
+}
+
 export default function TeamPage() {
     const { user } = useUser();
     const [team, setTeam] = useState<TeamData | null>(null);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
+    const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
     const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
     const [profileId, setProfileId] = useState<string>("");
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    // Form states
     const [teamName, setTeamName] = useState("");
-    const [inviteEmail, setInviteEmail] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<TeamData[]>([]);
-    const [message, setMessage] = useState("");
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [teamSearchQuery, setTeamSearchQuery] = useState("");
+    const [teamSearchResults, setTeamSearchResults] = useState<TeamData[]>([]);
+
+    // Toast message
+    const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
     const isLeader = team?.leaderId?._id === profileId;
 
-    useEffect(() => {
-        fetchTeamData();
-    }, [user?.id]);
+    const showToast = useCallback((message: string, type: "success" | "error" | "info") => {
+        setToast({ message, type });
+    }, []);
 
+    // Fetch team data
     async function fetchTeamData() {
         if (!user?.id) return;
         try {
             const res = await fetch(`/api/teams?clerkId=${user.id}`);
+            if (!res.ok) {
+                console.error("Teams API error:", res.status);
+                setLoading(false);
+                return;
+            }
             const data = await res.json();
-            setTeam(data.team);
+            setTeam(data.team || null);
             setInvitations(data.invitations || []);
-            setProfileId(data.profileId);
+            setProfileId(data.profileId || "");
 
-            if (data.team && data.team.leaderId._id === data.profileId) {
-                const reqRes = await fetch(`/api/teams/join?clerkId=${user.id}`);
-                const reqData = await reqRes.json();
-                setJoinRequests(reqData.joinRequests || []);
+            // If user is a leader, fetch pending invites and join requests
+            if (data.team && data.team.leaderId?._id === data.profileId) {
+                try {
+                    const [invRes, reqRes] = await Promise.all([
+                        fetch(`/api/teams/invite?clerkId=${user.id}`),
+                        fetch(`/api/teams/join?clerkId=${user.id}`),
+                    ]);
+                    if (invRes.ok) {
+                        const invData = await invRes.json();
+                        setPendingInvites(invData.pendingInvites || []);
+                    }
+                    if (reqRes.ok) {
+                        const reqData = await reqRes.json();
+                        setJoinRequests(reqData.joinRequests || []);
+                    }
+                } catch (subError) {
+                    console.error("Error fetching invites/requests:", subError);
+                }
             }
         } catch (e) {
             console.error(e);
+            showToast("Failed to load team data", "error");
         } finally {
             setLoading(false);
         }
     }
 
+    useEffect(() => {
+        if (user?.id) {
+            fetchTeamData();
+        } else {
+            setLoading(false);
+        }
+    }, [user?.id]);
+
+    // Debounced user search
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (searchQuery.length < 2) {
+                setSearchResults([]);
+                return;
+            }
+
+            setSearchLoading(true);
+            try {
+                const res = await fetch(
+                    `/api/users/search?q=${encodeURIComponent(searchQuery)}&clerkId=${user?.id}&excludeInTeam=true`
+                );
+                const data = await res.json();
+                setSearchResults(data.users || []);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setSearchLoading(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery, user?.id]);
+
+    // Create team
     async function createTeam() {
-        if (!teamName.trim()) return;
+        if (!teamName.trim()) {
+            showToast("Please enter a team name", "error");
+            return;
+        }
+
+        setActionLoading("create");
         try {
             const res = await fetch("/api/teams", {
                 method: "POST",
@@ -81,44 +270,92 @@ export default function TeamPage() {
                 body: JSON.stringify({ clerkId: user?.id, teamName }),
             });
             const data = await res.json();
-            setMessage(data.message);
+
             if (res.ok) {
+                showToast("Team created successfully!", "success");
                 setTeamName("");
                 fetchTeamData();
+            } else {
+                showToast(data.message, "error");
             }
         } catch (e) {
             console.error(e);
+            showToast("Failed to create team", "error");
+        } finally {
+            setActionLoading(null);
         }
     }
 
-    async function inviteMember() {
-        if (!inviteEmail.trim()) return;
+    // Invite member
+    async function inviteMember(userId: string, displayName: string) {
+        setActionLoading(`invite-${userId}`);
         try {
             const res = await fetch("/api/teams/invite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, inviteEmail }),
+                body: JSON.stringify({ clerkId: user?.id, inviteUserId: userId }),
             });
             const data = await res.json();
-            setMessage(data.message);
-            if (res.ok) setInviteEmail("");
+
+            if (res.ok) {
+                showToast(`Invitation sent to ${displayName}`, "success");
+                setSearchQuery("");
+                setSearchResults([]);
+                // Refresh pending invites
+                const invRes = await fetch(`/api/teams/invite?clerkId=${user?.id}`);
+                const invData = await invRes.json();
+                setPendingInvites(invData.pendingInvites || []);
+            } else {
+                showToast(data.message, "error");
+            }
         } catch (e) {
             console.error(e);
+            showToast("Failed to send invitation", "error");
+        } finally {
+            setActionLoading(null);
         }
     }
 
-    async function searchTeams() {
-        if (!searchQuery.trim()) return;
+    // Cancel invitation
+    async function cancelInvitation(userId: string) {
+        setActionLoading(`cancel-${userId}`);
         try {
-            const res = await fetch(`/api/teams?search=${encodeURIComponent(searchQuery)}`);
+            const res = await fetch("/api/teams/invite/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clerkId: user?.id, userId }),
+            });
             const data = await res.json();
-            setSearchResults(data.teams || []);
+
+            if (res.ok) {
+                showToast("Invitation cancelled", "info");
+                setPendingInvites((prev) => prev.filter((p) => p._id !== userId));
+            } else {
+                showToast(data.message, "error");
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Failed to cancel invitation", "error");
+        } finally {
+            setActionLoading(null);
+        }
+    }
+
+    // Search teams
+    async function searchTeams() {
+        if (!teamSearchQuery.trim()) return;
+        try {
+            const res = await fetch(`/api/teams?search=${encodeURIComponent(teamSearchQuery)}`);
+            const data = await res.json();
+            setTeamSearchResults(data.teams || []);
         } catch (e) {
             console.error(e);
         }
     }
 
+    // Request to join team
     async function requestJoin(teamId: string) {
+        setActionLoading(`join-${teamId}`);
         try {
             const res = await fetch("/api/teams/join", {
                 method: "POST",
@@ -126,13 +363,23 @@ export default function TeamPage() {
                 body: JSON.stringify({ clerkId: user?.id, teamId }),
             });
             const data = await res.json();
-            setMessage(data.message);
+
+            if (res.ok) {
+                showToast("Join request sent!", "success");
+            } else {
+                showToast(data.message, "error");
+            }
         } catch (e) {
             console.error(e);
+            showToast("Failed to send join request", "error");
+        } finally {
+            setActionLoading(null);
         }
     }
 
+    // Respond to invitation
     async function respondToInvitation(teamId: string, accept: boolean) {
+        setActionLoading(`respond-${teamId}`);
         try {
             const res = await fetch("/api/teams/respond", {
                 method: "POST",
@@ -144,14 +391,23 @@ export default function TeamPage() {
                 }),
             });
             const data = await res.json();
-            setMessage(data.message);
-            fetchTeamData();
+
+            if (res.ok) {
+                showToast(accept ? "You have joined the team!" : "Invitation declined", accept ? "success" : "info");
+                fetchTeamData();
+            } else {
+                showToast(data.message, "error");
+            }
         } catch (e) {
             console.error(e);
+        } finally {
+            setActionLoading(null);
         }
     }
 
+    // Respond to join request
     async function respondToRequest(userId: string, accept: boolean) {
+        setActionLoading(`request-${userId}`);
         try {
             const res = await fetch("/api/teams/respond", {
                 method: "POST",
@@ -163,230 +419,500 @@ export default function TeamPage() {
                 }),
             });
             const data = await res.json();
-            setMessage(data.message);
-            fetchTeamData();
+
+            if (res.ok) {
+                showToast(accept ? "Member added to team!" : "Request declined", accept ? "success" : "info");
+                fetchTeamData();
+            } else {
+                showToast(data.message, "error");
+            }
         } catch (e) {
             console.error(e);
+        } finally {
+            setActionLoading(null);
         }
     }
 
-    if (loading) return <div className="text-white">Loading...</div>;
+    // Leave team
+    async function leaveTeam() {
+        if (!confirm(isLeader ? "Are you sure? This will disband the team and remove all members." : "Are you sure you want to leave this team?")) {
+            return;
+        }
+
+        setActionLoading("leave");
+        try {
+            const res = await fetch("/api/teams/leave", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clerkId: user?.id }),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast(data.disbanded ? "Team has been disbanded" : "You have left the team", "success");
+                setTeam(null);
+                fetchTeamData();
+            } else {
+                showToast(data.message, "error");
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Failed to leave team", "error");
+        } finally {
+            setActionLoading(null);
+        }
+    }
+
+    if (loading) return <LoadingSkeleton />;
 
     return (
-        <div className="max-w-4xl">
-            <h1 className="text-3xl font-bold text-white mb-8">Team Management</h1>
+        <>
+            {/* Toast Notification */}
+            <AnimatePresence>
+                {toast && (
+                    <Toast
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => setToast(null)}
+                    />
+                )}
+            </AnimatePresence>
 
-            {message && (
-                <div className="bg-cyan-500/10 border border-cyan-500 text-cyan-400 px-4 py-3 rounded-lg mb-6">
-                    {message}
-                </div>
-            )}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="max-w-4xl space-y-8"
+            >
+                {/* Header */}
+                <motion.div variants={itemVariants} className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <Users className="text-cyan-400" />
+                            Team Management
+                        </h1>
+                        <p className="text-gray-400 mt-1">
+                            {team ? "Manage your team and invite members" : "Create or join a team to compete"}
+                        </p>
+                    </div>
+                </motion.div>
 
-            {team ? (
-                <>
-                    {/* Current Team */}
-                    <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h2 className="text-2xl font-bold text-white">{team.name}</h2>
-                                <p className="text-gray-400">
-                                    {team.isLocked ? "🔒 Team Locked" : "🔓 Open for Members"}
-                                </p>
-                            </div>
-                            {isLeader && (
-                                <span className="bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-full text-sm">
-                                    Leader
-                                </span>
-                            )}
-                        </div>
-
-                        <h3 className="text-white font-bold mb-4">Members</h3>
-                        <div className="space-y-3">
-                            {team.members.map((member) => (
-                                <div
-                                    key={member._id}
-                                    className="flex items-center gap-3 bg-gray-800 p-3 rounded-lg"
-                                >
-                                    <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold">
-                                        {member.username?.[0]?.toUpperCase() || "?"}
-                                    </div>
+                {team ? (
+                    /* ========== HAS TEAM ========== */
+                    <>
+                        {/* Team Info Card */}
+                        <motion.div
+                            variants={itemVariants}
+                            className="relative overflow-hidden rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-800/60 to-gray-900/80"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent" />
+                            <div className="relative p-6">
+                                <div className="flex items-start justify-between mb-6">
                                     <div>
-                                        <p className="text-white">{member.username}</p>
-                                        <p className="text-gray-400 text-sm">{member.email}</p>
+                                        <div className="flex items-center gap-3">
+                                            <h2 className="text-2xl font-bold text-white">{team.name}</h2>
+                                            {isLeader && (
+                                                <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-medium flex items-center gap-1">
+                                                    <Crown size={12} /> Leader
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-gray-400 mt-1 flex items-center gap-2">
+                                            {team.isLocked ? (
+                                                <span className="text-red-400 flex items-center gap-1">
+                                                    🔒 Team Locked (Payment Made)
+                                                </span>
+                                            ) : (
+                                                <span className="text-green-400 flex items-center gap-1">
+                                                    ✓ Open for Members
+                                                </span>
+                                            )}
+                                            <span className="text-gray-600">•</span>
+                                            <span>{team.members?.length || 0}/5 Members</span>
+                                        </p>
                                     </div>
-                                    {member._id === team.leaderId._id && (
-                                        <span className="ml-auto text-yellow-400 text-xs">Leader</span>
+
+                                    {!team.isLocked && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={leaveTeam}
+                                            disabled={actionLoading === "leave"}
+                                            className="px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors flex items-center gap-2 text-sm"
+                                        >
+                                            {actionLoading === "leave" ? (
+                                                <Loader2 size={16} className="animate-spin" />
+                                            ) : (
+                                                <LogOut size={16} />
+                                            )}
+                                            {isLeader ? "Disband Team" : "Leave Team"}
+                                        </motion.button>
                                     )}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
 
-                    {/* Invite Members (Leader Only) */}
-                    {isLeader && !team.isLocked && (
-                        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
-                            <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                                <UserPlus size={20} /> Invite Members
-                            </h3>
+                                {/* Members List */}
+                                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                                    <Users size={16} className="text-cyan-400" />
+                                    Team Members
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {team.members?.map((member) => (
+                                        <motion.div
+                                            key={member._id}
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50"
+                                        >
+                                            <Avatar user={member} />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-white font-medium truncate flex items-center gap-2">
+                                                    {member.username || "No username"}
+                                                    {member._id === team.leaderId._id && (
+                                                        <Crown size={14} className="text-yellow-400" />
+                                                    )}
+                                                </p>
+                                                <p className="text-gray-400 text-sm truncate">{member.email}</p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Invite Members Section (Leader Only) */}
+                        {isLeader && !team.isLocked && (
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-800/60 to-gray-900/80 p-6"
+                            >
+                                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                                    <UserPlus size={18} className="text-cyan-400" />
+                                    Invite Members
+                                </h3>
+
+                                {/* Search Input */}
+                                <div className="relative mb-4">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Search by username or email..."
+                                        className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                                    />
+                                    {searchLoading && (
+                                        <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400 animate-spin" size={18} />
+                                    )}
+                                </div>
+
+                                {/* Search Results */}
+                                <AnimatePresence>
+                                    {searchResults.length > 0 && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="space-y-2 mb-4"
+                                        >
+                                            {searchResults.map((result) => (
+                                                <motion.div
+                                                    key={result._id}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/30 group hover:border-cyan-500/30 transition-colors"
+                                                >
+                                                    <Avatar user={result} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-white font-medium truncate">
+                                                            {result.fullName || result.username}
+                                                        </p>
+                                                        <p className="text-gray-400 text-sm flex items-center gap-2 truncate">
+                                                            <Mail size={12} />
+                                                            {result.email}
+                                                            {result.college && (
+                                                                <>
+                                                                    <span className="text-gray-600">•</span>
+                                                                    <School size={12} />
+                                                                    {result.college}
+                                                                </>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => inviteMember(result._id, result.username || result.email)}
+                                                        disabled={actionLoading === `invite-${result._id}`}
+                                                        className="px-4 py-2 bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-colors flex items-center gap-2 text-sm"
+                                                    >
+                                                        {actionLoading === `invite-${result._id}` ? (
+                                                            <Loader2 size={14} className="animate-spin" />
+                                                        ) : (
+                                                            <Send size={14} />
+                                                        )}
+                                                        Invite
+                                                    </motion.button>
+                                                </motion.div>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {searchQuery.length >= 2 && !searchLoading && searchResults.length === 0 && (
+                                    <p className="text-gray-500 text-sm text-center py-4">
+                                        No users found matching &ldquo;{searchQuery}&rdquo;
+                                    </p>
+                                )}
+
+                                {searchQuery.length < 2 && searchQuery.length > 0 && (
+                                    <p className="text-gray-500 text-sm text-center py-2">
+                                        Type at least 2 characters to search
+                                    </p>
+                                )}
+
+                                {/* Pending Invitations */}
+                                {pendingInvites.length > 0 && (
+                                    <div className="mt-6 pt-6 border-t border-gray-700/50">
+                                        <h4 className="text-gray-400 text-sm font-medium mb-3 flex items-center gap-2">
+                                            <Clock size={14} />
+                                            Pending Invitations ({pendingInvites.length})
+                                        </h4>
+                                        <div className="space-y-2">
+                                            {pendingInvites.map((invite) => (
+                                                <div
+                                                    key={invite._id}
+                                                    className="flex items-center gap-3 p-2 bg-gray-800/30 rounded-lg"
+                                                >
+                                                    <Avatar user={invite} size="sm" />
+                                                    <span className="text-gray-300 text-sm flex-1 truncate">
+                                                        {invite.username || invite.email}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => cancelInvitation(invite._id)}
+                                                        disabled={actionLoading === `cancel-${invite._id}`}
+                                                        className="text-gray-500 hover:text-red-400 transition-colors"
+                                                    >
+                                                        {actionLoading === `cancel-${invite._id}` ? (
+                                                            <Loader2 size={14} className="animate-spin" />
+                                                        ) : (
+                                                            <X size={14} />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {/* Join Requests (Leader Only) */}
+                        {isLeader && joinRequests.length > 0 && (
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 p-6"
+                            >
+                                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                                    <UserCircle size={18} className="text-yellow-400" />
+                                    Join Requests ({joinRequests.length})
+                                </h3>
+                                <div className="space-y-3">
+                                    {joinRequests.map((req) => (
+                                        <div
+                                            key={req._id}
+                                            className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl"
+                                        >
+                                            <Avatar user={req} />
+                                            <div className="flex-1">
+                                                <p className="text-white">{req.username}</p>
+                                                <p className="text-gray-400 text-sm">{req.email}</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={() => respondToRequest(req._id, true)}
+                                                    disabled={actionLoading === `request-${req._id}`}
+                                                    className="p-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30"
+                                                >
+                                                    {actionLoading === `request-${req._id}` ? (
+                                                        <Loader2 size={18} className="animate-spin" />
+                                                    ) : (
+                                                        <Check size={18} />
+                                                    )}
+                                                </motion.button>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={() => respondToRequest(req._id, false)}
+                                                    className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30"
+                                                >
+                                                    <X size={18} />
+                                                </motion.button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </>
+                ) : (
+                    /* ========== NO TEAM ========== */
+                    <>
+                        {/* Pending Invitations */}
+                        {invitations.length > 0 && (
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-cyan-500/5 p-6"
+                            >
+                                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                                    <Sparkles size={18} className="text-cyan-400" />
+                                    You have been invited!
+                                </h3>
+                                <div className="space-y-3">
+                                    {invitations.map((inv) => (
+                                        <div
+                                            key={inv._id}
+                                            className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl"
+                                        >
+                                            <div>
+                                                <p className="text-white font-medium">{inv.name}</p>
+                                                <p className="text-gray-400 text-sm">
+                                                    From: {inv.leaderId.username}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => respondToInvitation(inv._id, true)}
+                                                    disabled={actionLoading === `respond-${inv._id}`}
+                                                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2"
+                                                >
+                                                    {actionLoading === `respond-${inv._id}` ? (
+                                                        <Loader2 size={16} className="animate-spin" />
+                                                    ) : (
+                                                        <Check size={16} />
+                                                    )}
+                                                    Accept
+                                                </motion.button>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => respondToInvitation(inv._id, false)}
+                                                    className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600"
+                                                >
+                                                    Decline
+                                                </motion.button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* Create Team */}
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-800/60 to-gray-900/80 p-6"
+                        >
+                            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <Users size={24} className="text-cyan-400" />
+                                Create a New Team
+                            </h2>
+                            <p className="text-gray-400 text-sm mb-4">
+                                As a team leader, you can invite members and manage your team.
+                            </p>
                             <div className="flex gap-3">
                                 <input
-                                    type="email"
-                                    value={inviteEmail}
-                                    onChange={(e) => setInviteEmail(e.target.value)}
-                                    placeholder="Enter email address"
-                                    className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    type="text"
+                                    value={teamName}
+                                    onChange={(e) => setTeamName(e.target.value)}
+                                    placeholder="Enter team name..."
+                                    className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                                    onKeyDown={(e) => e.key === "Enter" && createTeam()}
                                 />
-                                <button
-                                    onClick={inviteMember}
-                                    className="px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={createTeam}
+                                    disabled={actionLoading === "create"}
+                                    className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all flex items-center gap-2 font-medium"
                                 >
-                                    Send Invite
-                                </button>
+                                    {actionLoading === "create" ? (
+                                        <Loader2 size={18} className="animate-spin" />
+                                    ) : (
+                                        <Sparkles size={18} />
+                                    )}
+                                    Create Team
+                                </motion.button>
                             </div>
-                        </div>
-                    )}
+                        </motion.div>
 
-                    {/* Join Requests (Leader Only) */}
-                    {isLeader && joinRequests.length > 0 && (
-                        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
-                            <h3 className="text-white font-bold mb-4">Pending Join Requests</h3>
-                            <div className="space-y-3">
-                                {joinRequests.map((req) => (
-                                    <div
-                                        key={req._id}
-                                        className="flex items-center justify-between bg-gray-800 p-3 rounded-lg"
-                                    >
-                                        <div>
-                                            <p className="text-white">{req.username}</p>
-                                            <p className="text-gray-400 text-sm">{req.email}</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => respondToRequest(req._id, true)}
-                                                className="p-2 bg-green-500/10 text-green-400 rounded hover:bg-green-500/20"
-                                            >
-                                                <Check size={20} />
-                                            </button>
-                                            <button
-                                                onClick={() => respondToRequest(req._id, false)}
-                                                className="p-2 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20"
-                                            >
-                                                <X size={20} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                        {/* Find a Team */}
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-800/60 to-gray-900/80 p-6"
+                        >
+                            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <Search size={24} className="text-purple-400" />
+                                Find a Team to Join
+                            </h2>
+                            <div className="flex gap-3 mb-4">
+                                <input
+                                    type="text"
+                                    value={teamSearchQuery}
+                                    onChange={(e) => setTeamSearchQuery(e.target.value)}
+                                    placeholder="Search by team name..."
+                                    className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                                    onKeyDown={(e) => e.key === "Enter" && searchTeams()}
+                                />
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={searchTeams}
+                                    className="px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-all flex items-center gap-2"
+                                >
+                                    <Search size={18} />
+                                    Search
+                                </motion.button>
                             </div>
-                        </div>
-                    )}
-                </>
-            ) : (
-                <>
-                    {/* Create Team */}
-                    <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <Users size={24} /> Create a Team
-                        </h2>
-                        <div className="flex gap-3">
-                            <input
-                                type="text"
-                                value={teamName}
-                                onChange={(e) => setTeamName(e.target.value)}
-                                placeholder="Enter team name"
-                                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
-                            />
-                            <button
-                                onClick={createTeam}
-                                className="px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
-                            >
-                                Create Team
-                            </button>
-                        </div>
-                    </div>
 
-                    {/* Pending Invitations */}
-                    {invitations.length > 0 && (
-                        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-8">
-                            <h3 className="text-white font-bold mb-4">Pending Invitations</h3>
-                            <div className="space-y-3">
-                                {invitations.map((inv) => (
-                                    <div
-                                        key={inv._id}
-                                        className="flex items-center justify-between bg-gray-800 p-3 rounded-lg"
-                                    >
-                                        <div>
-                                            <p className="text-white">{inv.name}</p>
-                                            <p className="text-gray-400 text-sm">
-                                                From: {inv.leaderId.username}
-                                            </p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => respondToInvitation(inv._id, true)}
-                                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                                            >
-                                                Accept
-                                            </button>
-                                            <button
-                                                onClick={() => respondToInvitation(inv._id, false)}
-                                                className="px-4 py-2 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20"
-                                            >
-                                                Decline
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Search Teams */}
-                    <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <Search size={24} /> Find a Team
-                        </h2>
-                        <div className="flex gap-3 mb-4">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search by team name"
-                                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
-                            />
-                            <button
-                                onClick={searchTeams}
-                                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
-                            >
-                                Search
-                            </button>
-                        </div>
-
-                        {searchResults.length > 0 && (
-                            <div className="space-y-3">
-                                {searchResults.map((t) => (
-                                    <div
-                                        key={t._id}
-                                        className="flex items-center justify-between bg-gray-800 p-3 rounded-lg"
-                                    >
-                                        <div>
-                                            <p className="text-white">{t.name}</p>
-                                            <p className="text-gray-400 text-sm">
-                                                {t.members?.length || 0} members
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => requestJoin(t._id)}
-                                            className="px-4 py-2 bg-cyan-500/10 text-cyan-400 rounded hover:bg-cyan-500/20"
+                            {teamSearchResults.length > 0 && (
+                                <div className="space-y-3">
+                                    {teamSearchResults.map((t) => (
+                                        <div
+                                            key={t._id}
+                                            className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700/50"
                                         >
-                                            Request to Join
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </>
-            )}
-        </div>
+                                            <div>
+                                                <p className="text-white font-medium">{t.name}</p>
+                                                <p className="text-gray-400 text-sm">
+                                                    {t.members?.length || 0} members
+                                                </p>
+                                            </div>
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={() => requestJoin(t._id)}
+                                                disabled={actionLoading === `join-${t._id}`}
+                                                className="px-4 py-2 bg-purple-500/20 border border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-colors flex items-center gap-2"
+                                            >
+                                                {actionLoading === `join-${t._id}` ? (
+                                                    <Loader2 size={16} className="animate-spin" />
+                                                ) : (
+                                                    <UserPlus size={16} />
+                                                )}
+                                                Request to Join
+                                            </motion.button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.div>
+                    </>
+                )}
+            </motion.div>
+        </>
     );
 }
