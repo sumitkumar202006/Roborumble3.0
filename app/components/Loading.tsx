@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './Loading.module.scss';
 import { clsx } from 'clsx'; // Optional, but helps with multiple classes if needed, or just template literals
 import { GlitchTears } from './GlitchTears';
-
+import MatrixBackground from './MatrixBackground';
 
 const Loading = () => {
   return (
@@ -176,16 +176,18 @@ const Loading = () => {
           </div>
         </div>
       </div>
-
+      
       <div className={styles.textContainer}>
         <div className={styles.loadingText} data-text="LOADING THE RUMBLE...">LOADING THE RUMBLE...</div>
         <div className={styles.loadingLine}></div>
       </div>
-
+      
       <GlitchTears />
-
+      
       {/* Matrix Background (Red/Inactive) */}
-
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -10 }}>
+         <MatrixBackground color="#FF0000" text="STATUS: TERMINAL INACTIVE" />
+      </div>
     </div>
   );
 };

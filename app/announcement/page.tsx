@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-
+import MatrixBackground from "../components/MatrixBackground";
 import { SlotText } from "../components/SlotText";
 import Footer from "../components/Footer";
 import Link from "next/link";
@@ -31,8 +31,8 @@ export default function AnnouncementPage() {
     }, []);
 
     return (
-        <main className="min-h-screen bg-transparent text-white relative overflow-hidden">
-
+        <main className="min-h-screen bg-black text-white relative overflow-hidden">
+            <MatrixBackground color="#003B00" text="" />
             <Navbar />
 
             <div className="relative z-10 pt-40 pb-20 container mx-auto px-4 md:px-8 min-h-[80vh] flex flex-col justify-center">

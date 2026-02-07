@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import connectDB from "@/lib/mongodb";
 import AuthUser from "@/app/models/AuthUser";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         await connectDB();
