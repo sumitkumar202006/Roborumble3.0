@@ -14,7 +14,7 @@ interface ManualVerification {
 }
 
 export interface IRegistration extends Document {
-    teamId: mongoose.Types.ObjectId;
+    teamId?: mongoose.Types.ObjectId; // Optional for individual events
     eventId: mongoose.Types.ObjectId;
     paymentStatus: "initiated" | "pending" | "paid" | "failed" | "refunded" | "manual_verified";
     razorpayOrderId?: string;
@@ -27,6 +27,7 @@ export interface IRegistration extends Document {
     manualVerification?: ManualVerification;
     createdAt: Date;
     updatedAt: Date;
+    selectedMembers: mongoose.Types.ObjectId[]; // The squad for this event
 }
 
 const RegistrationSchema = new Schema<IRegistration>(
@@ -34,13 +35,21 @@ const RegistrationSchema = new Schema<IRegistration>(
         teamId: {
             type: Schema.Types.ObjectId,
             ref: "Team",
-            required: true,
+            required: false, // Optional for individual events
         },
         eventId: {
             type: Schema.Types.ObjectId,
             ref: "Event",
             required: true,
         },
+
+        // Roster Selection (The specific squad for this event)
+        selectedMembers: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Profile",
+            },
+        ],
 
         // Payment Tracking
         paymentStatus: {

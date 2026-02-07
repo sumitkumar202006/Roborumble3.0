@@ -3,10 +3,12 @@ import { auth } from "@clerk/nextjs/server";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
 import Event from "@/app/models/Event";
+import Team from "@/app/models/Team";
+import Registration from "@/app/models/Registration";
 
 export async function POST(req: Request) {
     try {
-        const { eventId } = await req.json();
+        const { eventId, teamId, selectedMembers } = await req.json();
 
         if (!eventId) {
             return NextResponse.json({ error: "Event ID required" }, { status: 400 });
@@ -33,6 +35,80 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Profile not found. Complete onboarding first." }, { status: 404 });
         }
 
+        // --- TEAM REGISTRATION FLOW ---
+        if (teamId && Array.isArray(selectedMembers) && selectedMembers.length > 0) {
+            const team = await Team.findById(teamId);
+            if (!team) {
+                return NextResponse.json({ error: "Team not found" }, { status: 404 });
+            }
+
+            // Verify Leader
+            if (team.leaderId.toString() !== profile._id.toString()) {
+                return NextResponse.json({ error: "Only the Team Leader can register the team" }, { status: 403 });
+            }
+
+            // Validate Roster Selection
+            const validMemberIds = team.members.map(m => m.toString());
+            const areAllMembersValid = selectedMembers.every((m: string) => validMemberIds.includes(m));
+
+            if (!areAllMembersValid) {
+                return NextResponse.json({ error: "One or more selected members are not in your team" }, { status: 400 });
+            }
+
+            // Validate Team Size Limits
+            if (selectedMembers.length < event.minTeamSize || selectedMembers.length > event.maxTeamSize) {
+                return NextResponse.json({
+                    error: `Team size must be between ${event.minTeamSize} and ${event.maxTeamSize} for this event`
+                }, { status: 400 });
+            }
+
+            // Check if Team already registered
+            const existingReg = await Registration.findOne({ teamId, eventId: event._id });
+            if (existingReg) {
+                return NextResponse.json({ error: "Team already registered for this event" }, { status: 400 });
+            }
+
+            // Create Registration
+            const newRegistration = await Registration.create({
+                teamId,
+                eventId: event._id,
+                selectedMembers,
+                paymentStatus: event.fees === 0 ? "paid" : "initiated",
+                amountExpected: event.fees,
+                currency: "INR"
+            });
+
+            // Update Profiles of ALL selected members
+            await Profile.updateMany(
+                { _id: { $in: selectedMembers } },
+                {
+                    $addToSet: { registeredEvents: eventId },
+                    $set: { updatedAt: new Date() }
+                }
+            );
+
+            // If free, mark as paid
+            if (event.fees === 0) {
+                await Profile.updateMany(
+                    { _id: { $in: selectedMembers } },
+                    { $addToSet: { paidEvents: eventId } }
+                );
+                await Event.findOneAndUpdate(
+                    { eventId },
+                    { $inc: { currentRegistrations: 1 } }
+                );
+            }
+
+            return NextResponse.json({
+                message: "Team successfully registered!",
+                registrationId: newRegistration._id,
+                eventId,
+                eventTitle: event.title,
+                fees: event.fees
+            }, { status: 200 });
+        }
+
+        // --- INDIVIDUAL REGISTRATION FLOW (Fallback) ---
         // Check if already registered
         const registeredEvents = profile.registeredEvents || [];
         if (registeredEvents.includes(eventId)) {
@@ -43,6 +119,16 @@ export async function POST(req: Request) {
         if (event.maxRegistrations && event.currentRegistrations >= event.maxRegistrations) {
             return NextResponse.json({ error: "Event is fully booked" }, { status: 400 });
         }
+
+        // Create Registration document for individual event
+        const newRegistration = await Registration.create({
+            teamId: null, // Explicitly null for individual events
+            eventId: event._id,
+            selectedMembers: [profile._id], // Individual participant
+            paymentStatus: event.fees === 0 ? "paid" : "initiated",
+            amountExpected: event.fees,
+            currency: "INR"
+        });
 
         // Add event to registered events
         await Profile.findOneAndUpdate(
@@ -67,6 +153,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             message: "Successfully registered!",
+            registrationId: newRegistration._id,
             eventId,
             eventTitle: event.title,
             fees: event.fees

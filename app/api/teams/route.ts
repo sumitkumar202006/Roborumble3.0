@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
         // If clerkId provided, get user's current team
         if (clerkId) {
-            const profile = await Profile.findOne({ clerkId });
+            const profile = await Profile.findOne({ clerkId }).lean();
             if (!profile) {
                 return NextResponse.json(
                     { message: "Profile not found" },
@@ -26,12 +26,13 @@ export async function GET(req: Request) {
                 $or: [{ leaderId: profile._id }, { members: profile._id }],
             })
                 .populate("leaderId", "username email avatarUrl")
-                .populate("members", "username email avatarUrl");
+                .populate("members", "username email avatarUrl")
+                .lean();
 
             // Also get pending invitations
             const invitations = await Team.find({
                 _id: { $in: profile.invitations },
-            }).populate("leaderId", "username email");
+            }).populate("leaderId", "username email").lean();
 
             return NextResponse.json({
                 team,
@@ -47,7 +48,8 @@ export async function GET(req: Request) {
                 isLocked: false,
             })
                 .populate("leaderId", "username email")
-                .limit(10);
+                .limit(10)
+                .lean();
 
             return NextResponse.json({ teams });
         }

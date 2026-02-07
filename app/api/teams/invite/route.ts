@@ -3,7 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Team from "@/app/models/Team";
 import Profile from "@/app/models/Profile";
 
-const MAX_TEAM_SIZE = 5;
+const MAX_TEAM_SIZE = 50;
 
 // POST - Invite a user to team by username or email
 export async function POST(req: Request) {

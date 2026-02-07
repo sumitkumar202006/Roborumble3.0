@@ -148,7 +148,7 @@ function ActionCard({
             variants={cardHoverVariants}
             initial="rest"
             whileHover="hover"
-            className="relative overflow-hidden rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-sm"
+            className="relative overflow-hidden rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-sm h-full"
         >
             {/* Gradient Overlay */}
             <div
@@ -161,7 +161,7 @@ function ActionCard({
                 style={{ transform: "scale(0.95)" }}
             />
 
-            <div className="relative p-6 z-10">
+            <div className="relative p-6 z-10 h-full flex flex-col">
                 {/* Background Icon */}
                 <motion.div
                     className="absolute top-4 right-4 opacity-5"
@@ -173,20 +173,22 @@ function ActionCard({
                 </motion.div>
 
                 {/* Content */}
-                <div className="relative z-10">
+                <div className="relative z-10 flex-1 flex flex-col">
                     <motion.div
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-4 ${accentColor}`}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-4 w-fit ${accentColor}`}
                         whileHover={{ scale: 1.05 }}
                     >
                         <Icon size={16} />
                         <span>{title}</span>
                     </motion.div>
 
-                    {children || (
-                        <p className="text-gray-400 text-sm mb-4 min-h-[40px]">
-                            {description}
-                        </p>
-                    )}
+                    <div className="flex-1 mb-4">
+                        {children || (
+                            <p className="text-gray-400 text-sm">
+                                {description}
+                            </p>
+                        )}
+                    </div>
 
                     <Link
                         href={href}
@@ -344,12 +346,18 @@ export default function DashboardPage() {
                             <ActionCard
                                 icon={Trophy}
                                 title="Compete"
-                                description="Register for events and showcase your robotics skills in thrilling competitions."
                                 linkText="Browse Events"
                                 href="/dashboard/events"
                                 color="from-yellow-500/20 to-orange-500/20"
                                 accentColor="bg-yellow-500/20 text-yellow-400"
-                            />
+                            >
+                                <div className="mb-4">
+                                    <p className="text-gray-400 text-sm mb-2">
+                                        Register for events and showcase your robotics
+                                        skills in thrilling competitions.
+                                    </p>
+                                </div>
+                            </ActionCard>
                         </motion.div>
 
                         {/* Profile Card */}

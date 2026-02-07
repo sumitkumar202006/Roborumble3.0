@@ -528,7 +528,7 @@ export default function TeamPage() {
                                                 </span>
                                             )}
                                             <span className="text-gray-600">•</span>
-                                            <span>{team.members?.length || 0}/5 Members</span>
+                                            <span>{team.members?.length || 0}/50 Members</span>
                                         </p>
                                     </div>
 

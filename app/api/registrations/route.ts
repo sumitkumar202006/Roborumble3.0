@@ -9,7 +9,48 @@ async function isAdmin() {
     return cookieStore.get("admin_session")?.value === "true";
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const clerkId = searchParams.get("clerkId");
+
+    // If clerkId is provided, fetch user's registrations
+    if (clerkId) {
+        try {
+            await connectDB();
+            const Profile = (await import("@/app/models/AuthUser")).default;
+            const profile = await Profile.findOne({ clerkId });
+
+            if (!profile) {
+                return NextResponse.json({ message: "Profile not found" }, { status: 404 });
+            }
+
+            // Find all teams where user is a member
+            const Team = (await import("@/app/models/Team")).default;
+            const teams = await Team.find({ members: profile._id });
+            const teamIds = teams.map(t => t._id);
+
+            // Find registrations for:
+            // 1. Teams where user is a member
+            // 2. Individual registrations where user is in selectedMembers
+            const registrations = await Registration.find({
+                $or: [
+                    { teamId: { $in: teamIds } }, // Team registrations
+                    { selectedMembers: profile._id } // Individual registrations
+                ]
+            })
+                .populate("teamId")
+                .populate("eventId")
+                .populate("selectedMembers")
+                .sort({ createdAt: -1 });
+
+            return NextResponse.json({ registrations });
+        } catch (error) {
+            console.error("Error fetching user registrations:", error);
+            return NextResponse.json({ message: "Error fetching registrations" }, { status: 500 });
+        }
+    }
+
+    // Admin route - fetch all registrations
     if (!(await isAdmin())) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }

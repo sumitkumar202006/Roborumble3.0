@@ -57,6 +57,14 @@ export async function POST(req: Request) {
             );
         }
 
+        // Check member limit (50)
+        if (team.members.length >= 50) {
+            return NextResponse.json(
+                { message: "Team has reached the maximum limit of 50 members" },
+                { status: 400 }
+            );
+        }
+
         // Add join request
         await Team.findByIdAndUpdate(teamId, {
             $push: { joinRequests: profile._id },

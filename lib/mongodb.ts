@@ -32,8 +32,9 @@ async function connectDB(): Promise<typeof mongoose> {
 
     if (!cached.promise) {
         const opts = {
-            bufferCommands: false,
-            serverSelectionTimeoutMS: 5000,
+            bufferCommands: false, // Disable buffering
+            serverSelectionTimeoutMS: 10000, // Timeout after 10s instead of default 30s
+            socketTimeoutMS: 45000, // Close sockets after 45s
         };
 
         if (validURI === "mongodb://mock-build-uri") {

@@ -90,6 +90,16 @@ const teamData = {
       ],
     },
     {
+      name: "Mukesh Yadav",
+      role: "Event Manager",
+      img: "/mukesh copy.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
+    {
       name: "Vaishnavi Singh",
       role: "Hospitality Head",
       img: "/Vaishnavi.jpeg",
@@ -155,16 +165,6 @@ const teamData = {
           link: "https://www.linkedin.com/in/shruti-gupta-123560295",
         },
         { icon: HiOutlineMail, link: "mailto:sg934016@gmail.com" },
-      ],
-    },
-    {
-      name: "Mukesh Yadav",
-      role: "Event Manager",
-      img: "/mukesh copy.jpeg",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
       ],
     },
   ],

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import AuthUser from "@/app/models/AuthUser";
 
@@ -20,6 +21,11 @@ export async function GET() {
       token.value,
       process.env.JWT_SECRET || "default_secret"
     ) as { userId: string };
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(decoded.userId)) {
+      return NextResponse.json({ error: "Invalid User ID in token" }, { status: 401 });
+    }
 
     // Fetch User
     const user = await AuthUser.findById(decoded.userId).select(

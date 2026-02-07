@@ -71,7 +71,7 @@ export default function DashboardLayout({
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed md:relative top-0 left-0 z-50 h-screen w-64
+                    fixed top-0 left-0 z-50 h-screen w-64
                     bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950
                     border-r border-gray-800/50
                     flex flex-col shrink-0
@@ -166,7 +166,7 @@ export default function DashboardLayout({
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 min-h-screen overflow-auto">
+            <main className="flex-1 min-h-screen overflow-auto md:ml-64">
                 <div className="p-4 md:p-6 lg:p-8">
                     {children}
                 </div>

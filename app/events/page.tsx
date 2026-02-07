@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
 import MatrixBackground from "../components/MatrixBackground";
 import {
   Trophy,
@@ -122,78 +123,38 @@ const CardBackground = ({
 };
 
 // --- Internal Component: EventCard ---
-const EventCard = ({
-  event,
-  index,
-  registeredEvents,
-  refreshEvents,
-}: {
-  event: EventData;
-  index: number;
-  registeredEvents: string[];
-  refreshEvents: () => void;
-}) => {
+// ... (keep CardBackground)
+
+// --- Internal Component: EventCard ---
+const EventCard = ({ event, index }: { event: EventData; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
   const [activeTab, setActiveTab] = useState<"about" | "rules" | "register">(
     "about",
   );
+
+  // Team Selection State removed
+
   const router = useRouter();
 
-  const isRegistered = registeredEvents.includes(event.id);
+  // const isRegistered = registeredEvents.includes(event.id); // View Only
 
-  const handleRegister = async () => {
-    setIsRegistering(true);
-    try {
-      const res = await fetch("/api/events/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId: event.id }),
-      });
+  // Parse Team Size for Logic
+  // const isTeamEvent =
+  //   !event.teamSize.toLowerCase().includes("individual") &&
+  //   !event.teamSize.toLowerCase().includes("open");
+  // const maxTeamSize = parseInt(event.teamSize.match(/(\d+)/g)?.pop() || "1");
 
-      if (res.status === 401) {
-        router.push("/login");
-        return;
-      }
+  // Initialize selectedMembers with self (if in team) or empty
+  // useEffect(() => {
+  //   if (teamData && teamData.profileId) {
+  //     setSelectedMembers([teamData.profileId]);
+  //   }
+  // }, [teamData]);
 
-      if (res.ok) {
-        await refreshEvents();
-      }
-    } catch (error) {
-      console.error("Registration failed", error);
-    } finally {
-      setIsRegistering(false);
-    }
-  };
-
-  const handleOptOut = async () => {
-    if (
-      !confirm(
-        "CONFIRM_ABORT: Are you sure you want to withdraw from this mission?",
-      )
-    )
-      return;
-    setIsRegistering(true);
-    try {
-      const res = await fetch("/api/events/cancel", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId: event.id }),
-      });
-
-      if (res.ok) {
-        await refreshEvents();
-      } else {
-        alert("OPTIMIZATION_FAILED: Could not cancel.");
-      }
-    } catch (error) {
-      console.error("Cancellation failed", error);
-    } finally {
-      setIsRegistering(false);
-    }
-  };
+  // handleRegister removed - Redirection only
+  // handleOptOut removed - View Only
 
   // Preload audio
   const playOpenSound = useAudio("/audio.wav", 0.1);
@@ -234,15 +195,10 @@ const EventCard = ({
           clipPath: "polygon(0 0, 92% 0, 100% 8%, 100% 100%, 8% 100%, 0 92%)",
         }}
       >
-        {/* Animated Background Layer */}
         <CardBackground category={event.category} image={event.image} />
-
-        {/* Hover Overlay */}
         <div
           className={`absolute inset-0 bg-[#00F0FF]/10 z-0 transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}
         />
-
-        {/* Content Layer (z-10 to stay above bg) */}
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex justify-between items-start mb-6">
             <div className="w-12 h-12 border border-[#00F0FF]/40 flex items-center justify-center bg-black/50 text-[#00F0FF] shadow-[0_0_15px_rgba(0,240,255,0.2)] backdrop-blur-sm">
@@ -270,8 +226,6 @@ const EventCard = ({
             </span>
           </div>
         </div>
-
-        {/* Grid Scan Effect (Overlay) */}
         {isHovered && (
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00F0FF]/20 to-transparent h-[20%] w-full animate-scan pointer-events-none z-20" />
         )}
@@ -293,7 +247,6 @@ const EventCard = ({
                   ● MISSION_INTEL: {event.id.toUpperCase()}
                 </span>
               </div>
-              {/* Desktop Close Button */}
               <button
                 onClick={handleClose}
                 className="hidden md:block hover:bg-black hover:text-[#E661FF] px-2 py-1 transition-all border border-black font-bold text-[10px]"
@@ -315,7 +268,6 @@ const EventCard = ({
                 <div className="flex flex-col md:flex-row gap-10 md:h-full">
                   {/* LEFT COLUMN: Image + Primary Action */}
                   <div className="w-full md:w-1/3 flex flex-col gap-6 flex-shrink-0">
-                    {/* Image Box */}
                     <div className="aspect-square bg-zinc-950 border border-[#E661FF]/30 relative flex items-center justify-center p-2 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(230,97,255,0.1)]">
                       {event.image ? (
                         <Image
@@ -333,49 +285,28 @@ const EventCard = ({
                         </div>
                       )}
 
-                      {/* Corner Accents */}
                       <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#E661FF]" />
                       <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#E661FF]" />
                       <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#E661FF]" />
                       <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#E661FF]" />
                     </div>
 
-                    {/* Registration Status / Action */}
                     <div className="text-center space-y-3">
-                      {isRegistered ? (
-                        <div className="p-3 bg-green-900/20 border border-green-500/50 rounded text-green-400 font-mono text-xs font-bold uppercase tracking-wider">
-                          Status: Deployed
-                        </div>
-                      ) : (
-                        <div className="p-3 bg-zinc-900/50 border border-zinc-700/50 rounded text-zinc-500 font-mono text-xs font-bold uppercase tracking-wider">
-                          Status: Awaiting Registration
-                        </div>
-                      )}
+                      <div className="p-3 bg-zinc-900/50 border border-zinc-700/50 rounded text-zinc-500 font-mono text-xs font-bold uppercase tracking-wider">
+                        Status: Registration Open
+                      </div>
 
-                      {/* Primary Action Button */}
-                      {isRegistered ? (
-                        <button
-                          onClick={handleOptOut}
-                          disabled={isRegistering}
-                          className="w-full py-3 bg-red-600/10 border border-red-500 text-red-500 font-mono font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all text-xs"
-                        >
-                          {isRegistering ? "PROCESSING..." : "ABORT_MISSION"}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={handleRegister}
-                          disabled={isRegistering}
-                          className="w-full py-3 bg-[#E661FF] text-black font-mono font-black uppercase tracking-widest hover:bg-white hover:shadow-[0_0_20px_rgba(230,97,255,0.5)] transition-all text-xs border border-[#E661FF]"
-                        >
-                          {isRegistering ? "INITIALIZING..." : "REGISTER_NOW"}
-                        </button>
-                      )}
+                      <Link
+                        href="/dashboard/events"
+                        className="w-full py-3 block bg-[#E661FF] text-black font-mono font-black uppercase tracking-widest hover:bg-white hover:shadow-[0_0_20px_rgba(230,97,255,0.5)] transition-all text-xs border border-[#E661FF] text-center"
+                      >
+                        REGISTER_VIA_DASHBOARD
+                      </Link>
                     </div>
                   </div>
 
                   {/* RIGHT COLUMN: Title + Content Box */}
                   <div className="w-full md:w-2/3 flex flex-col md:h-full min-h-0">
-                    {/* Header */}
                     <div className="mb-6 text-center md:text-left">
                       <h2 className="text-4xl md:text-5xl font-black font-mono uppercase tracking-tighter text-white mb-2 leading-none">
                         {event.title}
@@ -385,22 +316,18 @@ const EventCard = ({
                       </p>
                     </div>
 
-                    {/* Styled Content Box */}
                     <div className="flex-grow relative border border-[#E661FF]/30 bg-hex-mesh p-6 md:p-8 rounded-lg min-h-0 flex flex-col">
-                      {/* Decorative Brackets/Lines resembling the reference */}
                       <div className="absolute -top-[1px] -left-[1px] w-8 h-8 border-t-2 border-l-2 border-[#E661FF]" />
                       <div className="absolute -top-[1px] -right-[1px] w-8 h-8 border-t-2 border-r-2 border-[#E661FF]" />
                       <div className="absolute -bottom-[1px] -left-[1px] w-8 h-8 border-b-2 border-l-2 border-[#E661FF]" />
                       <div className="absolute -bottom-[1px] -right-[1px] w-8 h-8 border-b-2 border-r-2 border-[#E661FF]" />
 
-                      {/* Tab Content */}
                       <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar">
                         {activeTab === "about" && (
                           <div className="space-y-6 animate-glitch-entry">
                             <p className="text-zinc-300 font-mono text-sm leading-relaxed whitespace-pre-line">
                               {event.desc}
                             </p>
-
                             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                               <div>
                                 <span className="text-[#E661FF] text-[10px] font-bold uppercase tracking-wider block mb-1">
@@ -419,8 +346,6 @@ const EventCard = ({
                                 </span>
                               </div>
                             </div>
-
-                            {/* BROCHURE BUTTON */}
                             {event.brochureLink && (
                               <div className="pt-4">
                                 <a
@@ -442,7 +367,6 @@ const EventCard = ({
 
                         {activeTab === "rules" && (
                           <div className="space-y-8 animate-glitch-entry">
-                            {/* General/Main Rules */}
                             <div className="space-y-4">
                               <h5 className="text-[#FF003C] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#FF003C]/30 pb-2">
                                 // Engagement_Protocol
@@ -461,8 +385,6 @@ const EventCard = ({
                                 ))}
                               </ul>
                             </div>
-
-                            {/* Specifications Section */}
                             {event.specifications && (
                               <div className="space-y-4">
                                 <h5 className="text-[#00F0FF] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#00F0FF]/30 pb-2">
@@ -483,8 +405,6 @@ const EventCard = ({
                                 </ul>
                               </div>
                             )}
-
-                            {/* Gameplay Section */}
                             {event.gameplay && (
                               <div className="space-y-4">
                                 <h5 className="text-[#E661FF] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#E661FF]/30 pb-2">
@@ -505,6 +425,34 @@ const EventCard = ({
                                 </ul>
                               </div>
                             )}
+                          </div>
+                        )}
+
+                        {activeTab === "register" && (
+                          <div className="space-y-6 animate-glitch-entry py-8 text-center">
+                            <Rocket
+                              size={48}
+                              className="text-[#E661FF] animate-bounce mx-auto"
+                            />
+                            <div>
+                              <h4 className="text-2xl font-black text-white font-mono uppercase mb-2">
+                                Registration Required
+                              </h4>
+                              <p className="text-zinc-400 font-mono text-xs max-w-sm mx-auto">
+                                All mission deployments must be initialized
+                                through the central dashboard command center.
+                              </p>
+                            </div>
+                            <Link
+                              href="/dashboard/events"
+                              className="inline-flex items-center gap-2 px-8 py-4 bg-[#00F0FF] text-black font-black font-mono tracking-widest hover:bg-white transition-all uppercase text-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, 95% 0, 100% 30%, 100% 100%, 5% 100%, 0 70%)",
+                              }}
+                            >
+                              <Zap size={16} /> GO_TO_DASHBOARD
+                            </Link>
                           </div>
                         )}
                       </div>
@@ -528,9 +476,14 @@ const EventCard = ({
               >
                 <span className="skew-x-[10deg] inline-block">Rules</span>
               </button>
+              <button
+                onClick={() => setActiveTab("register")}
+                className={`px-6 py-2 border font-mono text-xs font-bold uppercase tracking-wider transition-all skew-x-[-10deg] ${activeTab === "register" ? "bg-[#00F0FF] border-[#00F0FF] text-black shadow-[0_0_15px_rgba(0,240,255,0.4)]" : "border-white/20 text-zinc-400 hover:border-white hover:text-white"}`}
+              >
+                <span className="skew-x-[10deg] inline-block">Register</span>
+              </button>
             </div>
 
-            {/* Mobile Close Button (Bottom fixed) */}
             <div className="md:hidden border-t border-[#E661FF]/30 p-0">
               <button
                 onClick={handleClose}
@@ -546,12 +499,14 @@ const EventCard = ({
   );
 };
 
-// --- Main Page ---
 export default function EventsPage() {
+  const { user, isLoaded } = useUser();
   const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
 
   const fetchUserData = async () => {
+    if (!user) return;
     try {
+      // Fetch user's registered events (legacy or via auth/me if that's where they live)
       const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
@@ -563,8 +518,10 @@ export default function EventsPage() {
   };
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (isLoaded && user) {
+      fetchUserData();
+    }
+  }, [isLoaded, user]);
 
   return (
     <main className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -628,13 +585,7 @@ export default function EventsPage() {
                 ["Robotics", "Aerial", "Gaming"].includes(e.category),
               )
               .map((event: any, i: number) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  index={i}
-                  registeredEvents={registeredEvents}
-                  refreshEvents={fetchUserData}
-                />
+                <EventCard key={event.id} event={event} index={i} />
               ))}
           </div>
         </div>
@@ -655,13 +606,7 @@ export default function EventsPage() {
                   !["Robotics", "Aerial", "Gaming"].includes(e.category),
               )
               .map((event: any, i: number) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  index={i}
-                  registeredEvents={registeredEvents}
-                  refreshEvents={fetchUserData}
-                />
+                <EventCard key={event.id} event={event} index={i} />
               ))}
           </div>
         </div>
