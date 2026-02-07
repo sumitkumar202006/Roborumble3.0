@@ -41,6 +41,7 @@ interface EventData {
   judging?: string[]; // Judging criteria
   video?: string; // Optional: Path to background video
   image?: string; // Optional: Path to background image
+  brochureLink?: string; // Optional: Link to event brochure
 }
 
 // --- Internal Component: Animated Backgrounds ---
@@ -302,7 +303,7 @@ const EventCard = ({
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-grow overflow-hidden p-6 md:p-10">
+            <div className="flex-grow overflow-y-auto md:overflow-hidden p-6 md:p-10 custom-scrollbar">
               {isLoading ? (
                 <div className="h-full flex flex-col items-center justify-center space-y-6">
                   <div className="w-1 bg-[#E661FF] h-24 animate-pulse" />
@@ -311,7 +312,7 @@ const EventCard = ({
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row gap-10 h-full">
+                <div className="flex flex-col md:flex-row gap-10 md:h-full">
                   {/* LEFT COLUMN: Image + Primary Action */}
                   <div className="w-full md:w-1/3 flex flex-col gap-6 flex-shrink-0">
                     {/* Image Box */}
@@ -373,7 +374,7 @@ const EventCard = ({
                   </div>
 
                   {/* RIGHT COLUMN: Title + Content Box */}
-                  <div className="w-full md:w-2/3 flex flex-col h-full min-h-0">
+                  <div className="w-full md:w-2/3 flex flex-col md:h-full min-h-0">
                     {/* Header */}
                     <div className="mb-6 text-center md:text-left">
                       <h2 className="text-4xl md:text-5xl font-black font-mono uppercase tracking-tighter text-white mb-2 leading-none">
@@ -399,6 +400,7 @@ const EventCard = ({
                             <p className="text-zinc-300 font-mono text-sm leading-relaxed whitespace-pre-line">
                               {event.desc}
                             </p>
+
                             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                               <div>
                                 <span className="text-[#E661FF] text-[10px] font-bold uppercase tracking-wider block mb-1">
@@ -417,6 +419,24 @@ const EventCard = ({
                                 </span>
                               </div>
                             </div>
+
+                            {/* BROCHURE BUTTON */}
+                            {event.brochureLink && (
+                              <div className="pt-4">
+                                <a
+                                  href={event.brochureLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF003C]/10 border border-[#FF003C]/50 text-[#FF003C] hover:bg-[#FF003C] hover:text-white transition-all font-mono text-xs font-bold uppercase tracking-widest group"
+                                >
+                                  <Download
+                                    size={14}
+                                    className="group-hover:animate-bounce"
+                                  />
+                                  DOWNLOAD_INTEL
+                                </a>
+                              </div>
+                            )}
                           </div>
                         )}
 
@@ -427,14 +447,14 @@ const EventCard = ({
                               <h5 className="text-[#FF003C] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#FF003C]/30 pb-2">
                                 // Engagement_Protocol
                               </h5>
-                              <ul className="space-y-3">
+                              <ul className="grid gap-2">
                                 {event.rules.map((rule, i) => (
                                   <li
                                     key={i}
-                                    className="flex gap-3 text-xs text-zinc-300 font-mono leading-relaxed bg-black/40 p-2 border-l-2 border-[#FF003C]/20 hover:border-[#FF003C] transition-colors"
+                                    className="flex gap-2 text-xs text-zinc-400 font-mono items-start"
                                   >
-                                    <span className="text-[#FF003C] font-bold shrink-0">
-                                      0{i + 1}.
+                                    <span className="text-[#FF003C] mt-1">
+                                      ►
                                     </span>
                                     <span>{rule}</span>
                                   </li>

@@ -51,6 +51,7 @@ const SponsorCard = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Main Preview Card */}
+      {/* Main Preview Card */}
       <div
         className="relative w-full h-80 bg-black/40 border-l-4 border-t border-[#00F0FF]/50 hover:bg-[#00F0FF]/10 transition-all duration-500 backdrop-blur-sm flex flex-col items-center justify-center p-4 overflow-hidden"
         style={{
@@ -205,15 +206,15 @@ export default function SponsorsPage() {
                 className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red"
                 style={{ transform: "translate(-0.02em, 0.02em)" }}
               >
-                OUR MISSION
+                OUR 
               </span>
               <span
                 className="absolute top-0 left-0 text-[#00F0FF] mix-blend-screen opacity-60 glitch-layer-cyan"
                 style={{ transform: "translate(0.03em, -0.02em)" }}
               >
-                OUR MISSION
+                OUR 
               </span>
-              <span className="relative text-white">OUR MISSION</span>
+              <span className="relative text-white">OUR </span>
             </div>
             <br />
             <div className="flex justify-center w-full">
@@ -232,16 +233,9 @@ export default function SponsorsPage() {
           </div>
         </div>
 
-        {/* Sponsors Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-32">
-          {sponsors.map((sponsor, i) => (
-            <SponsorCard key={i} sponsor={sponsor} delay={i * 0.1} />
-          ))}
-        </div>
-
         {/* CTA Section */}
         <div
-          className="bg-zinc-950/50 border border-white/5 p-10 md:p-16 backdrop-blur-xl relative overflow-hidden"
+          className="bg-zinc-950/50 border border-white/5 p-10 md:p-16 backdrop-blur-xl relative overflow-hidden mb-20"
           style={{
             clipPath:
               "polygon(40px 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%, 0 40px)",
@@ -266,6 +260,13 @@ export default function SponsorsPage() {
               Become_A_Partner
             </button>
           </div>
+        </div>
+
+        {/* Sponsors Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-32">
+          {sponsors.map((sponsor, i) => (
+            <SponsorCard key={i} sponsor={sponsor} delay={i * 0.1} />
+          ))}
         </div>
       </div>
 

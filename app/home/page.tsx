@@ -190,7 +190,7 @@ const ChiefPatronCard = ({ member }: { member: TeamMember }) => {
   return (
     <div className="relative group w-full max-w-md mx-auto">
       {/* Glow Effect behind card */}
-      <div className="absolute -inset-1 bg-gradient-to-b from-[#00F0FF]/20 to-transparent blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute -inset-1 bg-gradient-to-b from-[#00F0FF]/20 to-transparent blur-xl opacity-100" />
 
       <div className="relative bg-zinc-950 border-t border-[#00F0FF] overflow-hidden">
         {/* Top Status Bar */}
@@ -211,7 +211,7 @@ const ChiefPatronCard = ({ member }: { member: TeamMember }) => {
             src={member.image}
             alt={member.name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale hover:grayscale-0"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           {/* subtle gradient overlay at bottom for text readability */}
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent" />
@@ -253,7 +253,7 @@ const PatronCard = ({ member, onClick }: { member: TeamMember; onClick?: () => v
         </svg>
 
         {/* Glow effect */}
-        <div className="absolute inset-0 rounded-full shadow-[0_0_20px_rgba(0,240,255,0.2)] group-hover:shadow-[0_0_40px_rgba(0,240,255,0.5)] transition-all duration-500" />
+        <div className="absolute inset-0 rounded-full shadow-[0_0_40px_rgba(0,240,255,0.5)]" />
 
         {/* Inner static border */}
         <div className="absolute inset-2 rounded-full border border-[#00F0FF]/30" />
@@ -264,7 +264,7 @@ const PatronCard = ({ member, onClick }: { member: TeamMember; onClick?: () => v
             src={member.image}
             alt={member.name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         </div>
 
@@ -280,7 +280,7 @@ const PatronCard = ({ member, onClick }: { member: TeamMember; onClick?: () => v
       </h3>
 
       <div className="flex flex-col items-center gap-1 group-hover:translate-y-1 transition-transform duration-300">
-        <div className="w-12 h-[1px] bg-[#00F0FF] mb-2 opacity-50 group-hover:opacity-100 group-hover:w-20 transition-all" />
+        <div className="w-12 h-[1px] bg-[#00F0FF] mb-2 opacity-100 group-hover:w-20 transition-all" />
         <span className="text-[#00F0FF] font-mono text-[10px] font-bold tracking-[0.2em] uppercase">
           {member.role}
         </span>
@@ -431,22 +431,43 @@ export default function Home() {
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
             <Link href="/register" className="w-full md:w-auto">
-              <button className="w-full md:w-auto px-8 py-4 bg-[#FF003C] text-black font-black font-mono tracking-widest hover:bg-white transition-all uppercase flex items-center justify-center gap-2"
-                style={{ clipPath: 'polygon(15% 0, 100% 0, 100% 70%, 85% 100%, 0 100%, 0 30%)' }}>
+              <button
+                className="w-full md:w-auto px-8 py-4 bg-[#FF003C] text-black font-black font-mono tracking-widest hover:bg-white transition-all uppercase flex items-center justify-center gap-2"
+                style={{
+                  clipPath:
+                    "polygon(15% 0, 100% 0, 100% 70%, 85% 100%, 0 100%, 0 30%)",
+                }}
+              >
                 Register_Now <ArrowRight size={20} />
               </button>
             </Link>
 
             <Link href="/events" className="w-full md:w-auto">
-              <button className="w-full md:w-auto px-8 py-4 border border-[#00F0FF] text-[#00F0FF] font-black font-mono tracking-widest hover:bg-[#00F0FF]/10 transition-all uppercase"
-                style={{ clipPath: 'polygon(0 0, 85% 0, 100% 30%, 100% 100%, 15% 100%, 0 70%)' }}>
+              <button
+                className="w-full md:w-auto px-8 py-4 border border-[#00F0FF] text-[#00F0FF] font-black font-mono tracking-widest hover:bg-[#00F0FF]/10 transition-all uppercase"
+                style={{
+                  clipPath:
+                    "polygon(0 0, 85% 0, 100% 30%, 100% 100%, 15% 100%, 0 70%)",
+                }}
+              >
                 Explore_Events
               </button>
             </Link>
 
-            <a href="/brochureroborumble3.o.pdf" download="RoboRumble_Brochure.pdf" className="w-full md:w-auto">
-              <button className="w-full md:w-auto px-8 py-4 border border-[#E661FF] text-[#E661FF] font-black font-mono tracking-widest hover:bg-[#E661FF]/10 transition-all uppercase flex items-center justify-center gap-2"
-                style={{ clipPath: 'polygon(0 15%, 85% 0, 100% 0, 100% 85%, 15% 100%, 0 100%)' }}>
+            <a
+              href="/RoboRumble.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download="RoboRumble_Brochure.pdf"
+              className="w-full md:w-auto"
+            >
+              <button
+                className="w-full md:w-auto px-8 py-4 border border-[#E661FF] text-[#E661FF] font-black font-mono tracking-widest hover:bg-[#E661FF]/10 transition-all uppercase flex items-center justify-center gap-2"
+                style={{
+                  clipPath:
+                    "polygon(0 15%, 85% 0, 100% 0, 100% 85%, 15% 100%, 0 100%)",
+                }}
+              >
                 <Download size={20} /> Brochure.pdf
               </button>
             </a>
@@ -463,13 +484,18 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="inline-block p-8 bg-zinc-950/50 border border-white/5 backdrop-blur-md mb-16"
-            style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
-            <p className="text-[#FF003C] text-xs mb-4 uppercase tracking-[0.5em] font-black">Deployment Countdown</p>
+          <div
+            className="inline-block p-8 bg-zinc-950/50 border border-white/5 backdrop-blur-md mb-16"
+            style={{
+              clipPath:
+                "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)",
+            }}
+          >
+            <p className="text-[#FF003C] text-xs mb-4 uppercase tracking-[0.5em] font-black">
+              Deployment Countdown
+            </p>
             <Countdown targetDate="2026-03-09T09:00:00" />
           </div>
-
-
         </div>
       </section>
 
@@ -635,39 +661,35 @@ export default function Home() {
           {/* Scrolling track */}
           <div className="flex gap-8 animate-infinite-scroll-slow">
             {/* First set */}
-            <div className="flex gap-8 items-center min-w-max">
+            <div className="flex gap-16 items-center min-w-max">
               {sponsors.map((sponsor, i) => (
                 <button
                   key={`s1-${i}`}
                   onClick={() => setSelectedSponsor(sponsor)}
-                  className="group relative w-40 h-24 md:w-48 md:h-28 bg-zinc-900/80 border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 cursor-pointer flex-shrink-0"
+                  className="group relative w-48 h-32 md:w-64 md:h-40 hover:scale-110 transition-transform duration-300 cursor-pointer flex-shrink-0 flex items-center justify-center"
                 >
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00F0FF] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00F0FF] opacity-0 group-hover:opacity-100 transition-opacity" />
                   <Image
                     src={sponsor.image}
                     alt={sponsor.name}
                     fill
-                    className="object-contain p-4 transition-all duration-300"
+                    className="object-contain p-2"
                   />
                 </button>
               ))}
             </div>
             {/* Duplicate set for seamless loop */}
-            <div className="flex gap-8 items-center min-w-max">
+            <div className="flex gap-16 items-center min-w-max">
               {sponsors.map((sponsor, i) => (
                 <button
                   key={`s2-${i}`}
                   onClick={() => setSelectedSponsor(sponsor)}
-                  className="group relative w-40 h-24 md:w-48 md:h-28 bg-zinc-900/80 border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 cursor-pointer flex-shrink-0"
+                  className="group relative w-48 h-32 md:w-64 md:h-40 hover:scale-110 transition-transform duration-300 cursor-pointer flex-shrink-0 flex items-center justify-center"
                 >
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00F0FF] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00F0FF] opacity-0 group-hover:opacity-100 transition-opacity" />
                   <Image
                     src={sponsor.image}
                     alt={sponsor.name}
                     fill
-                    className="object-contain p-4 transition-all duration-300"
+                    className="object-contain p-2"
                   />
                 </button>
               ))}
@@ -797,14 +819,14 @@ export default function Home() {
           {/* Row 1 - Scrolling Left */}
           <div className="relative w-full">
             <div className="flex gap-6 animate-gallery-scroll-left">
-              {['/robo-war.jpeg', '/robo-soccer.jpeg', '/robo-race.jpeg', '/e-sports.jpeg', '/exhibition.jpeg', '/defence-expo.jpeg', '/pick-place.jpeg', '/line-following-robot.jpeg'].map((img, i) => (
+              {['/flowing_time/IMG-20250215-WA0071.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250219-WA0217.jpg'].map((img, i) => (
                 <div key={`r1a-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#E661FF]/30 rounded-lg overflow-hidden group">
                   <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
               ))}
               {/* Duplicate for seamless loop */}
-              {['/robo-war.jpeg', '/robo-soccer.jpeg', '/robo-race.jpeg', '/e-sports.jpeg', '/exhibition.jpeg', '/defence-expo.jpeg', '/pick-place.jpeg', '/line-following-robot.jpeg'].map((img, i) => (
+              {['/flowing_time/IMG-20250215-WA0071.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250219-WA0217.jpg'].map((img, i) => (
                 <div key={`r1b-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#E661FF]/30 rounded-lg overflow-hidden group">
                   <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -816,14 +838,14 @@ export default function Home() {
           {/* Row 2 - Scrolling Right (Opposite direction) */}
           <div className="relative w-full">
             <div className="flex gap-6 animate-gallery-scroll-right">
-              {['/defence-talk.jpeg', '/rc flying.jpeg', '/exhibition.jpeg', '/robo-war.jpeg', '/e-sports.jpeg', '/robo-race.jpeg', '/pick-place.jpeg', '/robo-soccer.jpeg'].map((img, i) => (
+              {['/flowing_time/IMG-20250219-WA0217.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0071.jpg'].map((img, i) => (
                 <div key={`r2a-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#00F0FF]/30 rounded-lg overflow-hidden group">
                   <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
               ))}
               {/* Duplicate for seamless loop */}
-              {['/defence-talk.jpeg', '/rc flying.jpeg', '/exhibition.jpeg', '/robo-war.jpeg', '/e-sports.jpeg', '/robo-race.jpeg', '/pick-place.jpeg', '/robo-soccer.jpeg'].map((img, i) => (
+              {['/flowing_time/IMG-20250219-WA0217.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0071.jpg'].map((img, i) => (
                 <div key={`r2b-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#00F0FF]/30 rounded-lg overflow-hidden group">
                   <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -1009,12 +1031,26 @@ export default function Home() {
       <Footer />
 
       <style jsx global>{`
-        @keyframes scan { 0% { top: -20%; } 100% { top: 120%; } }
-        .animate-scan { position: absolute; animation: scan 2.5s linear infinite; }
-        
+        @keyframes scan {
+          0% {
+            top: -20%;
+          }
+          100% {
+            top: 120%;
+          }
+        }
+        .animate-scan {
+          position: absolute;
+          animation: scan 2.5s linear infinite;
+        }
+
         @keyframes infinite-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
         .animate-infinite-scroll {
           animation: infinite-scroll 30s linear infinite;
@@ -1075,40 +1111,94 @@ export default function Home() {
         
         .glitch-container { animation: glitch-skew 3s infinite; }
         @keyframes glitch-skew {
-          0%, 100% { transform: skew(0deg); }
-          20% { transform: skew(0deg); }
-          21% { transform: skew(-0.8deg); }
-          22% { transform: skew(0deg); }
-          60% { transform: skew(0deg); }
-          61% { transform: skew(0.8deg); }
-          62% { transform: skew(0deg); }
+          0%,
+          100% {
+            transform: skew(0deg);
+          }
+          20% {
+            transform: skew(0deg);
+          }
+          21% {
+            transform: skew(-0.8deg);
+          }
+          22% {
+            transform: skew(0deg);
+          }
+          60% {
+            transform: skew(0deg);
+          }
+          61% {
+            transform: skew(0.8deg);
+          }
+          62% {
+            transform: skew(0deg);
+          }
         }
 
-        .glitch-layer-red { animation: glitch-clip-red 2.5s infinite; }
-        .glitch-layer-cyan { animation: glitch-clip-cyan 2s infinite; }
+        .glitch-layer-red {
+          animation: glitch-clip-red 2.5s infinite;
+        }
+        .glitch-layer-cyan {
+          animation: glitch-clip-cyan 2s infinite;
+        }
 
         @keyframes glitch-clip-red {
-          0%, 100% { clip-path: inset(0 0 0 0); }
-          11% { clip-path: inset(22% 0 58% 0); }
-          12% { clip-path: inset(0 0 0 0); }
-          51% { clip-path: inset(42% 0 28% 0); }
-          52% { clip-path: inset(0 0 0 0); }
+          0%,
+          100% {
+            clip-path: inset(0 0 0 0);
+          }
+          11% {
+            clip-path: inset(22% 0 58% 0);
+          }
+          12% {
+            clip-path: inset(0 0 0 0);
+          }
+          51% {
+            clip-path: inset(42% 0 28% 0);
+          }
+          52% {
+            clip-path: inset(0 0 0 0);
+          }
         }
 
         @keyframes glitch-clip-cyan {
-          0%, 100% { clip-path: inset(0 0 0 0); }
-          16% { clip-path: inset(32% 0 48% 0); }
-          17% { clip-path: inset(0 0 0 0); }
-          66% { clip-path: inset(12% 0 68% 0); }
-          67% { clip-path: inset(0 0 0 0); }
+          0%,
+          100% {
+            clip-path: inset(0 0 0 0);
+          }
+          16% {
+            clip-path: inset(32% 0 48% 0);
+          }
+          17% {
+            clip-path: inset(0 0 0 0);
+          }
+          66% {
+            clip-path: inset(12% 0 68% 0);
+          }
+          67% {
+            clip-path: inset(0 0 0 0);
+          }
         }
-        
+
         @keyframes glitch-entry {
-          0% { opacity: 0; transform: scale(0.98) skewX(-5deg); filter: brightness(2); }
-          50% { opacity: 1; transform: scale(1.02) skewX(2deg); filter: brightness(1.2); }
-          100% { transform: scale(1) skewX(0); filter: brightness(1); }
+          0% {
+            opacity: 0;
+            transform: scale(0.98) skewX(-5deg);
+            filter: brightness(2);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.02) skewX(2deg);
+            filter: brightness(1.2);
+          }
+          100% {
+            transform: scale(1) skewX(0);
+            filter: brightness(1);
+          }
         }
-        .animate-glitch-entry { animation: glitch-entry 0.4s ease-out forwards; }
+        .animate-glitch-entry {
+          animation: glitch-entry 0.4s ease-out forwards;
+        }
       `}</style>
     </main>
   );

@@ -30,9 +30,9 @@ export default function SchedulePage() {
   const scheduleData: DayBlock[] = [
     {
       id: 1,
-      date: "9",
-      month: "MAR",
-      dayName: "MON",
+      date: "Unknown",
+      month: "",
+      dayName: "Unknown",
       events: [
         {
           time: "10:00 AM",
@@ -56,9 +56,9 @@ export default function SchedulePage() {
     },
     {
       id: 2,
-      date: "10",
-      month: "MAR",
-      dayName: "TUE",
+      date: "Unknown",
+      month: "",
+      dayName: "Unknown",
       events: [
         {
           time: "10:00 AM",
@@ -82,9 +82,9 @@ export default function SchedulePage() {
     },
     {
       id: 3,
-      date: "11",
-      month: "MAR",
-      dayName: "WED",
+      date: "Unknown",
+      month: "",
+      dayName: "Unknown",
       events: [
         {
           time: "10:00 AM",
@@ -195,6 +195,18 @@ export default function SchedulePage() {
         <div className="w-full max-w-5xl">
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#00FF9E] to-transparent mb-12"></div>
 
+          {/* COMING SOON OVERLAY */}
+          <div className="flex flex-col items-center justify-center py-12 md:py-20 px-4 border border-[#00FF9E]/20 bg-black/40 backdrop-blur-sm rounded-xl text-center">
+               <Clock className="text-[#00FF9E] mb-6 animate-pulse w-12 h-12 md:w-16 md:h-16" />
+               <h2 className="text-2xl sm:text-3xl md:text-5xl font-black font_['Orbitron'] text-white tracking-widest uppercase mb-4 break-words w-full">
+                   TIMELINE<span className="hidden md:inline">_</span><br className="md:hidden" />LOCKED
+               </h2>
+               <p className="text-[#00FF9E] font-mono tracking-[0.2em] md:tracking-[0.3em] uppercase text-xs sm:text-sm md:text-base animate-pulse">
+                   // DECLASSIFICATION_PENDING...
+               </p>
+          </div>
+
+          {/* 
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -238,12 +250,12 @@ export default function SchedulePage() {
                     </div>
                   </div>
 
-                  {/* Hover Scan Effect */}
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00F0FF]/5 to-transparent h-[10%] w-full opacity-0 group-hover:opacity-100 animate-scan pointer-events-none" />
                 </div>
               ))}
             </motion.div>
           </AnimatePresence>
+          */}
         </div>
 
         {/* Footer Data */}

@@ -63,7 +63,7 @@ const teamData = {
     {
       name: "Shivansh Singh",
       role: "Logistic Head",
-      img: "/skull-1.png",
+      img: "/shivansh.jpeg",
       socials: [
         {
           icon: FaInstagram,
@@ -92,7 +92,7 @@ const teamData = {
     {
       name: "Vaishnavi Singh",
       role: "Hospitality Head",
-      img: "/skull-1.png",
+      img: "/Vaishnavi.jpeg",
       socials: [
         { icon: FaInstagram, link: "#" },
         {
@@ -118,7 +118,7 @@ const teamData = {
     {
       name: "Neha Singh",
       role: "Artistic head",
-      img: "/skull-1.png",
+      img: "/Neha.jpeg",
       socials: [
         { icon: FaInstagram, link: "https://www.instagram.com/nehaart55" },
         {
@@ -131,7 +131,7 @@ const teamData = {
     {
       name: "Abhirup Dewanjee",
       role: "Artistic head",
-      img: "/skull-1.png",
+      img: "/Abhirup.jpeg",
       socials: [
         { icon: FaInstagram, link: "https://www.instagram.com/_adx_art" },
         {
@@ -144,7 +144,7 @@ const teamData = {
     {
       name: "Shruti Gupta",
       role: "Artistic Head",
-      img: "/skull-1.png",
+      img: "/Shruti.png",
       socials: [
         {
           icon: FaInstagram,
@@ -160,7 +160,7 @@ const teamData = {
     {
       name: "Mukesh Yadav",
       role: "Event Manager",
-      img: "/mukesh.jpeg",
+      img: "/mukesh copy.jpeg",
       socials: [
         { icon: FaInstagram, link: "#" },
         { icon: FaLinkedinIn, link: "#" },
@@ -173,7 +173,7 @@ const teamData = {
     {
       name: "Akshat Darshi",
       role: "Tech Team Head",
-      img: "/skull-1.png",
+      img: "/Akshat.jpeg",
       socials: [
         { icon: FaInstagram, link: "https://www.instagram.com/akshat_darshi" },
         {
@@ -186,7 +186,7 @@ const teamData = {
     {
       name: "Kriti Dwivedi",
       role: "Developer",
-      img: "/skull-1.png",
+      img: "/Kriti.jpeg",
       socials: [
         {
           icon: FaInstagram,
@@ -197,9 +197,51 @@ const teamData = {
       ],
     },
     {
+      name: "Anant Tirupati",
+      role: "Technical Lead",
+      img: "/anant.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
+    {
+      name: "Aakshant Kumar",
+      role: "Technical Lead",
+      img: "/aakshant-2.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
+  ],
+  contributors: [
+    {
+      name: "Mukut Kumar",
+      role: "Contributor",
+      img: "/Mukut.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
+    {
+      name: "Shreya Jain",
+      role: "Contributor",
+      img: "/Shreya.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
+    {
       name: "Jai Verma",
-      role: "Tech Team Head",
-      img: "/skull-1.png",
+      role: "Contributor",
+      img: "/Jai.jpeg",
       socials: [
         { icon: FaInstagram, link: "https://www.instagram.com/_jaii.verrma_/" },
         {
@@ -210,65 +252,16 @@ const teamData = {
       ],
     },
     {
-      name: "Anant Tirupati",
-      role: "Technical Lead",
-      img: "/skull-1.png",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
-      ],
-    },
-    {
-      name: "Aakshant Kumar",
-      role: "Technical Lead",
-      img: "/skull-1.png",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
-      ],
-    },
-  ],
-  contributors: [
-    {
-      name: "Contributor 1",
+      name: "Sumit Kumar",
       role: "Contributor",
-      img: "/skull-1.png",
+      img: "/sumit.jpeg",
       socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
-      ],
-    },
-    {
-      name: "Contributor 2",
-      role: "Contributor",
-      img: "/skull-1.png",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
-      ],
-    },
-    {
-      name: "Contributor 3",
-      role: "Contributor",
-      img: "/skull-1.png",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
-      ],
-    },
-    {
-      name: "Contributor 4",
-      role: "Contributor",
-      img: "/skull-1.png",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
+        { icon: FaInstagram, link: "https://www.instagram.com/_jaii.verrma_/" },
+        {
+          icon: FaLinkedinIn,
+          link: "https://linkedin.com/in/jai-verma-270a49305",
+        },
+        { icon: HiOutlineMail, link: "mailto:jaivermacse70@gmail.com" },
       ],
     },
   ],
@@ -365,7 +358,7 @@ export default function TeamSection() {
 
       {/* MOBILE VIEW */}
       <div className="md:hidden flex flex-col w-full relative z-10 px-2">
-        <div className="flex justify-center gap-4 mb-8 shrink-0">
+        <div className="flex flex-col items-center gap-4 mb-8 shrink-0">
           {["core", "tech", "contributors"].map((team) => (
             <button
               key={team}

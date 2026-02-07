@@ -28,7 +28,7 @@ export default function RootLayout({
         <head>
           <title>ROBO RUMBLE | The Ultimate Robotics Showdown</title>
           <meta name="description" content="Join Robo Rumble 3.0 at CSJMU. The Ultimate Robotics Competition." />
-          <link rel="icon" href="/skull.png" />
+          <link rel="icon" href="/skull-1.png" />
         </head>
         <body>
           <ParticleBackground />

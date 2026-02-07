@@ -169,10 +169,10 @@ const Navbar = () => {
                </button>
             </Link>
           ) : (
-            <>
+            <div className='flex flex-col gap-4'>
               <Link href="/login" onClick={closeSidebar}>
                  <button className="w-full bg-transparent border border-white/20 text-white font-bold py-3 px-6 hover:border-[#00E5FF] hover:text-[#00E5FF] transition-all font-mono tracking-widest text-sm">
-                    ACCESS_TERMINAL
+                    LOGIN
                  </button>
               </Link>
               <Link href="/register" onClick={closeSidebar}>
@@ -183,7 +183,7 @@ const Navbar = () => {
                   </svg>
                 </button>
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>

@@ -19,7 +19,7 @@ export default function Patrons() {
     name: "Prof. Vinay Kumar Pathak",
     role: "Chief Patron",
     designation: "Vice Chancellor, CSJMU",
-    image: "/vinay pathak.avif",
+    image: "/vinay-pathak.jpg",
     bio: "A distinguished academician and administrator, Prof. Pathak leads Chhatrapati Shahu Ji Maharaj University as Vice Chancellor. With a Ph.D. in Computer Science (Image Processing) from AKTU, he has previously served as the VC of AKTU and HBTU. He is a pioneer in digital governance and educational reform in Uttar Pradesh.",
     specs: [
       "Ph.D. Computer Science",
