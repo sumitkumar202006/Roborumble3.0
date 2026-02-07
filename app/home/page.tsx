@@ -185,6 +185,114 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
   );
 };
 
+// --- Internal Component: ChiefPatronCard (Image 1 Style) ---
+const ChiefPatronCard = ({ member }: { member: TeamMember }) => {
+  return (
+    <div className="relative group w-full max-w-md mx-auto">
+      {/* Glow Effect behind card */}
+      <div className="absolute -inset-1 bg-gradient-to-b from-[#00F0FF]/20 to-transparent blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+
+      <div className="relative bg-zinc-950 border-t border-[#00F0FF] overflow-hidden">
+        {/* Top Status Bar */}
+        <div className="flex justify-between items-center px-4 py-2 bg-black/50 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-4 bg-[#00F0FF]" />
+            <span className="text-[#00F0FF] font-mono text-[10px] font-bold tracking-widest uppercase">// PROF.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-[#00F0FF] animate-pulse" />
+            <span className="text-zinc-500 font-mono text-[8px] tracking-widest uppercase">ACTIVE</span>
+          </div>
+        </div>
+
+        {/* Image Container */}
+        <div className="relative aspect-[3/4] w-full overflow-hidden">
+          <Image
+            src={member.image}
+            alt={member.name}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale hover:grayscale-0"
+          />
+          {/* subtle gradient overlay at bottom for text readability */}
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        </div>
+
+        {/* Content Section */}
+        <div className="relative p-6 -mt-20">
+          <h3 className="text-3xl font-black text-white font-mono uppercase leading-none mb-2 drop-shadow-lg">
+            {member.name}
+          </h3>
+          <div className="flex items-center gap-3 mt-4 mb-2">
+            <div className="h-[2px] w-8 bg-[#FF003C]" />
+            <span className="text-[#FF003C] font-mono text-sm font-bold tracking-widest uppercase">{member.role}</span>
+          </div>
+          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-wider">{member.dept}</p>
+        </div>
+
+        {/* Bottom Red Accent */}
+        <div className="absolute bottom-0 left-0 w-1/3 h-[2px] bg-[#FF003C]" />
+        <div className="absolute bottom-0 right-0 w-[2px] h-4 bg-[#FF003C]" />
+      </div>
+    </div>
+  );
+};
+
+// --- Internal Component: PatronCard (Image 2 Style - Circular) ---
+const PatronCard = ({ member, onClick }: { member: TeamMember; onClick?: () => void }) => {
+  return (
+    <div
+      onClick={onClick}
+      className={`flex flex-col items-center text-center group ${onClick ? 'cursor-pointer' : ''}`}
+    >
+      {/* Circular Image Container with Tech Ring */}
+      <div className="relative w-48 h-48 mb-6">
+        {/* Animated Tech Ring SVG */}
+        <svg className="absolute inset-0 w-full h-full animate-spin-slow text-[#00F0FF]" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="10 10" opacity="0.3" />
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="60 40 60 40" strokeLinecap="square" />
+        </svg>
+
+        {/* Glow effect */}
+        <div className="absolute inset-0 rounded-full shadow-[0_0_20px_rgba(0,240,255,0.2)] group-hover:shadow-[0_0_40px_rgba(0,240,255,0.5)] transition-all duration-500" />
+
+        {/* Inner static border */}
+        <div className="absolute inset-2 rounded-full border border-[#00F0FF]/30" />
+
+        {/* Image */}
+        <div className="absolute inset-3 rounded-full overflow-hidden border border-[#00F0FF]/50 bg-black">
+          <Image
+            src={member.image}
+            alt={member.name}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0"
+          />
+        </div>
+
+        {/* Status indicator - Orbiting dot */}
+        <div className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 animate-spin-reverse pointer-events-none">
+          <div className="absolute top-0 left-1/2 w-2 h-2 bg-[#00F0FF] rounded-full shadow-[0_0_10px_#00F0FF] -translate-x-1/2 -translate-y-1/2" />
+        </div>
+      </div>
+
+      {/* Name & Role */}
+      <h3 className="text-xl font-black text-white font-mono uppercase tracking-tighter mb-2 group-hover:text-[#00F0FF] transition-colors">
+        {member.name}
+      </h3>
+
+      <div className="flex flex-col items-center gap-1 group-hover:translate-y-1 transition-transform duration-300">
+        <div className="w-12 h-[1px] bg-[#00F0FF] mb-2 opacity-50 group-hover:opacity-100 group-hover:w-20 transition-all" />
+        <span className="text-[#00F0FF] font-mono text-[10px] font-bold tracking-[0.2em] uppercase">
+          {member.role}
+        </span>
+        <span className="text-zinc-500 font-mono text-[9px] uppercase tracking-wider max-w-[200px]">
+          {member.dept}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// --- Main Home Component ---
 export default function Home() {
   // Advisor data
   const chiefPatron = {
@@ -278,6 +386,11 @@ export default function Home() {
   // Stats modal state
   const [selectedStat, setSelectedStat] = useState<typeof stats[0] | null>(null);
 
+  // Mentor modal state
+  const [selectedMentor, setSelectedMentor] = useState<TeamMember | null>(null);
+
+
+
   return (
     <main className="min-h-screen bg-transparent text-white relative overflow-x-hidden selection:bg-[#00F0FF] selection:text-black">
       {/* Background Matrix Effect */}
@@ -298,19 +411,21 @@ export default function Home() {
           </div>
 
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black font-mono tracking-tighter uppercase leading-[0.85] mb-8 flex flex-col items-center">
-            <div className="relative inline-block glitch-container">
-              <span className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red" style={{ transform: 'translate(-0.02em, 0.02em)' }}>
-                ROBO
-              </span>
-              <span className="absolute top-0 left-0 text-[#00F0FF] mix-blend-screen opacity-60 glitch-layer-cyan" style={{ transform: 'translate(0.03em, -0.02em)' }}>
-                ROBO
-              </span>
-              <span className="relative text-white">ROBO</span>
+            <div className="flex items-end gap-4">
+              <div className="relative inline-block glitch-container">
+                <span className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red" style={{ transform: 'translate(-0.02em, 0.02em)' }}>
+                  ROBO
+                </span>
+                <span className="absolute top-0 left-0 text-[#00F0FF] mix-blend-screen opacity-60 glitch-layer-cyan" style={{ transform: 'translate(0.03em, -0.02em)' }}>
+                  ROBO
+                </span>
+                <span className="relative text-white">ROBO</span>
+              </div>
+              <span className="text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono animate-pulse">3.0</span>
             </div>
-            <div className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">
+            <div className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#00F0FF]">
               RUMBLE
             </div>
-            <span className="text-2xl md:text-4xl align-top text-[#E661FF] font-mono animate-pulse">3.0</span>
           </h1>
 
 
@@ -638,29 +753,27 @@ export default function Home() {
                 <Terminal size={14} /> // Chief_Patron
               </h3>
               <div className="flex justify-center">
-                <div className="max-w-[280px]">
-                  <AssetCard member={chiefPatron} delay={0.1} />
-                </div>
+                <PatronCard member={chiefPatron} onClick={() => setSelectedMentor(chiefPatron)} />
               </div>
             </div>
 
             {/* Strategic Patrons */}
             <div>
-              <h3 className="text-xs font-mono font-bold text-[#00F0FF] tracking-[0.5em] uppercase mb-10 border-b border-[#00F0FF]/20 pb-4 flex items-center gap-4">
+              <h3 className="text-xs font-mono font-bold text-[#00F0FF] tracking-[0.5em] uppercase mb-16 border-b border-[#00F0FF]/20 pb-4 flex items-center gap-4">
                 <Terminal size={14} /> // Strategic_Patrons
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {patrons.map((p, i) => <div key={i} className="max-w-[280px] mx-auto w-full"><AssetCard member={p} delay={i * 0.1} /></div>)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 md:gap-8">
+                {patrons.map((p, i) => <PatronCard key={i} member={p} onClick={() => setSelectedMentor(p)} />)}
               </div>
             </div>
 
             {/* Technical Advisors */}
             <div>
-              <h3 className="text-xs font-mono font-bold text-[#E661FF] tracking-[0.5em] uppercase mb-10 border-b border-[#E661FF]/20 pb-4 flex items-center gap-4">
+              <h3 className="text-xs font-mono font-bold text-[#E661FF] tracking-[0.5em] uppercase mb-16 border-b border-[#E661FF]/20 pb-4 flex items-center gap-4">
                 <Terminal size={14} /> // Technical_Advisors
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                {faculty.map((f, i) => <div key={i} className="max-w-[280px] mx-auto w-full"><AssetCard member={f} delay={i * 0.1} /></div>)}
+              <div className="flex flex-wrap justify-center gap-12 md:gap-20">
+                {faculty.map((f, i) => <PatronCard key={i} member={f} onClick={() => setSelectedMentor(f)} />)}
               </div>
             </div>
           </div>
@@ -763,7 +876,7 @@ export default function Home() {
               {/* Events List or Prize Breakdown */}
               {'events' in selectedStat.details && (
                 <div className="grid grid-cols-2 gap-2 mt-4">
-                  {selectedStat.details.events.map((event: string, i: number) => (
+                  {(selectedStat.details as any).events.map((event: string, i: number) => (
                     <div key={i} className="flex items-center gap-2 p-2 bg-[#00F0FF]/5 border border-[#00F0FF]/20 rounded">
                       <div className="w-1.5 h-1.5 bg-[#00F0FF]" />
                       <span className="text-white font-mono text-xs">{event}</span>
@@ -774,7 +887,7 @@ export default function Home() {
 
               {'breakdown' in selectedStat.details && (
                 <div className="space-y-2 mt-4">
-                  {selectedStat.details.breakdown.map((item: string, i: number) => (
+                  {(selectedStat.details as any).breakdown.map((item: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 p-3 bg-[#E661FF]/5 border border-[#E661FF]/20 rounded">
                       <div className="w-6 h-6 flex items-center justify-center bg-[#E661FF]/20 rounded">
                         <Trophy size={14} className="text-[#E661FF]" />
@@ -793,6 +906,102 @@ export default function Home() {
 
             {/* Scan Line Effect */}
             <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF]/50 to-transparent animate-scan" />
+          </div>
+        </div>
+      )}
+
+      {/* Mentor Modal */}
+      {selectedMentor && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto" onClick={() => setSelectedMentor(null)} />
+
+          <div className="relative w-full max-w-4xl bg-[#050505] border border-white p-1 shadow-[0_0_80px_rgba(255,255,255,0.1)] pointer-events-auto animate-glitch-entry">
+            {/* Top Bar - White Background */}
+            <div className="bg-white text-black px-6 py-3 flex justify-between items-center font-mono text-xs font-black uppercase tracking-widest leading-none">
+              <div className="flex gap-4 items-center">
+                <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+                <span>PROFILE_ACTIVE</span>
+                <span className="opacity-50">|</span>
+                <span>ID_VERIFIED</span>
+              </div>
+              <button
+                onClick={() => setSelectedMentor(null)}
+                className="hover:bg-black hover:text-white px-4 py-1.5 transition-all border border-black font-bold"
+              >
+                [ CLOSE ]
+              </button>
+            </div>
+
+            <div className="p-8 md:p-12 max-h-[80vh] overflow-y-auto">
+              <div className="grid md:grid-cols-[300px_1fr] gap-12 items-center">
+
+                {/* Left Column - Image with Ring */}
+                <div className="flex flex-col items-center">
+                  <div className="relative w-64 h-64 mb-6">
+                    {/* Tech Ring SVG - White */}
+                    <svg className="absolute inset-0 w-full h-full animate-spin-slow text-white" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="40 20 40 20" opacity="0.5" />
+                      <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="100 200" strokeLinecap="round" />
+                    </svg>
+
+                    {/* Glowing static ring */}
+                    <div className="absolute inset-2 rounded-full border-2 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]" />
+
+                    {/* Image */}
+                    <div className="absolute inset-4 rounded-full overflow-hidden border-2 border-white/30">
+                      <Image
+                        src={selectedMentor.image}
+                        alt={selectedMentor.name}
+                        fill
+                        className="object-cover grayscale"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-white font-mono text-xs uppercase tracking-[0.2em] font-bold">
+                    // {selectedMentor.role === 'Chief Patron' ? 'CHIEF_PATRON' : 'PATRON'}
+                  </div>
+                </div>
+
+                {/* Right Column - Content */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-4xl md:text-5xl font-black text-white font-mono uppercase tracking-tighter leading-none">
+                      {selectedMentor.name}
+                    </h3>
+                    <h4 className="text-white/70 text-lg font-bold uppercase tracking-wide font-mono">
+                      {selectedMentor.dept}
+                    </h4>
+                  </div>
+
+                  <div className="border-t border-white/20 my-6" />
+
+                  {/* Bio with border-left */}
+                  {selectedMentor.bio && (
+                    <div className="pl-6 border-l-2 border-white">
+                      <p className="text-zinc-400 text-sm leading-relaxed font-mono">
+                        {selectedMentor.bio}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Specs in Grid Boxes */}
+                  {selectedMentor.specs && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                      {selectedMentor.specs.map((spec, i) => (
+                        <div key={i} className="flex items-center gap-3 p-4 bg-white/5 border border-white/30 hover:bg-white/10 transition-colors">
+                          <span className="text-white font-bold text-lg">&gt; </span>
+                          <span className="text-zinc-300 font-mono text-xs uppercase tracking-wide">{spec}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom decoration line */}
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
           </div>
         </div>
       )}
