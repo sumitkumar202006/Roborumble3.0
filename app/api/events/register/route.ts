@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
 import Event from "@/app/models/Event";
@@ -35,6 +36,9 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Profile not found. Complete onboarding first." }, { status: 404 });
         }
 
+        // Type assertion to ensure _id exists
+        const profileId = profile._id as mongoose.Types.ObjectId;
+
         // --- TEAM REGISTRATION FLOW ---
         if (teamId && Array.isArray(selectedMembers) && selectedMembers.length > 0) {
             const team = await Team.findById(teamId);
@@ -43,7 +47,7 @@ export async function POST(req: Request) {
             }
 
             // Verify Leader
-            if (team.leaderId.toString() !== profile._id.toString()) {
+            if (team.leaderId.toString() !== profileId.toString()) {
                 return NextResponse.json({ error: "Only the Team Leader can register the team" }, { status: 403 });
             }
 
@@ -122,9 +126,8 @@ export async function POST(req: Request) {
 
         // Create Registration document for individual event
         const newRegistration = await Registration.create({
-            teamId: null, // Explicitly null for individual events
             eventId: event._id,
-            selectedMembers: [profile._id], // Individual participant
+            selectedMembers: [profileId], // Individual participant
             paymentStatus: event.fees === 0 ? "paid" : "initiated",
             amountExpected: event.fees,
             currency: "INR"
