@@ -56,60 +56,60 @@ export default function AdminLoginPage() {
     <main className="min-h-screen bg-black text-white relative overflow-hidden flex items-center justify-center">
       <MatrixBackground color="#FF003C" text="" />
       
-      <div className="relative z-10 w-full max-w-md p-8">
-         <div className="border border-[#FF003C] bg-black/80 backdrop-blur-md p-8 relative shadow-[0_0_50px_rgba(255,0,60,0.3)]">
-            <div className="absolute top-0 left-0 bg-[#FF003C] text-black text-[10px] font-black px-2 py-1">
+      <div className="relative z-10 w-full max-w-md p-4 md:p-8">
+         <div className="border border-[#FF003C] bg-black/80 backdrop-blur-md p-6 md:p-8 relative shadow-[0_0_50px_rgba(255,0,60,0.3)]">
+            <div className="absolute top-0 left-0 bg-[#FF003C] text-black text-[9px] md:text-[10px] font-black px-2 py-1">
                 ADMIN_ACCESS_PANEL
             </div>
             
-            <div className="flex flex-col items-center mb-8 mt-4">
-                <Shield size={48} className="text-[#FF003C] mb-4 animate-pulse" />
-                <h1 className="text-2xl font-black font-mono tracking-tighter uppercase text-center">
+            <div className="flex flex-col items-center mb-6 md:mb-8 mt-4">
+                <Shield size={40} className="text-[#FF003C] mb-4 animate-pulse md:w-12 md:h-12" />
+                <h1 className="text-xl md:text-2xl font-black font-mono tracking-tighter uppercase text-center">
                     Command_Override
                 </h1>
-                <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-2">
+                <p className="text-zinc-500 font-mono text-[10px] md:text-xs uppercase tracking-widest mt-2 text-center">
                     Authorized Personnel Only
                 </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-[#FF003C] font-mono text-xs uppercase font-bold">Admin ID</label>
+            <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
+                 <div className="space-y-1 md:space-y-2">
+                    <label className="text-[#FF003C] font-mono text-[10px] md:text-xs uppercase font-bold">Admin ID</label>
                     <input 
                         type="email" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-black/50 border border-zinc-700 focus:border-[#FF003C] p-3 text-sm font-mono outline-none text-white transition-all"
+                        className="w-full bg-black/50 border border-zinc-700 focus:border-[#FF003C] p-2.5 md:p-3 text-xs md:text-sm font-mono outline-none text-white transition-all"
                         placeholder="admin@roborumble.com"
                     />
                  </div>
-                 <div className="space-y-2">
-                    <label className="text-[#FF003C] font-mono text-xs uppercase font-bold">Passkey</label>
+                 <div className="space-y-1 md:space-y-2">
+                    <label className="text-[#FF003C] font-mono text-[10px] md:text-xs uppercase font-bold">Passkey</label>
                     <input 
                         type="password" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-black/50 border border-zinc-700 focus:border-[#FF003C] p-3 text-sm font-mono outline-none text-white transition-all"
+                        className="w-full bg-black/50 border border-zinc-700 focus:border-[#FF003C] p-2.5 md:p-3 text-xs md:text-sm font-mono outline-none text-white transition-all"
                         placeholder="••••••••"
                     />
                  </div>
 
                  {error && (
-                    <div className="p-3 bg-[#FF003C]/10 border border-[#FF003C] text-[#FF003C] text-xs font-mono text-center">
+                    <div className="p-3 bg-[#FF003C]/10 border border-[#FF003C] text-[#FF003C] text-[10px] md:text-xs font-mono text-center leading-tight">
                         ERROR: {error}
                     </div>
                  )}
 
                  <button 
                     disabled={isLoggingIn}
-                    className="w-full py-4 bg-[#FF003C] hover:bg-white hover:text-black text-black font-black font-mono tracking-widest uppercase transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 md:py-4 bg-[#FF003C] hover:bg-white hover:text-black text-black font-black font-mono tracking-widest uppercase transition-all flex items-center justify-center gap-2 text-xs md:text-sm"
                  >
                     {isLoggingIn ? "AUTHENTICATING..." : "INITIATE_SESSION"}
                  </button>
             </form>
 
-            <div className="mt-8 text-center">
-                <Link href="/" className="text-zinc-600 hover:text-white text-xs font-mono uppercase underline">
+            <div className="mt-6 md:mt-8 text-center">
+                <Link href="/" className="text-zinc-600 hover:text-white text-[10px] md:text-xs font-mono uppercase underline">
                     Return to Main System
                 </Link>
             </div>

@@ -150,27 +150,27 @@ export default function AdminPaymentsPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex sm:flex-col justify-between items-center sm:items-start">
                         <div className="flex items-center gap-2 text-yellow-400 mb-1">
                             <Clock size={18} />
-                            <span className="text-sm uppercase">Pending</span>
+                            <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider">Pending</span>
                         </div>
-                        <p className="text-3xl font-black text-yellow-400">{stats.pending}</p>
+                        <p className="text-2xl md:text-3xl font-black text-yellow-400 leading-none">{stats.pending}</p>
                     </div>
-                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 flex sm:flex-col justify-between items-center sm:items-start">
                         <div className="flex items-center gap-2 text-green-400 mb-1">
                             <CheckCircle size={18} />
-                            <span className="text-sm uppercase">Verified</span>
+                            <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider">Verified</span>
                         </div>
-                        <p className="text-3xl font-black text-green-400">{stats.verified}</p>
+                        <p className="text-2xl md:text-3xl font-black text-green-400 leading-none">{stats.verified}</p>
                     </div>
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex sm:flex-col justify-between items-center sm:items-start">
                         <div className="flex items-center gap-2 text-red-400 mb-1">
                             <XCircle size={18} />
-                            <span className="text-sm uppercase">Rejected</span>
+                            <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider">Rejected</span>
                         </div>
-                        <p className="text-3xl font-black text-red-400">{stats.rejected}</p>
+                        <p className="text-2xl md:text-3xl font-black text-red-400 leading-none">{stats.rejected}</p>
                     </div>
                 </div>
 

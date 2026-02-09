@@ -12,35 +12,27 @@ import { sponsors, SponsorData } from "../data/sponsors";
 // --- Internal Component: SponsorCard ---
 const SponsorCard = ({
   sponsor,
-  delay,
+  isActive,
+  isLoading,
+  onOpen,
+  onClose,
 }: {
   sponsor: SponsorData;
-  delay: number;
+  isActive: boolean;
+  isLoading: boolean;
+  onOpen: () => void;
+  onClose: () => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Preload audio
-  const playOpenSound = useAudio("audio.wav", 0.15); // Using audio.wav as generic sound, can be customized
-  const playCloseSound = useAudio("audio.wav", 0.15);
 
   const handleClick = () => {
-    if (showDetails || isLoading) return;
-    setIsLoading(true);
-    playOpenSound();
-    setTimeout(() => {
-      setIsLoading(false);
-      setShowDetails(true);
-    }, 600);
+    if (isActive || isLoading) return;
+    onOpen();
   };
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    playCloseSound();
-    setShowDetails(false);
-    setIsHovered(false);
-    setIsLoading(false);
+    onClose();
   };
 
   return (
@@ -50,7 +42,6 @@ const SponsorCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Main Preview Card */}
       {/* Main Preview Card */}
       <div
         className="relative w-full h-80 bg-black/40 border-l-4 border-t border-[#00F0FF]/50 hover:bg-[#00F0FF]/10 transition-all duration-500 backdrop-blur-sm flex flex-col items-center justify-center p-4 overflow-hidden"
@@ -83,11 +74,18 @@ const SponsorCard = ({
       </div>
 
       {/* Expanded Dialog Box */}
-      {(isLoading || showDetails) && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 md:p-4 lg:p-12 pointer-events-none">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
+      {(isLoading || isActive) && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 md:p-4 lg:p-12 pointer-events-auto">
+          {/* Backdrop (Click Outside) */}
+          <div
+            className="absolute inset-0 bg-black/95 backdrop-blur-xl cursor-default"
+            onClick={handleClose}
+          />
 
-          <div className="relative w-full max-w-sm md:max-w-3xl lg:max-w-4xl bg-[#050505] border border-[#FF003C] p-1 shadow-[0_0_80px_rgba(255,0,60,0.4)] pointer-events-auto overflow-hidden animate-glitch-entry">
+          <div
+            className="relative w-full max-w-sm md:max-w-3xl lg:max-w-4xl bg-[#050505] border border-[#FF003C] p-1 shadow-[0_0_80px_rgba(255,0,60,0.4)] pointer-events-auto overflow-hidden animate-glitch-entry"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Top Red Status Bar */}
             <div className="bg-[#FF003C] text-black px-3 md:px-6 py-2 flex justify-between items-center font-mono text-[9px] md:text-[11px] font-black uppercase tracking-widest">
               <div className="flex gap-2 md:gap-4">
@@ -187,6 +185,30 @@ const SponsorCard = ({
 };
 
 export default function SponsorsPage() {
+  const [activeSponsorName, setActiveSponsorName] = useState<string | null>(
+    null,
+  );
+  const [loadingSponsorName, setLoadingSponsorName] = useState<string | null>(
+    null,
+  );
+  const playOpenSound = useAudio("audio.wav", 0.15);
+  const playCloseSound = useAudio("audio.wav", 0.15);
+
+  const handleOpenSponsor = (name: string) => {
+    setActiveSponsorName(null);
+    setLoadingSponsorName(name);
+    playOpenSound();
+    setTimeout(() => {
+      setLoadingSponsorName(null);
+      setActiveSponsorName(name);
+    }, 600);
+  };
+
+  const handleCloseSponsor = () => {
+    playCloseSound();
+    setActiveSponsorName(null);
+    setLoadingSponsorName(null);
+  };
   return (
     <main className="min-h-screen bg-black text-white relative overflow-hidden">
       <MatrixBackground color="#003B00" text="" />
@@ -206,13 +228,13 @@ export default function SponsorsPage() {
                 className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red"
                 style={{ transform: "translate(-0.02em, 0.02em)" }}
               >
-                OUR 
+                OUR
               </span>
               <span
                 className="absolute top-0 left-0 text-[#00F0FF] mix-blend-screen opacity-60 glitch-layer-cyan"
                 style={{ transform: "translate(0.03em, -0.02em)" }}
               >
-                OUR 
+                OUR
               </span>
               <span className="relative text-white">OUR </span>
             </div>
@@ -262,10 +284,16 @@ export default function SponsorsPage() {
           </div>
         </div>
 
-        {/* Sponsors Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-32">
           {sponsors.map((sponsor, i) => (
-            <SponsorCard key={i} sponsor={sponsor} delay={i * 0.1} />
+            <SponsorCard
+              key={i}
+              sponsor={sponsor}
+              isActive={activeSponsorName === sponsor.name}
+              isLoading={loadingSponsorName === sponsor.name}
+              onOpen={() => handleOpenSponsor(sponsor.name)}
+              onClose={handleCloseSponsor}
+            />
           ))}
         </div>
       </div>

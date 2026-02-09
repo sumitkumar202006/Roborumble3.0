@@ -77,6 +77,13 @@ const Footer = () => {
                 target="_blank"
                 className="p-2 border border-white/10 text-zinc-400 hover:text-white hover:border-[#FF003C] transition-all"
               >
+                <Twitter size={20} />
+              </Link>
+              <Link
+                href="https://www.instagram.com/roborumble.3.o?igsh=YnZ0YTl6ZDZvZnFk"
+                target="_blank"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-white hover:border-[#E661FF] transition-all"
+              >
                 <Instagram size={20} />
               </Link>
               <Link

@@ -139,6 +139,19 @@ const teamData = {
       ],
     },
     {
+      name: "Aman Maurya",
+      role: "Graphic and Designing Head",
+      img: "/aman-2.jpeg",
+      socials: [
+        {
+          icon: FaInstagram,
+          link: "https://www.instagram.com/me.aman_2005?igsh=azJhMHpzOWtwOTM3",
+        },
+        { icon: FaLinkedinIn, link: "https://www.linkedin.com/in/maurya-aman-satyendra-a19835368?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
+        { icon: HiOutlineMail, link: "mailto:mauryaman2005@gmail.com" },
+      ],
+    },
+    {
       name: "Abhirup Dewanjee",
       role: "Artistic head",
       img: "/Abhirup.jpeg",

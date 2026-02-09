@@ -18,6 +18,7 @@ const isPublicRoute = createRouteMatcher([
     "/about(.*)",
     "/login(.*)",
     "/register(.*)",
+    "/admin/login(.*)",
     "/api/uploadthing(.*)", // UploadThing webhooks
 ]);
 

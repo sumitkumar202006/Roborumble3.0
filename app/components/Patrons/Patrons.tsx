@@ -98,7 +98,11 @@ export default function Patrons() {
   ];
 
   // --- REUSABLE CARD COMPONENT ---
-  const PersonCard: React.FC<PersonCardProps> = ({
+  const PersonCard: React.FC<PersonCardProps & { 
+    isActive: boolean; 
+    onOpen: () => void; 
+    onClose: () => void; 
+  }> = ({
     name,
     role,
     designation,
@@ -106,19 +110,15 @@ export default function Patrons() {
     isChief = false,
     bio,
     specs,
+    isActive,
+    onOpen,
+    onClose,
   }) => {
-    const [showDetails, setShowDetails] = useState(false);
-
-    const handleClose = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setShowDetails(false);
-    };
-
     return (
       <>
         <div
           className="flex flex-col items-center group relative z-10 cursor-pointer"
-          onClick={() => setShowDetails(true)}
+          onClick={onOpen}
         >
           {/* PHOTO CONTAINER */}
           <div
@@ -169,14 +169,15 @@ export default function Patrons() {
         </div>
 
         {/* DETAILS DIALOG */}
-        {showDetails && (
+        {isActive && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8">
+            {/* Backdrop (Click Outside) */}
             <div
-              className="absolute inset-0 bg-black/95 backdrop-blur-md"
-              onClick={handleClose}
+              className="absolute inset-0 bg-black/95 backdrop-blur-md cursor-default"
+              onClick={onClose}
             />
 
-            <div className="relative w-full max-w-4xl bg-[#050b14] border border-[#00F0FF] p-1 shadow-[0_0_50px_rgba(0,240,255,0.2)] animate-in fade-in zoom-in duration-300">
+            <div className="relative w-full max-w-4xl bg-[#050b14] border border-[#00F0FF] p-1 shadow-[0_0_50px_rgba(0,240,255,0.2)] animate-in fade-in zoom-in duration-300" onClick={(e) => e.stopPropagation()}>
               {/* Header Bar */}
               <div className="bg-[#00F0FF] text-black px-4 py-2 flex justify-between items-center font-mono text-xs md:text-sm font-black uppercase tracking-widest">
                 <div className="flex gap-4">
@@ -185,7 +186,7 @@ export default function Patrons() {
                 </div>
                 {/* Desktop Close Button */}
                 <button
-                  onClick={handleClose}
+                  onClick={onClose}
                   className="hidden md:block hover:bg-black hover:text-[#00F0FF] px-3 py-1 border border-black transition-colors"
                 >
                   [CLOSE]
@@ -245,7 +246,7 @@ export default function Patrons() {
                 {/* Mobile Close Button at Bottom */}
                 <div className="md:hidden border-t border-[#00F0FF]/30 pt-4 mt-6">
                   <button 
-                    onClick={handleClose}
+                    onClick={onClose}
                     className="w-full bg-[#00F0FF] text-black py-3 font-black font-mono text-xs uppercase tracking-widest hover:bg-[#00F0FF]/80 transition-all"
                   >
                     [ CLOSE ]
@@ -259,6 +260,8 @@ export default function Patrons() {
     );
   };
 
+  const [activePatronName, setActivePatronName] = useState<string | null>(null);
+
   return (
     <div className="w-full flex flex-col items-center gap-24 pb-20">
       {/* ================= SECTION 1: CHIEF PATRON ================= */}
@@ -271,7 +274,13 @@ export default function Patrons() {
           <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent mt-4"></div>
         </div>
 
-        <PersonCard {...chiefPatron} isChief={true} />
+        <PersonCard 
+          {...chiefPatron} 
+          isChief={true} 
+          isActive={activePatronName === chiefPatron.name}
+          onOpen={() => setActivePatronName(chiefPatron.name)}
+          onClose={() => setActivePatronName(null)}
+        />
       </div>
 
       {/* ================= SECTION 2: PATRONS ================= */}
@@ -287,7 +296,13 @@ export default function Patrons() {
         {/* Grid for Patrons */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-20 w-full max-w-7xl px-4 justify-items-center">
           {patrons.map((p, index) => (
-            <PersonCard key={index} {...p} />
+            <PersonCard 
+              key={index} 
+              {...p} 
+              isActive={activePatronName === p.name}
+              onOpen={() => setActivePatronName(p.name)}
+              onClose={() => setActivePatronName(null)}
+            />
           ))}
         </div>
       </div>
@@ -305,7 +320,13 @@ export default function Patrons() {
         {/* Grid for Faculty */}
         <div className="flex flex-col md:flex-row gap-20 md:gap-40 items-center justify-center w-full px-4">
           {faculty.map((f, index) => (
-            <PersonCard key={index} {...f} />
+            <PersonCard 
+              key={index} 
+              {...f} 
+              isActive={activePatronName === f.name}
+              onOpen={() => setActivePatronName(f.name)}
+              onClose={() => setActivePatronName(null)}
+            />
           ))}
         </div>
       </div>

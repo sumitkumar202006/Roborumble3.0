@@ -476,7 +476,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-12 text-zinc-500 font-mono text-sm mb-16">
             <div className="flex items-center gap-3">
               <Calendar size={18} className="text-[#E661FF]" />
-              <span className="tracking-tighter">MARCH_09-11_2026</span>
+              <span className="tracking-tighter">COMING_SOON</span>
             </div>
             <div className="flex items-center gap-3">
               <MapPin size={18} className="text-[#E661FF]" />

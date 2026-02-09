@@ -1,51 +1,50 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import connectDB from "@/lib/mongodb";
-import AuthUser from "@/app/models/AuthUser";
+import Profile from "@/app/models/Profile";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
     try {
-        await connectDB();
+        const { userId: adminClerkId } = await auth();
 
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
-
-        if (!token) {
+        if (!adminClerkId) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
         }
 
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string };
+        await connectDB();
 
         // Verify Admin
-        const adminUser = await AuthUser.findById(decoded.userId);
-        if (!adminUser || adminUser.role !== "ADMIN") {
+        const adminProfile = await Profile.findOne({ clerkId: adminClerkId });
+        if (!adminProfile || !["admin", "superadmin"].includes(adminProfile.role)) {
             return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
         }
 
-        const { userId, status } = await req.json();
+        const { userId, status } = await req.json(); // userId is mongo _id
 
         if (!userId || !status) {
             return NextResponse.json({ error: "MISSING_DATA" }, { status: 400 });
         }
 
-        // Fetch target user to get their current events
-        const targetUser = await AuthUser.findById(userId);
-        if (!targetUser) {
+        // Fetch target profiles
+        const targetProfile = await Profile.findById(userId);
+        if (!targetProfile) {
             return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
         }
 
-        // If approving (status = 'paid'), sync paidEvents with current events
-        const updateData: Record<string, unknown> = { paymentStatus: status };
-
+        // Simulating the legacy status toggle by syncing events to paidEvents if 'paid'
+        const updateData: Record<string, any> = {};
+        
+        // Profile doesn't have a global 'paymentStatus', but we can mock or add it if needed.
+        // For now, let's just update the role or other accessible fields, or 
+        // if the UI expects to mark someone as 'paid', we sync registeredEvents to paidEvents.
+        
         if (status === "paid") {
-            updateData.paidEvents = targetUser.events;
+            updateData.paidEvents = targetProfile.registeredEvents;
+        } else {
+            updateData.paidEvents = [];
         }
 
-        await AuthUser.findByIdAndUpdate(userId, updateData);
+        await Profile.findByIdAndUpdate(userId, updateData);
 
         return NextResponse.json({ message: "STATUS_UPDATED" });
     } catch (error) {

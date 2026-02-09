@@ -182,22 +182,22 @@ export default function VerifyPage() {
             </div>
 
             {verificationData && (
-              <div className="space-y-3 text-sm">
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="text-zinc-500 uppercase">Event</span>
-                  <span className="col-span-2 font-bold">
+              <div className="space-y-4 text-sm font-mono">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 border-b border-white/5 pb-2">
+                  <span className="text-zinc-500 uppercase text-[10px] w-24 shrink-0">Event</span>
+                  <span className="font-bold text-white uppercase text-xs">
                     {verificationData.eventId?.title}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="text-zinc-500 uppercase">Team</span>
-                  <span className="col-span-2 font-bold">
-                    {verificationData.teamId?.name || "Individual"}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 border-b border-white/5 pb-2">
+                  <span className="text-zinc-500 uppercase text-[10px] w-24 shrink-0">Team</span>
+                  <span className="font-bold text-white uppercase text-xs">
+                    {verificationData.teamId?.name || "Independent"}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="text-zinc-500 uppercase">Members</span>
-                  <span className="col-span-2">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 border-b border-white/5 pb-2">
+                  <span className="text-zinc-500 uppercase text-[10px] w-24 shrink-0">Members</span>
+                  <span className="text-zinc-300 text-xs">
                     {verificationData.selectedMembers?.length > 0
                       ? verificationData.selectedMembers
                           .map((m: any) => m.fullName || `${m.firstName || ""} ${m.lastName || ""}`.trim())
@@ -210,10 +210,10 @@ export default function VerifyPage() {
                           "Unknown Member"}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="text-zinc-500 uppercase">Status</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                  <span className="text-zinc-500 uppercase text-[10px] w-24 shrink-0">Status</span>
                   <span
-                    className={`col-span-2 font-bold ${
+                    className={`font-black text-xs ${
                       verificationData.paymentStatus === "paid"
                         ? "text-green-400"
                         : "text-red-400"

@@ -7,8 +7,8 @@
 }
 
 .glitchText {
-  font-family: 'Courier New', Courier, monospace; // Or a more "cyber" font if available
-  font-size: 4rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2.25rem; // Reduced for mobile
   font-weight: bold;
   color: #fff;
   position: relative;
@@ -18,6 +18,10 @@
 
   @media (min-width: 768px) {
     font-size: 6rem;
+  }
+
+  @media (min-width: 480px) and (max-width: 767px) {
+    font-size: 3.5rem;
   }
 
   &::before,
@@ -184,9 +188,23 @@
 
 // Explosive Entrance Animation
 .heroContainer h1 {
-  display: flex; // Keep letters inline
+  display: flex;
+  flex-direction: column; // Column on mobile
+  align-items: center;
   justify-content: center;
-  flex-wrap: wrap; // Allow wrapping on small screens if needed
+  max-width: 90vw;
+  margin: 0 auto;
+
+  @media (min-width: 768px) {
+    flex-direction: row; // Row on desktop
+    gap: 0.5rem;
+  }
+}
+
+.line1, .line2 {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
 }
 
 .letter {

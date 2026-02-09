@@ -126,57 +126,33 @@ const CardBackground = ({
 // ... (keep CardBackground)
 
 // --- Internal Component: EventCard ---
-const EventCard = ({ event, index }: { event: EventData; index: number }) => {
+const EventCard = ({
+  event,
+  isActive,
+  isLoading,
+  onOpen,
+  onClose,
+}: {
+  event: EventData;
+  isActive: boolean;
+  isLoading: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"about" | "rules" | "register">(
     "about",
   );
 
-  // Team Selection State removed
-
-  const router = useRouter();
-
-  // const isRegistered = registeredEvents.includes(event.id); // View Only
-
-  // Parse Team Size for Logic
-  // const isTeamEvent =
-  //   !event.teamSize.toLowerCase().includes("individual") &&
-  //   !event.teamSize.toLowerCase().includes("open");
-  // const maxTeamSize = parseInt(event.teamSize.match(/(\d+)/g)?.pop() || "1");
-
-  // Initialize selectedMembers with self (if in team) or empty
-  // useEffect(() => {
-  //   if (teamData && teamData.profileId) {
-  //     setSelectedMembers([teamData.profileId]);
-  //   }
-  // }, [teamData]);
-
-  // handleRegister removed - Redirection only
-  // handleOptOut removed - View Only
-
-  // Preload audio
-  const playOpenSound = useAudio("/audio.wav", 0.1);
-  const playCloseSound = useAudio("audio.wav", 0.1);
-
   const handleOpen = () => {
+    if (isActive || isLoading) return;
     setActiveTab("about");
-    setIsHovered(true);
-    setIsLoading(true);
-    playOpenSound();
-    setTimeout(() => {
-      setIsLoading(false);
-      setShowDetails(true);
-    }, 600);
+    onOpen();
   };
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    playCloseSound();
-    setShowDetails(false);
-    setIsHovered(false);
-    setIsLoading(false);
+    onClose();
   };
 
   const Icon = event.icon;
@@ -232,9 +208,13 @@ const EventCard = ({ event, index }: { event: EventData; index: number }) => {
       </div>
 
       {/* FULL SCREEN MISSION BRIEFING DIALOG */}
-      {(isLoading || showDetails) && (
+      {(isLoading || isActive) && (
         <div className="fixed inset-x-0 bottom-0 top-[96px] z-[9999] flex items-start justify-center px-4 py-2 pointer-events-auto">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
+          {/* Backdrop (Click Outside) */}
+          <div
+            className="absolute inset-0 bg-black/95 backdrop-blur-xl cursor-default"
+            onClick={handleClose}
+          />
 
           <div
             className="relative w-full max-w-sm md:max-w-4xl lg:max-w-6xl bg-[#050505] border border-[#E661FF] shadow-[0_0_80px_rgba(230,97,255,0.4)] pointer-events-auto flex flex-col h-[calc(100vh-120px)] animate-glitch-entry"
@@ -502,11 +482,14 @@ const EventCard = ({ event, index }: { event: EventData; index: number }) => {
 export default function EventsPage() {
   const { user, isLoaded } = useUser();
   const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
+  const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [loadingEventId, setLoadingEventId] = useState<string | null>(null);
+  const playOpenSound = useAudio("/audio.wav", 0.1);
+  const playCloseSound = useAudio("audio.wav", 0.1);
 
   const fetchUserData = async () => {
     if (!user) return;
     try {
-      // Fetch user's registered events (legacy or via auth/me if that's where they live)
       const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
@@ -522,6 +505,22 @@ export default function EventsPage() {
       fetchUserData();
     }
   }, [isLoaded, user]);
+
+  const handleOpenEvent = (id: string) => {
+    setActiveEventId(null);
+    setLoadingEventId(id);
+    playOpenSound();
+    setTimeout(() => {
+      setLoadingEventId(null);
+      setActiveEventId(id);
+    }, 600);
+  };
+
+  const handleCloseEvent = () => {
+    playCloseSound();
+    setActiveEventId(null);
+    setLoadingEventId(null);
+  };
 
   return (
     <main className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -584,8 +583,15 @@ export default function EventsPage() {
               .filter((e: any) =>
                 ["Robotics", "Aerial", "Gaming"].includes(e.category),
               )
-              .map((event: any, i: number) => (
-                <EventCard key={event.id} event={event} index={i} />
+              .map((event: any) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  isActive={activeEventId === event.id}
+                  isLoading={loadingEventId === event.id}
+                  onOpen={() => handleOpenEvent(event.id)}
+                  onClose={handleCloseEvent}
+                />
               ))}
           </div>
         </div>
@@ -605,8 +611,15 @@ export default function EventsPage() {
                 (e: any) =>
                   !["Robotics", "Aerial", "Gaming"].includes(e.category),
               )
-              .map((event: any, i: number) => (
-                <EventCard key={event.id} event={event} index={i} />
+              .map((event: any) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  isActive={activeEventId === event.id}
+                  isLoading={loadingEventId === event.id}
+                  onOpen={() => handleOpenEvent(event.id)}
+                  onClose={handleCloseEvent}
+                />
               ))}
           </div>
         </div>
