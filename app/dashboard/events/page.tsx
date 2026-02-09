@@ -6,8 +6,7 @@ import Image from "next/image";
 import { Trophy, Users, Shield, Zap, Cpu, Bot, Gamepad2, Mic, Rocket, Magnet, CheckCircle, Clock, Loader2, Calendar, MapPin, ArrowRight, ShoppingCart, Plus } from "lucide-react";
 import { BiFootball } from "react-icons/bi";
 import { useAudio } from "@/app/hooks/useAudio";
-import CartSidebar, { CartIconButton } from "@/app/components/CartSidebar";
-import NotificationBell from "@/app/components/NotificationBell";
+import CartSidebar from "@/app/components/CartSidebar";
 
 declare global {
     interface Window {
@@ -344,6 +343,7 @@ export default function DashboardEventsPage() {
     const [cartItems, setCartItems] = useState<string[]>([]);
     const [cartCount, setCartCount] = useState(0);
     const [cartOpen, setCartOpen] = useState(false);
+    const [activeFilter, setActiveFilter] = useState<"upcoming" | "yours">("upcoming");
 
     useEffect(() => {
         fetchEvents();
@@ -478,24 +478,28 @@ export default function DashboardEventsPage() {
                     </p>
                 </div>
 
-                {/* Cart Icon Button */}
                 <div className="flex flex-wrap gap-2 items-center">
-                    {["Upcoming", "Nearby", "Past", "Yours"].map((filter, i) => (
-                        <button
-                            key={filter}
-                            className={`px-4 py-2 rounded-full text-xs font-bold font-mono transition-all ${i === 0
-                                ? "bg-[#eab308] text-black hover:bg-[#eab308]/90"
-                                : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-white"
-                                }`}
-                        >
-                            {filter}
-                        </button>
-                    ))}
+                    <button
+                        onClick={() => setActiveFilter("upcoming")}
+                        className={`px-4 py-2 rounded-full text-xs font-bold font-mono transition-all ${activeFilter === "upcoming"
+                            ? "bg-[#eab308] text-black hover:bg-[#eab308]/90"
+                            : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-white"
+                            }`}
+                    >
+                        Upcoming
+                    </button>
+                    <button
+                        onClick={() => setActiveFilter("yours")}
+                        className={`px-4 py-2 rounded-full text-xs font-bold font-mono transition-all ${activeFilter === "yours"
+                            ? "bg-[#eab308] text-black hover:bg-[#eab308]/90"
+                            : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-white"
+                            }`}
+                    >
+                        Yours {cartCount > 0 && `(${cartCount})`}
+                    </button>
                     <button className="p-2 bg-[#eab308] rounded-lg text-black hover:bg-[#eab308]/90 transition-all ml-2">
                         <Calendar size={16} />
                     </button>
-                    <NotificationBell />
-                    <CartIconButton onClick={() => setCartOpen(true)} itemCount={cartCount} />
                 </div>
             </div>
 
@@ -518,25 +522,37 @@ export default function DashboardEventsPage() {
                 </div>
             )}
 
-            {events.length === 0 ? (
-                <div className="text-center text-gray-400 py-12 font-mono border border-dashed border-zinc-800 rounded-2xl">
-                    NO_ACTIVE_MISSIONS_DETECTED
-                </div>
-            ) : (
-                <div className="flex flex-col gap-6">
-                    {events.map((event) => (
-                        <HorizontalEventCard
-                            key={event.eventId}
-                            event={event}
-                            registration={getRegistrationStatus(event.eventId)}
-                            onAddToCart={handleAddToCart}
-                            teamData={teamData}
-                            isInCart={isEventInCart(event.eventId)}
-                            addingToCart={addingToCart === event.eventId}
-                        />
-                    ))}
-                </div>
-            )}
+            {(() => {
+                const filteredEvents = activeFilter === "yours"
+                    ? events.filter(e => cartItems.includes(e.eventId))
+                    : events;
+
+                if (filteredEvents.length === 0) {
+                    return (
+                        <div className="text-center text-gray-400 py-12 font-mono border border-dashed border-zinc-800 rounded-2xl">
+                            {activeFilter === "yours"
+                                ? "NO_EVENTS_IN_CART — Add events from Upcoming tab"
+                                : "NO_ACTIVE_MISSIONS_DETECTED"}
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="flex flex-col gap-6">
+                        {filteredEvents.map((event) => (
+                            <HorizontalEventCard
+                                key={event.eventId}
+                                event={event}
+                                registration={getRegistrationStatus(event.eventId)}
+                                onAddToCart={handleAddToCart}
+                                teamData={teamData}
+                                isInCart={isEventInCart(event.eventId)}
+                                addingToCart={addingToCart === event.eventId}
+                            />
+                        ))}
+                    </div>
+                );
+            })()}
 
             {/* Cart Sidebar */}
             <CartSidebar

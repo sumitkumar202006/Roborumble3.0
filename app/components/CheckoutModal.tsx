@@ -121,7 +121,7 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutMo
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200]"
                         onClick={onClose}
                     />
 
@@ -130,10 +130,10 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutMo
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[90vh] bg-[#0a0a0a] border border-white/10 rounded-2xl z-50 overflow-hidden flex flex-col"
+                        className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[420px] bg-[#0a0a0a] border border-white/10 rounded-2xl z-[201] overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                        <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
                             <h2 className="text-xl font-black text-white font-mono flex items-center gap-2">
                                 <QrCode className="text-[#00F0FF]" size={24} />
                                 CHECKOUT
@@ -147,7 +147,7 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutMo
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto p-6">
+                        <div className="p-5">
                             {step === "loading" && (
                                 <div className="flex flex-col items-center justify-center py-12">
                                     <Loader2 className="animate-spin text-[#00F0FF]" size={40} />
@@ -172,9 +172,9 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutMo
                             )}
 
                             {(step === "qr" || step === "upload") && checkoutData && (
-                                <div className="space-y-6">
+                                <div className="space-y-4">
                                     {/* Order Summary */}
-                                    <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5">
+                                    <div className="bg-zinc-900/50 rounded-xl p-3 border border-white/5">
                                         <h3 className="text-xs uppercase text-zinc-500 font-mono mb-3">Order Summary</h3>
                                         <div className="space-y-2">
                                             {checkoutData.events.map((event, i) => (
@@ -196,16 +196,16 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutMo
                                         <>
                                             {/* QR Code */}
                                             <div className="flex flex-col items-center">
-                                                <div className="bg-white p-4 rounded-xl">
-                                                    <QRCode value={checkoutData.upiLink} size={180} />
+                                                <div className="bg-white p-3 rounded-xl">
+                                                    <QRCode value={checkoutData.upiLink} size={150} />
                                                 </div>
-                                                <p className="text-zinc-500 text-xs mt-3 text-center">
+                                                <p className="text-zinc-500 text-xs mt-2 text-center">
                                                     Scan with any UPI app to pay
                                                 </p>
                                             </div>
 
                                             {/* UPI ID */}
-                                            <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5">
+                                            <div className="bg-zinc-900/50 rounded-xl p-3 border border-white/5">
                                                 <p className="text-xs uppercase text-zinc-500 font-mono mb-2">Or pay to UPI ID</p>
                                                 <div className="flex items-center gap-2">
                                                     <code className="flex-1 bg-black px-3 py-2 rounded-lg text-[#00F0FF] font-mono text-sm">
