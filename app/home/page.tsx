@@ -534,9 +534,9 @@ export default function Home() {
               UIET Welcomes You
             </h2>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8">
+            <div className="flex flex-row items-center justify-center gap-2 md:gap-8">
               {/* University Logo */}
-              <div className="relative w-[180px] h-[180px] md:w-[240px] md:h-[240px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
+              <div className="relative w-[160px] h-[160px] md:w-[240px] md:h-[240px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
                 <Image
                   src="/uni-logo-1.png"
                   alt="CSJMU University Logo"
@@ -548,7 +548,7 @@ export default function Home() {
               </div>
 
               {/* NAAC Logo */}
-              <div className="relative w-[180px] h-[180px] md:w-[240px] md:h-[240px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
+              <div className="relative w-[160px] h-[160px] md:w-[240px] md:h-[240px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
                 <Image
                   src="/naac-5.png"
                   alt="NAAC A++ Accreditation"
