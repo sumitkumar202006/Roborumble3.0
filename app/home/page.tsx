@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, MapPin, Download, Shield, Trophy, Users, Terminal } from "lucide-react";
+import {
+  ArrowRight,
+  Calendar,
+  MapPin,
+  Download,
+  Shield,
+  Trophy,
+  Users,
+  Terminal,
+} from "lucide-react";
 
 import Footer from "../components/Footer";
 import Countdown from "../components/countdown";
@@ -21,14 +30,20 @@ interface TeamMember {
 }
 
 // --- Internal Component: AssetCard ---
-const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => {
+const AssetCard = ({
+  member,
+  delay,
+}: {
+  member: TeamMember;
+  delay: number;
+}) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Preload audio
-  const playOpenSound = useAudio('audio.wav', 0.1);
-  const playCloseSound = useAudio('audio.wav', 0.1);
+  const playOpenSound = useAudio("audio.wav", 0.1);
+  const playCloseSound = useAudio("audio.wav", 0.1);
 
   const handleClick = () => {
     if (showDetails || isLoading) return;
@@ -48,7 +63,10 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
   };
 
   return (
-    <div className="relative group cursor-crosshair h-full" onClick={handleClick}>
+    <div
+      className="relative group cursor-crosshair h-full"
+      onClick={handleClick}
+    >
       {/* Enhanced Card Frame */}
       <div className="relative bg-black border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-500 overflow-hidden h-full">
         {/* Corner Tech Brackets */}
@@ -59,7 +77,9 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
 
         {/* Status Bar */}
         <div className="bg-zinc-950/80 px-4 py-2 flex justify-between items-center border-b border-white/5">
-          <span className="text-[#00F0FF] font-mono text-[9px] uppercase tracking-widest">// {member.name.split(' ')[0]}</span>
+          <span className="text-[#00F0FF] font-mono text-[9px] uppercase tracking-widest">
+            // {member.name.split(" ")[0]}
+          </span>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-[#00F0FF] animate-pulse" />
             <span className="text-zinc-500 font-mono text-[8px]">ACTIVE</span>
@@ -88,9 +108,13 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
           </h3>
           <div className="flex items-center gap-2 mb-2">
             <div className="h-[1px] w-6 bg-[#FF003C]" />
-            <span className="text-[#FF003C] font-mono text-[10px] font-bold tracking-wider uppercase">{member.role}</span>
+            <span className="text-[#FF003C] font-mono text-[10px] font-bold tracking-wider uppercase">
+              {member.role}
+            </span>
           </div>
-          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-tight">{member.dept}</p>
+          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-tight">
+            {member.dept}
+          </p>
         </div>
 
         {/* Bottom accent */}
@@ -110,7 +134,10 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
                 <span className="hidden md:inline">ID_VERIFIED_LEVEL_A</span>
               </div>
               {/* Desktop Close Button */}
-              <button onClick={handleClose} className="hidden md:block hover:bg-black hover:text-[#FF003C] px-2 md:px-4 py-1 transition-all border border-black text-[8px] md:text-[11px]">
+              <button
+                onClick={handleClose}
+                className="hidden md:block hover:bg-black hover:text-[#FF003C] px-2 md:px-4 py-1 transition-all border border-black text-[8px] md:text-[11px]"
+              >
                 [ CLOSE ]
               </button>
             </div>
@@ -119,26 +146,39 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
               {isLoading ? (
                 <div className="h-[300px] flex flex-col items-center justify-center space-y-6">
                   <div className="w-1 bg-[#FF003C] h-24 animate-pulse" />
-                  <p className="text-[#FF003C] font-mono text-xl animate-pulse tracking-[0.7em] font-black uppercase">Deciphering Profile...</p>
+                  <p className="text-[#FF003C] font-mono text-xl animate-pulse tracking-[0.7em] font-black uppercase">
+                    Deciphering Profile...
+                  </p>
                 </div>
               ) : (
                 <div className="grid md:grid-cols-[300px_1fr] gap-12 items-start">
                   {/* Left Column: Image */}
                   <div className="flex flex-col items-center">
                     <div className="relative w-64 h-64 mb-8 overflow-hidden border-2 border-[#00F0FF]">
-                      <Image src={member.image} alt={member.name} fill className="object-cover" />
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   </div>
 
                   {/* Right Column: Text Content */}
                   <div className="w-full space-y-4">
                     <div className="border-b border-zinc-900 pb-4">
-                      <h3 className="text-3xl font-black text-white font-mono uppercase tracking-tighter mb-2">{member.name}</h3>
-                      <span className="text-[#FF003C] text-sm font-bold uppercase">{member.role}</span>
+                      <h3 className="text-3xl font-black text-white font-mono uppercase tracking-tighter mb-2">
+                        {member.name}
+                      </h3>
+                      <span className="text-[#FF003C] text-sm font-bold uppercase">
+                        {member.role}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-zinc-400 text-xs">{member.dept}</span>
+                      <span className="text-zinc-400 text-xs">
+                        {member.dept}
+                      </span>
                     </div>
 
                     {member.bio && (
@@ -150,7 +190,10 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
                     {member.specs && (
                       <div className="grid grid-cols-2 gap-2 text-left mb-4">
                         {member.specs.map((spec, i) => (
-                          <div key={i} className="bg-white/5 p-2 border border-white/10 text-[10px] text-[#00F0FF] uppercase tracking-wide flex items-center gap-2">
+                          <div
+                            key={i}
+                            className="bg-white/5 p-2 border border-white/10 text-[10px] text-[#00F0FF] uppercase tracking-wide flex items-center gap-2"
+                          >
                             <span className="text-[#FF003C]">&gt;</span> {spec}
                           </div>
                         ))}
@@ -158,7 +201,8 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
                     )}
 
                     <p className="text-zinc-500 text-sm leading-relaxed pt-4 border-t border-zinc-900 uppercase italic">
-                      Operational status: active. Coordinating robotics deployment for RR_v3.0.
+                      Operational status: active. Coordinating robotics
+                      deployment for RR_v3.0.
                     </p>
                   </div>
                 </div>
@@ -175,7 +219,9 @@ const AssetCard = ({ member, delay }: { member: TeamMember; delay: number }) => 
               </div>
             </div>
             <div className="absolute bottom-0 w-full p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
-              <span>EST_CONN: 0xTEAM_{member.name.split(' ')[0].toUpperCase()}</span>
+              <span>
+                EST_CONN: 0xTEAM_{member.name.split(" ")[0].toUpperCase()}
+              </span>
               <span>RR_SECURITY_OVERRIDE_ENABLED</span>
             </div>
           </div>
@@ -197,11 +243,15 @@ const ChiefPatronCard = ({ member }: { member: TeamMember }) => {
         <div className="flex justify-between items-center px-4 py-2 bg-black/50 border-b border-white/5">
           <div className="flex items-center gap-2">
             <div className="w-1 h-4 bg-[#00F0FF]" />
-            <span className="text-[#00F0FF] font-mono text-[10px] font-bold tracking-widest uppercase">// PROF.</span>
+            <span className="text-[#00F0FF] font-mono text-[10px] font-bold tracking-widest uppercase">
+              // PROF.
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-[#00F0FF] animate-pulse" />
-            <span className="text-zinc-500 font-mono text-[8px] tracking-widest uppercase">ACTIVE</span>
+            <span className="text-zinc-500 font-mono text-[8px] tracking-widest uppercase">
+              ACTIVE
+            </span>
           </div>
         </div>
 
@@ -224,9 +274,13 @@ const ChiefPatronCard = ({ member }: { member: TeamMember }) => {
           </h3>
           <div className="flex items-center gap-3 mt-4 mb-2">
             <div className="h-[2px] w-8 bg-[#FF003C]" />
-            <span className="text-[#FF003C] font-mono text-sm font-bold tracking-widest uppercase">{member.role}</span>
+            <span className="text-[#FF003C] font-mono text-sm font-bold tracking-widest uppercase">
+              {member.role}
+            </span>
           </div>
-          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-wider">{member.dept}</p>
+          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-wider">
+            {member.dept}
+          </p>
         </div>
 
         {/* Bottom Red Accent */}
@@ -238,18 +292,45 @@ const ChiefPatronCard = ({ member }: { member: TeamMember }) => {
 };
 
 // --- Internal Component: PatronCard (Image 2 Style - Circular) ---
-const PatronCard = ({ member, onClick }: { member: TeamMember; onClick?: () => void }) => {
+const PatronCard = ({
+  member,
+  onClick,
+}: {
+  member: TeamMember;
+  onClick?: () => void;
+}) => {
   return (
     <div
       onClick={onClick}
-      className={`flex flex-col items-center text-center group ${onClick ? 'cursor-pointer' : ''}`}
+      className={`flex flex-col items-center text-center group ${onClick ? "cursor-pointer" : ""}`}
     >
       {/* Circular Image Container with Tech Ring */}
       <div className="relative w-48 h-48 mb-6">
         {/* Animated Tech Ring SVG */}
-        <svg className="absolute inset-0 w-full h-full animate-spin-slow text-[#00F0FF]" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="10 10" opacity="0.3" />
-          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="60 40 60 40" strokeLinecap="square" />
+        <svg
+          className="absolute inset-0 w-full h-full animate-spin-slow text-[#00F0FF]"
+          viewBox="0 0 100 100"
+        >
+          <circle
+            cx="50"
+            cy="50"
+            r="49"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.5"
+            strokeDasharray="10 10"
+            opacity="0.3"
+          />
+          <circle
+            cx="50"
+            cy="50"
+            r="46"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeDasharray="60 40 60 40"
+            strokeLinecap="square"
+          />
         </svg>
 
         {/* Glow effect */}
@@ -305,8 +386,8 @@ export default function Home() {
       "Ph.D. Computer Science",
       "Former VC of AKTU & HBTU",
       "Expert in Image Processing",
-      "Digital Governance Lead"
-    ]
+      "Digital Governance Lead",
+    ],
   };
   const patrons = [
     {
@@ -315,7 +396,11 @@ export default function Home() {
       dept: "Dean, Innovation Foundation",
       image: "/dr-shilpa.jpg",
       bio: "Associate Professor in Biotechnology with over 50 publications in Viral Immunology. She serves as the Dean of Innovations, Entrepreneurship, and Startups at CSJMU, overseeing the university's incubation ecosystem.",
-      specs: ["Ph.D. Univ. of Tennessee", "SERB DST Young Scientist", "Expert in Applied Microbiology"]
+      specs: [
+        "Ph.D. Univ. of Tennessee",
+        "SERB DST Young Scientist",
+        "Expert in Applied Microbiology",
+      ],
     },
     {
       name: "Mr. Divyansh Shukla",
@@ -323,7 +408,11 @@ export default function Home() {
       dept: "CEO, Innovation Foundation",
       image: "/Divyansh_Shukla_Law.jpg",
       bio: "Assistant Professor of Law specializing in AI and Cyber Law. As CEO of CSJMIF, he bridges the gap between technical innovation and legal frameworks, focusing on IPR and startup acceleration.",
-      specs: ["LL.M. NLU Jodhpur", "Expert in AI & Cyber Law", "IPR Strategy Specialist"]
+      specs: [
+        "LL.M. NLU Jodhpur",
+        "Expert in AI & Cyber Law",
+        "IPR Strategy Specialist",
+      ],
     },
     {
       name: "Dr. Alok Kumar",
@@ -331,7 +420,11 @@ export default function Home() {
       dept: "Director, UIET",
       image: "/dr-alok-kumar.jpg",
       bio: "Associate Professor of Computer Science and Director of the School of Engineering & Technology (UIET). His research focus includes Natural Language Processing, Machine Learning, and Sentiment Analysis.",
-      specs: ["Ph.D. Computer Science", "Director of SET/UIET", "Expert in NLP & Deep Learning"]
+      specs: [
+        "Ph.D. Computer Science",
+        "Director of SET/UIET",
+        "Expert in NLP & Deep Learning",
+      ],
     },
   ];
 
@@ -342,7 +435,11 @@ export default function Home() {
       dept: "Asst. Professor, UIET",
       image: "/ajay.jpeg",
       bio: "Specialist in Electronics and Communication Engineering with a research focus on Solid State Physics and Dielectric Materials. He coordinates technical operations for electronic-heavy event segments.",
-      specs: ["Ph.D. in Physics", "Expert in Analog Electronics", "Ferroelectric Material Research"]
+      specs: [
+        "Ph.D. in Physics",
+        "Expert in Analog Electronics",
+        "Ferroelectric Material Research",
+      ],
     },
     {
       name: "Er. Mohd Shah Alam",
@@ -350,7 +447,11 @@ export default function Home() {
       dept: "Asst. Professor, UIET",
       image: "/shah.jpeg",
       bio: "Assistant Professor in Computer Science with expertise in Machine Learning and Network Security. He leads the software integration and cybersecurity protocols for competitive segments.",
-      specs: ["M.Tech Computer Science", "Expert in Network Security", "Machine Learning Specialist"]
+      specs: [
+        "M.Tech Computer Science",
+        "Expert in Network Security",
+        "Machine Learning Specialist",
+      ],
     },
   ];
   const stats = [
@@ -361,10 +462,21 @@ export default function Home() {
       icon: <Shield size={20} />,
       details: {
         headline: "Over 10 Exciting Events",
-        description: "Robo Rumble 3.0 features a diverse range of competitions designed to challenge your skills and creativity.",
-        events: ["Robo War", "Robo Soccer", "Robo Race", "Line Following Robot", "Pick & Place", "RC Flying", "E-Sports", "Exhibition", "Defence Expo"],
-        note: "Each event offers unique challenges and substantial prizes!"
-      }
+        description:
+          "Robo Rumble 3.0 features a diverse range of competitions designed to challenge your skills and creativity.",
+        events: [
+          "Robo War",
+          "Robo Soccer",
+          "Robo Race",
+          "Line Following Robot",
+          "Pick & Place",
+          "RC Flying",
+          "E-Sports",
+          "Exhibition",
+          "Defence Expo",
+        ],
+        note: "Each event offers unique challenges and substantial prizes!",
+      },
     },
     {
       title: "₹1.5L+",
@@ -373,36 +485,42 @@ export default function Home() {
       icon: <Trophy size={20} />,
       details: {
         headline: "Massive Prize Pool",
-        description: "Compete for glory and cash prizes across all events. Winners take home substantial rewards!",
-        breakdown: ["1st Place: Premium Cash Prizes", "2nd Place: Exciting Rewards", "3rd Place: Recognition Awards", "Special Categories: Best Innovation, Best Design"],
-        note: "All participants receive certificates and exclusive merchandise!"
-      }
+        description:
+          "Compete for glory and cash prizes across all events. Winners take home substantial rewards!",
+        breakdown: [
+          "1st Place: Premium Cash Prizes",
+          "2nd Place: Exciting Rewards",
+          "3rd Place: Recognition Awards",
+          "Special Categories: Best Innovation, Best Design",
+        ],
+        note: "All participants receive certificates and exclusive merchandise!",
+      },
     },
   ];
 
   // Sponsor modal state
-  const [selectedSponsor, setSelectedSponsor] = useState<SponsorData | null>(null);
+  const [selectedSponsor, setSelectedSponsor] = useState<SponsorData | null>(
+    null,
+  );
 
   // Stats modal state
-  const [selectedStat, setSelectedStat] = useState<typeof stats[0] | null>(null);
+  const [selectedStat, setSelectedStat] = useState<(typeof stats)[0] | null>(
+    null,
+  );
 
   // Mentor modal state
   const [selectedMentor, setSelectedMentor] = useState<TeamMember | null>(null);
-
-
 
   return (
     <main className="min-h-screen bg-transparent text-white relative overflow-x-hidden selection:bg-[#00F0FF] selection:text-black">
       {/* Background Matrix Effect */}
 
-
       {/* Background Matrix Effect */}
 
-
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20">
+      <section className="relative min-h-screen flex items-center justify-center pt-32">
         <div className="container mx-auto px-4 md:px-6 z-10 text-center">
-          <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="flex items-center justify-center gap-4 mb-12">
             <div className="h-[2px] w-12 bg-[#FF003C]" />
             <span className="text-[#FF003C] font-mono text-sm font-bold tracking-[0.4em] uppercase">
               Build Compete Dominate
@@ -410,24 +528,64 @@ export default function Home() {
             <div className="h-[2px] w-12 bg-[#FF003C]" />
           </div>
 
+          {/* Official Logos & Welcome Text */}
+          <div className="flex flex-col items-center gap-6 mb-8 animate-fade-in-up">
+            <h2 className="text-xl md:text-2xl font-mono uppercase tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF] font-bold drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
+              UIET Welcomes You
+            </h2>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8">
+              {/* University Logo */}
+              <div className="relative w-[180px] h-[180px] md:w-[240px] md:h-[240px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
+                <Image
+                  src="/uni-logo-1.png"
+                  alt="CSJMU University Logo"
+                  fill
+                  className="object-contain drop-shadow-[0_0_15px_rgba(0,240,255,0.3)] filter brightness-110 contrast-125"
+                />
+                {/* Subtle glow behind */}
+                <div className="absolute inset-0 bg-[#00F0FF]/5 blur-2xl -z-10 rounded-full" />
+              </div>
+
+              {/* NAAC Logo */}
+              <div className="relative w-[180px] h-[180px] md:w-[240px] md:h-[240px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
+                <Image
+                  src="/naac-5.png"
+                  alt="NAAC A++ Accreditation"
+                  fill
+                  className="object-contain drop-shadow-[0_0_1px_rgba(255,0,60,0.3)] filter brightness-110 contrast-125"
+                />
+                {/* Subtle glow behind */}
+                <div className="absolute inset-0 bg-[#FF003C]/5 blur-2xl -z-10 rounded-full" />
+              </div>
+            </div>
+          </div>
+
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black font-mono tracking-tighter uppercase leading-[0.85] mb-8 flex flex-col items-center">
             <div className="flex items-end gap-4">
               <div className="relative inline-block glitch-container">
-                <span className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red" style={{ transform: 'translate(-0.02em, 0.02em)' }}>
+                <span
+                  className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red"
+                  style={{ transform: "translate(-0.02em, 0.02em)" }}
+                >
                   ROBO
                 </span>
-                <span className="absolute top-0 left-0 text-[#00F0FF] mix-blend-screen opacity-60 glitch-layer-cyan" style={{ transform: 'translate(0.03em, -0.02em)' }}>
+                <span
+                  className="absolute top-0 left-0 text-[#00F0FF] mix-blend-screen opacity-60 glitch-layer-cyan"
+                  style={{ transform: "translate(0.03em, -0.02em)" }}
+                >
                   ROBO
                 </span>
                 <span className="relative text-white">ROBO</span>
               </div>
-              <span className="text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono animate-pulse">3.0</span>
+              <span className="text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono animate-pulse">
+                3.0
+              </span>
             </div>
             <div className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#00F0FF]">
               RUMBLE
             </div>
           </h1>
-
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
             <Link href="/register" className="w-full md:w-auto">
@@ -508,47 +666,73 @@ export default function Home() {
               {/* Theme Badge */}
               <div className="inline-block">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[#E661FF] font-mono text-[10px] uppercase tracking-[0.3em]">Theme 2026</span>
+                  <span className="text-[#E661FF] font-mono text-[10px] uppercase tracking-[0.3em]">
+                    Theme 2026
+                  </span>
                 </div>
                 <div className="relative">
                   <h3 className="text-2xl md:text-3xl font-black font-mono uppercase tracking-tight">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] via-[#E661FF] to-[#FF003C]">NEXUS</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] via-[#E661FF] to-[#FF003C]">
+                      NEXUS
+                    </span>
                   </h3>
-                  <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-[0.2em] border-t border-[#E661FF]/30 pt-1 mt-1">— Circuit of Champions —</p>
+                  <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-[0.2em] border-t border-[#E661FF]/30 pt-1 mt-1">
+                    — Circuit of Champions —
+                  </p>
                 </div>
               </div>
 
               {/* Main Title */}
               <h2 className="text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.9]">
                 <span className="text-white">THE </span>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">THEME</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">
+                  THEME
+                </span>
               </h2>
 
               {/* Tagline */}
               <p className="text-xl md:text-2xl text-zinc-400 leading-relaxed">
-                From the battleground of circuits and code, <span className="text-[#00F0FF] font-semibold">innovation awakens</span>.
+                From the battleground of circuits and code,{" "}
+                <span className="text-[#00F0FF] font-semibold">
+                  innovation awakens
+                </span>
+                .
               </p>
 
               {/* Description */}
               <p className="text-zinc-500 leading-relaxed max-w-lg">
-                Like warriors of steel and silicon, Robo Rumble 3.0 unfolds as a convergence of engineering brilliance and competitive spirit. Every bot becomes a testament to human ingenuity.
+                Like warriors of steel and silicon, Robo Rumble 3.0 unfolds as a
+                convergence of engineering brilliance and competitive spirit.
+                Every bot becomes a testament to human ingenuity.
               </p>
 
               {/* Stats */}
               <div className="flex gap-8 pt-4">
                 <div className="text-center">
-                  <div className="text-4xl font-black text-white font-mono">10+</div>
-                  <div className="text-[10px] text-[#00F0FF] uppercase tracking-widest font-mono mt-1">Events</div>
+                  <div className="text-4xl font-black text-white font-mono">
+                    10+
+                  </div>
+                  <div className="text-[10px] text-[#00F0FF] uppercase tracking-widest font-mono mt-1">
+                    Events
+                  </div>
                 </div>
                 <div className="h-12 w-[1px] bg-zinc-800" />
                 <div className="text-center">
-                  <div className="text-4xl font-black text-white font-mono">03</div>
-                  <div className="text-[10px] text-[#E661FF] uppercase tracking-widest font-mono mt-1">Days</div>
+                  <div className="text-4xl font-black text-white font-mono">
+                    03
+                  </div>
+                  <div className="text-[10px] text-[#E661FF] uppercase tracking-widest font-mono mt-1">
+                    Days
+                  </div>
                 </div>
                 <div className="h-12 w-[1px] bg-zinc-800" />
                 <div className="text-center">
-                  <div className="text-4xl font-black text-white font-mono">∞</div>
-                  <div className="text-[10px] text-[#FF003C] uppercase tracking-widest font-mono mt-1">Energy</div>
+                  <div className="text-4xl font-black text-white font-mono">
+                    ∞
+                  </div>
+                  <div className="text-[10px] text-[#FF003C] uppercase tracking-widest font-mono mt-1">
+                    Energy
+                  </div>
                 </div>
               </div>
             </div>
@@ -577,8 +761,14 @@ export default function Home() {
 
               {/* Floating particles */}
               <div className="absolute top-10 right-10 w-2 h-2 bg-[#00F0FF] rounded-full animate-ping" />
-              <div className="absolute bottom-16 left-8 w-1.5 h-1.5 bg-[#E661FF] rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-              <div className="absolute top-1/4 right-4 w-1 h-1 bg-[#FF003C] rounded-full animate-ping" style={{ animationDelay: '1s' }} />
+              <div
+                className="absolute bottom-16 left-8 w-1.5 h-1.5 bg-[#E661FF] rounded-full animate-ping"
+                style={{ animationDelay: "0.5s" }}
+              />
+              <div
+                className="absolute top-1/4 right-4 w-1 h-1 bg-[#FF003C] rounded-full animate-ping"
+                style={{ animationDelay: "1s" }}
+              />
               <div className="absolute bottom-1/4 left-4 w-2 h-2 bg-[#00F0FF]/60 rounded-full animate-pulse" />
             </div>
           </div>
@@ -607,9 +797,13 @@ export default function Home() {
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-[#00F0FF] animate-pulse" />
-                        <span className="text-[#00F0FF] font-mono text-[10px] uppercase tracking-widest">ONLINE</span>
+                        <span className="text-[#00F0FF] font-mono text-[10px] uppercase tracking-widest">
+                          ONLINE
+                        </span>
                       </div>
-                      <div className="text-zinc-600 font-mono text-[10px]">{stat.icon}</div>
+                      <div className="text-zinc-600 font-mono text-[10px]">
+                        {stat.icon}
+                      </div>
                     </div>
 
                     {/* Main Value - Digital Display Style */}
@@ -618,7 +812,10 @@ export default function Home() {
                         {stat.title}
                       </h3>
                       {/* Glitch overlay on hover */}
-                      <div className="absolute inset-0 text-6xl md:text-7xl font-black font-mono tracking-tighter text-[#FF003C] opacity-0 group-hover:opacity-20 transition-opacity" style={{ transform: 'translate(2px, -2px)' }}>
+                      <div
+                        className="absolute inset-0 text-6xl md:text-7xl font-black font-mono tracking-tighter text-[#FF003C] opacity-0 group-hover:opacity-20 transition-opacity"
+                        style={{ transform: "translate(2px, -2px)" }}
+                      >
                         {stat.title}
                       </div>
                     </div>
@@ -626,14 +823,20 @@ export default function Home() {
                     {/* Subtitle */}
                     <div className="flex items-center gap-2 mb-3">
                       <div className="h-[1px] w-8 bg-[#FF003C]" />
-                      <span className="text-[#FF003C] font-mono text-xs font-bold tracking-[0.3em]">// {stat.subtitle}</span>
+                      <span className="text-[#FF003C] font-mono text-xs font-bold tracking-[0.3em]">
+                        // {stat.subtitle}
+                      </span>
                     </div>
 
                     {/* Description */}
-                    <p className="text-zinc-500 font-mono text-xs uppercase tracking-tight">{stat.desc}</p>
+                    <p className="text-zinc-500 font-mono text-xs uppercase tracking-tight">
+                      {stat.desc}
+                    </p>
 
                     {/* Click Hint */}
-                    <p className="text-[#00F0FF]/60 font-mono text-[10px] uppercase tracking-widest mt-3 opacity-0 group-hover:opacity-100 transition-opacity">&gt; Click for details</p>
+                    <p className="text-[#00F0FF]/60 font-mono text-[10px] uppercase tracking-widest mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      &gt; Click for details
+                    </p>
 
                     {/* Bottom Scan Line */}
                     <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -649,7 +852,9 @@ export default function Home() {
       <section className="py-16 relative z-10 overflow-hidden">
         {/* Title */}
         <div className="container mx-auto px-4 md:px-6 mb-12">
-          <p className="text-[#00F0FF] text-xs uppercase tracking-[0.5em] font-black text-center">// Powered_By_Our_Partners</p>
+          <p className="text-[#00F0FF] text-xs uppercase tracking-[0.5em] font-black text-center">
+            // Powered_By_Our_Partners
+          </p>
         </div>
 
         {/* Infinite Scroll Container */}
@@ -701,7 +906,10 @@ export default function Home() {
       {/* Sponsor Modal */}
       {selectedSponsor && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto" onClick={() => setSelectedSponsor(null)} />
+          <div
+            className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto"
+            onClick={() => setSelectedSponsor(null)}
+          />
 
           <div className="relative w-full max-w-2xl bg-[#050505] border border-[#00F0FF] p-1 shadow-[0_0_80px_rgba(0,240,255,0.3)] pointer-events-auto animate-glitch-entry">
             {/* Top Bar */}
@@ -710,7 +918,10 @@ export default function Home() {
                 <span className="animate-pulse">● PARTNER_INTEL</span>
                 <span>{selectedSponsor.category}</span>
               </div>
-              <button onClick={() => setSelectedSponsor(null)} className="hover:bg-black hover:text-[#00F0FF] px-4 py-1 transition-all border border-black">
+              <button
+                onClick={() => setSelectedSponsor(null)}
+                className="hover:bg-black hover:text-[#00F0FF] px-4 py-1 transition-all border border-black"
+              >
                 [ CLOSE ]
               </button>
             </div>
@@ -719,25 +930,42 @@ export default function Home() {
               <div className="grid md:grid-cols-[200px_1fr] gap-8 items-start">
                 {/* Logo */}
                 <div className="relative w-full aspect-square bg-white/5 border border-white/10 p-4">
-                  <Image src={selectedSponsor.image} alt={selectedSponsor.name} fill className="object-contain p-2" />
+                  <Image
+                    src={selectedSponsor.image}
+                    alt={selectedSponsor.name}
+                    fill
+                    className="object-contain p-2"
+                  />
                 </div>
 
                 {/* Content */}
                 <div className="space-y-4">
                   <div className="border-b border-zinc-900 pb-4">
-                    <h3 className="text-3xl font-black text-white font-mono uppercase tracking-tighter mb-2">{selectedSponsor.name}</h3>
-                    <span className="text-[#00F0FF] text-sm font-bold uppercase">{selectedSponsor.contribution}</span>
+                    <h3 className="text-3xl font-black text-white font-mono uppercase tracking-tighter mb-2">
+                      {selectedSponsor.name}
+                    </h3>
+                    <span className="text-[#00F0FF] text-sm font-bold uppercase">
+                      {selectedSponsor.contribution}
+                    </span>
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-[#FF003C] text-xs font-mono font-bold uppercase tracking-wider mb-2">// About</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed">{selectedSponsor.about}</p>
+                      <h4 className="text-[#FF003C] text-xs font-mono font-bold uppercase tracking-wider mb-2">
+                        // About
+                      </h4>
+                      <p className="text-zinc-400 text-sm leading-relaxed">
+                        {selectedSponsor.about}
+                      </p>
                     </div>
 
                     <div>
-                      <h4 className="text-[#E661FF] text-xs font-mono font-bold uppercase tracking-wider mb-2">// Operational Role</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed">{selectedSponsor.operationalRole}</p>
+                      <h4 className="text-[#E661FF] text-xs font-mono font-bold uppercase tracking-wider mb-2">
+                        // Operational Role
+                      </h4>
+                      <p className="text-zinc-400 text-sm leading-relaxed">
+                        {selectedSponsor.operationalRole}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -745,7 +973,10 @@ export default function Home() {
             </div>
 
             <div className="p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
-              <span>CONN_ID: 0x{selectedSponsor.name.toUpperCase().replace(/\s/g, '')}</span>
+              <span>
+                CONN_ID: 0x
+                {selectedSponsor.name.toUpperCase().replace(/\s/g, "")}
+              </span>
               <span>RR_PARTNER_VERIFIED</span>
             </div>
           </div>
@@ -759,12 +990,16 @@ export default function Home() {
           <div className="mb-20 text-center">
             <div className="flex items-center justify-center gap-2 md:gap-4 mb-4">
               <div className="h-[2px] w-12 md:w-20 bg-[#FF003C]" />
-              <span className="text-[#FF003C] font-mono text-xs md:text-sm font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase">LEADERSHIP_&_GUIDANCE</span>
+              <span className="text-[#FF003C] font-mono text-xs md:text-sm font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase">
+                LEADERSHIP_&_GUIDANCE
+              </span>
               <div className="h-[2px] w-12 md:w-20 bg-[#FF003C]" />
             </div>
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-black font-mono tracking-tighter uppercase">
               <span className="text-white">OUR </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">MENTORS</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">
+                MENTORS
+              </span>
             </h2>
           </div>
 
@@ -775,7 +1010,10 @@ export default function Home() {
                 <Terminal size={14} /> // Chief_Patron
               </h3>
               <div className="flex justify-center">
-                <PatronCard member={chiefPatron} onClick={() => setSelectedMentor(chiefPatron)} />
+                <PatronCard
+                  member={chiefPatron}
+                  onClick={() => setSelectedMentor(chiefPatron)}
+                />
               </div>
             </div>
 
@@ -785,7 +1023,13 @@ export default function Home() {
                 <Terminal size={14} /> // Strategic_Patrons
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 md:gap-8">
-                {patrons.map((p, i) => <PatronCard key={i} member={p} onClick={() => setSelectedMentor(p)} />)}
+                {patrons.map((p, i) => (
+                  <PatronCard
+                    key={i}
+                    member={p}
+                    onClick={() => setSelectedMentor(p)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -795,7 +1039,13 @@ export default function Home() {
                 <Terminal size={14} /> // Technical_Advisors
               </h3>
               <div className="flex flex-wrap justify-center gap-12 md:gap-20">
-                {faculty.map((f, i) => <PatronCard key={i} member={f} onClick={() => setSelectedMentor(f)} />)}
+                {faculty.map((f, i) => (
+                  <PatronCard
+                    key={i}
+                    member={f}
+                    onClick={() => setSelectedMentor(f)}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -806,10 +1056,14 @@ export default function Home() {
       <section className="py-24 relative z-10 overflow-hidden">
         <div className="container mx-auto px-4 md:px-6 mb-12">
           <div className="text-center">
-            <span className="text-[#E661FF] font-mono text-[10px] uppercase tracking-[0.3em]">// Memory_Archive</span>
+            <span className="text-[#E661FF] font-mono text-[10px] uppercase tracking-[0.3em]">
+              // Memory_Archive
+            </span>
             <h2 className="text-3xl md:text-4xl font-black font-mono uppercase tracking-tighter mt-2">
               <span className="text-white">Flowing Through </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">Time</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">
+                Time
+              </span>
             </h2>
           </div>
         </div>
@@ -819,16 +1073,46 @@ export default function Home() {
           {/* Row 1 - Scrolling Left */}
           <div className="relative w-full">
             <div className="flex gap-6 animate-gallery-scroll-left">
-              {['/flowing_time/IMG-20250215-WA0071.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250219-WA0217.jpg'].map((img, i) => (
-                <div key={`r1a-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#E661FF]/30 rounded-lg overflow-hidden group">
-                  <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              {[
+                "/flowing_time/IMG-20250215-WA0071.jpg",
+                "/flowing_time/IMG-20250215-WA0090.jpg",
+                "/flowing_time/IMG-20250215-WA0094.jpg",
+                "/flowing_time/IMG-20250217-WA0001.jpg",
+                "/flowing_time/IMG-20250219-WA0159.jpg",
+                "/flowing_time/IMG-20250219-WA0217.jpg",
+              ].map((img, i) => (
+                <div
+                  key={`r1a-${i}`}
+                  className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#E661FF]/30 rounded-lg overflow-hidden group"
+                >
+                  <Image
+                    src={img}
+                    alt={`Event ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
               ))}
               {/* Duplicate for seamless loop */}
-              {['/flowing_time/IMG-20250215-WA0071.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250219-WA0217.jpg'].map((img, i) => (
-                <div key={`r1b-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#E661FF]/30 rounded-lg overflow-hidden group">
-                  <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              {[
+                "/flowing_time/IMG-20250215-WA0071.jpg",
+                "/flowing_time/IMG-20250215-WA0090.jpg",
+                "/flowing_time/IMG-20250215-WA0094.jpg",
+                "/flowing_time/IMG-20250217-WA0001.jpg",
+                "/flowing_time/IMG-20250219-WA0159.jpg",
+                "/flowing_time/IMG-20250219-WA0217.jpg",
+              ].map((img, i) => (
+                <div
+                  key={`r1b-${i}`}
+                  className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#E661FF]/30 rounded-lg overflow-hidden group"
+                >
+                  <Image
+                    src={img}
+                    alt={`Event ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
               ))}
@@ -838,16 +1122,46 @@ export default function Home() {
           {/* Row 2 - Scrolling Right (Opposite direction) */}
           <div className="relative w-full">
             <div className="flex gap-6 animate-gallery-scroll-right">
-              {['/flowing_time/IMG-20250219-WA0217.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0071.jpg'].map((img, i) => (
-                <div key={`r2a-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#00F0FF]/30 rounded-lg overflow-hidden group">
-                  <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              {[
+                "/flowing_time/IMG-20250219-WA0217.jpg",
+                "/flowing_time/IMG-20250219-WA0159.jpg",
+                "/flowing_time/IMG-20250217-WA0001.jpg",
+                "/flowing_time/IMG-20250215-WA0094.jpg",
+                "/flowing_time/IMG-20250215-WA0090.jpg",
+                "/flowing_time/IMG-20250215-WA0071.jpg",
+              ].map((img, i) => (
+                <div
+                  key={`r2a-${i}`}
+                  className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#00F0FF]/30 rounded-lg overflow-hidden group"
+                >
+                  <Image
+                    src={img}
+                    alt={`Event ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
               ))}
               {/* Duplicate for seamless loop */}
-              {['/flowing_time/IMG-20250219-WA0217.jpg', '/flowing_time/IMG-20250219-WA0159.jpg', '/flowing_time/IMG-20250217-WA0001.jpg', '/flowing_time/IMG-20250215-WA0094.jpg', '/flowing_time/IMG-20250215-WA0090.jpg', '/flowing_time/IMG-20250215-WA0071.jpg'].map((img, i) => (
-                <div key={`r2b-${i}`} className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#00F0FF]/30 rounded-lg overflow-hidden group">
-                  <Image src={img} alt={`Event ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              {[
+                "/flowing_time/IMG-20250219-WA0217.jpg",
+                "/flowing_time/IMG-20250219-WA0159.jpg",
+                "/flowing_time/IMG-20250217-WA0001.jpg",
+                "/flowing_time/IMG-20250215-WA0094.jpg",
+                "/flowing_time/IMG-20250215-WA0090.jpg",
+                "/flowing_time/IMG-20250215-WA0071.jpg",
+              ].map((img, i) => (
+                <div
+                  key={`r2b-${i}`}
+                  className="relative w-[280px] h-[180px] md:w-[350px] md:h-[220px] flex-shrink-0 border-2 border-[#00F0FF]/30 rounded-lg overflow-hidden group"
+                >
+                  <Image
+                    src={img}
+                    alt={`Event ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
               ))}
@@ -884,45 +1198,71 @@ export default function Home() {
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 bg-[#00F0FF] animate-pulse" />
-                <span className="text-[#00F0FF] font-mono text-[10px] uppercase tracking-widest">// DATA_STREAM_ACTIVE</span>
+                <span className="text-[#00F0FF] font-mono text-[10px] uppercase tracking-widest">
+                  // DATA_STREAM_ACTIVE
+                </span>
               </div>
-              <h3 className="text-4xl font-black text-white font-mono tracking-tight">{selectedStat.title}</h3>
-              <p className="text-[#FF003C] font-mono text-xs uppercase tracking-widest mt-1">// {selectedStat.subtitle}</p>
+              <h3 className="text-4xl font-black text-white font-mono tracking-tight">
+                {selectedStat.title}
+              </h3>
+              <p className="text-[#FF003C] font-mono text-xs uppercase tracking-widest mt-1">
+                // {selectedStat.subtitle}
+              </p>
             </div>
 
             {/* Content */}
             <div className="p-6 space-y-4">
-              <h4 className="text-xl font-bold text-white">{selectedStat.details.headline}</h4>
-              <p className="text-zinc-400 font-mono text-sm leading-relaxed">{selectedStat.details.description}</p>
+              <h4 className="text-xl font-bold text-white">
+                {selectedStat.details.headline}
+              </h4>
+              <p className="text-zinc-400 font-mono text-sm leading-relaxed">
+                {selectedStat.details.description}
+              </p>
 
               {/* Events List or Prize Breakdown */}
-              {'events' in selectedStat.details && (
+              {"events" in selectedStat.details && (
                 <div className="grid grid-cols-2 gap-2 mt-4">
-                  {(selectedStat.details as any).events.map((event: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 p-2 bg-[#00F0FF]/5 border border-[#00F0FF]/20 rounded">
-                      <div className="w-1.5 h-1.5 bg-[#00F0FF]" />
-                      <span className="text-white font-mono text-xs">{event}</span>
-                    </div>
-                  ))}
+                  {(selectedStat.details as any).events.map(
+                    (event: string, i: number) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 p-2 bg-[#00F0FF]/5 border border-[#00F0FF]/20 rounded"
+                      >
+                        <div className="w-1.5 h-1.5 bg-[#00F0FF]" />
+                        <span className="text-white font-mono text-xs">
+                          {event}
+                        </span>
+                      </div>
+                    ),
+                  )}
                 </div>
               )}
 
-              {'breakdown' in selectedStat.details && (
+              {"breakdown" in selectedStat.details && (
                 <div className="space-y-2 mt-4">
-                  {(selectedStat.details as any).breakdown.map((item: string, i: number) => (
-                    <div key={i} className="flex items-center gap-3 p-3 bg-[#E661FF]/5 border border-[#E661FF]/20 rounded">
-                      <div className="w-6 h-6 flex items-center justify-center bg-[#E661FF]/20 rounded">
-                        <Trophy size={14} className="text-[#E661FF]" />
+                  {(selectedStat.details as any).breakdown.map(
+                    (item: string, i: number) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 p-3 bg-[#E661FF]/5 border border-[#E661FF]/20 rounded"
+                      >
+                        <div className="w-6 h-6 flex items-center justify-center bg-[#E661FF]/20 rounded">
+                          <Trophy size={14} className="text-[#E661FF]" />
+                        </div>
+                        <span className="text-white font-mono text-xs">
+                          {item}
+                        </span>
                       </div>
-                      <span className="text-white font-mono text-xs">{item}</span>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               )}
 
               {/* Note */}
               <div className="mt-4 p-3 bg-[#FF003C]/10 border border-[#FF003C]/20 rounded">
-                <p className="text-[#FF003C] font-mono text-xs">&gt;_ {selectedStat.details.note}</p>
+                <p className="text-[#FF003C] font-mono text-xs">
+                  &gt;_ {selectedStat.details.note}
+                </p>
               </div>
             </div>
 
@@ -935,7 +1275,10 @@ export default function Home() {
       {/* Mentor Modal */}
       {selectedMentor && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto" onClick={() => setSelectedMentor(null)} />
+          <div
+            className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto"
+            onClick={() => setSelectedMentor(null)}
+          />
 
           <div className="relative w-full max-w-4xl bg-[#050505] border border-white p-1 shadow-[0_0_80px_rgba(255,255,255,0.1)] pointer-events-auto animate-glitch-entry">
             {/* Top Bar - White Background */}
@@ -956,14 +1299,34 @@ export default function Home() {
 
             <div className="p-8 md:p-12 max-h-[80vh] overflow-y-auto">
               <div className="grid md:grid-cols-[300px_1fr] gap-12 items-center">
-
                 {/* Left Column - Image with Ring */}
                 <div className="flex flex-col items-center">
                   <div className="relative w-64 h-64 mb-6">
                     {/* Tech Ring SVG - White */}
-                    <svg className="absolute inset-0 w-full h-full animate-spin-slow text-white" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="40 20 40 20" opacity="0.5" />
-                      <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="100 200" strokeLinecap="round" />
+                    <svg
+                      className="absolute inset-0 w-full h-full animate-spin-slow text-white"
+                      viewBox="0 0 100 100"
+                    >
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="48"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeDasharray="40 20 40 20"
+                        opacity="0.5"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="44"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeDasharray="100 200"
+                        strokeLinecap="round"
+                      />
                     </svg>
 
                     {/* Glowing static ring */}
@@ -981,7 +1344,10 @@ export default function Home() {
                   </div>
 
                   <div className="text-white font-mono text-xs uppercase tracking-[0.2em] font-bold">
-                    // {selectedMentor.role === 'Chief Patron' ? 'CHIEF_PATRON' : 'PATRON'}
+                    //{" "}
+                    {selectedMentor.role === "Chief Patron"
+                      ? "CHIEF_PATRON"
+                      : "PATRON"}
                   </div>
                 </div>
 
@@ -1011,9 +1377,16 @@ export default function Home() {
                   {selectedMentor.specs && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
                       {selectedMentor.specs.map((spec, i) => (
-                        <div key={i} className="flex items-center gap-3 p-4 bg-white/5 border border-white/30 hover:bg-white/10 transition-colors">
-                          <span className="text-white font-bold text-lg">&gt; </span>
-                          <span className="text-zinc-300 font-mono text-xs uppercase tracking-wide">{spec}</span>
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 p-4 bg-white/5 border border-white/30 hover:bg-white/10 transition-colors"
+                        >
+                          <span className="text-white font-bold text-lg">
+                            &gt;{" "}
+                          </span>
+                          <span className="text-zinc-300 font-mono text-xs uppercase tracking-wide">
+                            {spec}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -1058,45 +1431,66 @@ export default function Home() {
         .animate-infinite-scroll:hover {
           animation-play-state: paused;
         }
-        
+
         .animate-infinite-scroll-slow {
           animation: infinite-scroll 45s linear infinite;
         }
         .animate-infinite-scroll-slow:hover {
           animation-play-state: paused;
         }
-        
+
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
         }
         .animate-float {
           animation: float 4s ease-in-out infinite;
         }
-        
+
         @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
         .animate-spin-slow {
           animation: spin-slow 25s linear infinite;
         }
-        
+
         @keyframes spin-reverse {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
+          from {
+            transform: rotate(360deg);
+          }
+          to {
+            transform: rotate(0deg);
+          }
         }
         .animate-spin-reverse {
           animation: spin-reverse 30s linear infinite;
         }
-        
+
         @keyframes gallery-scroll-left {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
         @keyframes gallery-scroll-right {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
+          0% {
+            transform: translateX(-50%);
+          }
+          100% {
+            transform: translateX(0);
+          }
         }
         .animate-gallery-scroll-left {
           animation: gallery-scroll-left 40s linear infinite;
@@ -1108,8 +1502,10 @@ export default function Home() {
         .animate-gallery-scroll-right:hover {
           animation-play-state: paused;
         }
-        
-        .glitch-container { animation: glitch-skew 3s infinite; }
+
+        .glitch-container {
+          animation: glitch-skew 3s infinite;
+        }
         @keyframes glitch-skew {
           0%,
           100% {
