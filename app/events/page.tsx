@@ -292,7 +292,7 @@ const EventCard = ({
                         {event.title}
                       </h2>
                       <p className="text-[#00F0FF] font-mono text-sm tracking-[0.2em] font-bold">
-                        // {event.category} DIVISION
+                        {event.category} DIVISION
                       </p>
                     </div>
 
@@ -349,7 +349,7 @@ const EventCard = ({
                           <div className="space-y-8 animate-glitch-entry">
                             <div className="space-y-4">
                               <h5 className="text-[#FF003C] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#FF003C]/30 pb-2">
-                                // Engagement_Protocol
+                                Engagement_Protocol
                               </h5>
                               <ul className="grid gap-2">
                                 {event.rules.map((rule, i) => (
@@ -368,7 +368,7 @@ const EventCard = ({
                             {event.specifications && (
                               <div className="space-y-4">
                                 <h5 className="text-[#00F0FF] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#00F0FF]/30 pb-2">
-                                  // Tech_Specs
+                                  Tech_Specs
                                 </h5>
                                 <ul className="grid gap-2">
                                   {event.specifications.map((spec, i) => (
@@ -388,7 +388,7 @@ const EventCard = ({
                             {event.gameplay && (
                               <div className="space-y-4">
                                 <h5 className="text-[#E661FF] font-mono font-bold text-xs uppercase tracking-widest border-b border-[#E661FF]/30 pb-2">
-                                  // Mission_Parameters
+                                  Mission_Parameters
                                 </h5>
                                 <ul className="grid gap-2">
                                   {event.gameplay.map((gp, i) => (
@@ -572,11 +572,11 @@ export default function EventsPage() {
         {/* Competitive Section */}
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-2 h-8 bg-[#FF003C]" />
-            <h2 className="text-2xl md:text-4xl font-black font-mono uppercase tracking-widest text-white">
-              // COMPETITIVE_PARADIGMS
+            <div className="w-2 h-8 bg-[#E661FF]" />
+            <h2 className="text-2xl md:text-4xl max-[400]:text-xl font-black font-mono uppercase tracking-widest text-white">
+              BATTLES
             </h2>
-            <div className="h-[1px] flex-grow bg-gradient-to-r from-[#FF003C]/50 to-transparent" />
+            <div className="h-[1px] flex-grow bg-gradient-to-r from-[#E661FF]/50 to-transparent" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {events
@@ -600,8 +600,8 @@ export default function EventsPage() {
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-2 h-8 bg-[#E661FF]" />
-            <h2 className="text-2xl md:text-4xl font-black font-mono uppercase tracking-widest text-white">
-              // EXPOS_PARADIGMS
+            <h2 className="text-2xl md:text-4xl max-[400]:text-xl font-black font-mono uppercase tracking-widest text-white">
+              EXPOS_PARADIGMS
             </h2>
             <div className="h-[1px] flex-grow bg-gradient-to-r from-[#E661FF]/50 to-transparent" />
           </div>
