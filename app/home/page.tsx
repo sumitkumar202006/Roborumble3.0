@@ -588,15 +588,19 @@ export default function Home() {
           </h1>
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
-            <Link href="/register" className="w-full md:w-auto">
+            <Link href="/register" className="w-full md:w-auto group">
               <button
-                className="w-full md:w-auto px-8 py-4 bg-[#FF003C] text-black font-black font-mono tracking-widest hover:bg-white transition-all uppercase flex items-center justify-center gap-2"
+                className="w-full md:w-auto min-w-[280px] px-8 py-4 bg-[#E60073] text-[#FAFAFA] font-black font-mono tracking-widest hover:tracking-[0.2em] transition-all duration-300 uppercase flex items-center justify-center gap-2"
                 style={{
                   clipPath:
                     "polygon(15% 0, 100% 0, 100% 70%, 85% 100%, 0 100%, 0 30%)",
                 }}
               >
-                Register_Now <ArrowRight size={20} />
+                Register_Now{" "}
+                <ArrowRight
+                  size={20}
+                  className="transition-transform duration-300 group-hover:translate-x-2"
+                />
               </button>
             </Link>
 
@@ -652,7 +656,7 @@ export default function Home() {
             <p className="text-[#FF003C] text-xs mb-4 uppercase tracking-[0.5em] font-black">
               Deployment Countdown
             </p>
-            <Countdown targetDate="2026-03-09T09:00:00" />
+            <Countdown targetDate="2026-03-17T09:00:00" />
           </div>
         </div>
       </section>
@@ -824,7 +828,7 @@ export default function Home() {
                     <div className="flex items-center gap-2 mb-3">
                       <div className="h-[1px] w-8 bg-[#FF003C]" />
                       <span className="text-[#FF003C] font-mono text-xs font-bold tracking-[0.3em]">
-                        // {stat.subtitle}
+                         {stat.subtitle}
                       </span>
                     </div>
 
@@ -852,8 +856,8 @@ export default function Home() {
       <section className="py-16 relative z-10 overflow-hidden">
         {/* Title */}
         <div className="container mx-auto px-4 md:px-6 mb-12">
-          <p className="text-[#00F0FF] text-xs uppercase tracking-[0.5em] font-black text-center">
-            // Powered_By_Our_Partners
+          <p className="text-[#00F0FF] text-[3rem] max-[400]:text-[1rem] uppercase tracking-[0.2em] font-black text-center">
+            Previous Partners
           </p>
         </div>
 
@@ -1007,7 +1011,7 @@ export default function Home() {
           <div className="space-y-24">
             <div>
               <h3 className="text-xs font-mono font-bold text-[#FF003C] tracking-[0.5em] uppercase mb-10 border-b border-[#FF003C]/20 pb-4 flex items-center gap-4">
-                <Terminal size={14} /> // Chief_Patron
+                <Terminal size={14} />  Chief_Patron
               </h3>
               <div className="flex justify-center">
                 <PatronCard
@@ -1020,7 +1024,7 @@ export default function Home() {
             {/* Strategic Patrons */}
             <div>
               <h3 className="text-xs font-mono font-bold text-[#00F0FF] tracking-[0.5em] uppercase mb-16 border-b border-[#00F0FF]/20 pb-4 flex items-center gap-4">
-                <Terminal size={14} /> // Strategic_Patrons
+                <Terminal size={14} />  Strategic_Patrons
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 md:gap-8">
                 {patrons.map((p, i) => (
@@ -1036,7 +1040,7 @@ export default function Home() {
             {/* Technical Advisors */}
             <div>
               <h3 className="text-xs font-mono font-bold text-[#E661FF] tracking-[0.5em] uppercase mb-16 border-b border-[#E661FF]/20 pb-4 flex items-center gap-4">
-                <Terminal size={14} /> // Technical_Advisors
+                <Terminal size={14} />  Technical_Advisors
               </h3>
               <div className="flex flex-wrap justify-center gap-12 md:gap-20">
                 {faculty.map((f, i) => (
@@ -1057,7 +1061,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6 mb-12">
           <div className="text-center">
             <span className="text-[#E661FF] font-mono text-[10px] uppercase tracking-[0.3em]">
-              // Memory_Archive
+               Memory_Archive
             </span>
             <h2 className="text-3xl md:text-4xl font-black font-mono uppercase tracking-tighter mt-2">
               <span className="text-white">Flowing Through </span>
