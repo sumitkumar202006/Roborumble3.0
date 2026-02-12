@@ -84,7 +84,7 @@ const getEventIcon = (category: string, eventId: string) => {
 // --- Formatter Helper ---
 const formatDate = (dateStr?: string) => {
   // Default to a fixed date if none provided, for demo purposes as requested
-  const date = dateStr ? new Date(dateStr) : new Date("2026-03-09T09:00:00");
+  const date = dateStr ? new Date(dateStr) : new Date("2026-03-16T09:00:00");
   const day = date.getDate();
   const month = date
     .toLocaleString("default", { month: "short" })

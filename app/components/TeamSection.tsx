@@ -277,6 +277,19 @@ const teamData = {
         { icon: HiOutlineMail, link: "mailto:jaivermacse70@gmail.com" },
       ],
     },
+    {
+      name: "Riya Sonker",
+      role: "Contributor",
+      img: "/riya.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "https://www.instagram.com/rittzz._.35" },
+        {
+          icon: FaLinkedinIn,
+          link: "https://www.linkedin.com/in/riya-sonker-53b329371",
+        },
+        { icon: HiOutlineMail, link: "mailto:riyasonker0307@gmail.com" },
+      ],
+    },
   ],
 };
 
