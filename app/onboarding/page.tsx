@@ -486,7 +486,7 @@ export default function OnboardingPage() {
                 }}
                 required
               />
-              <div className="grid grid-cols-2 gap-4 relative z-0">
+              <div className="grid grid-cols-2 gap-4 relative z-10">
                 <SearchableSelect
                   label="Degree/Grade"
                   value={formData.degree}

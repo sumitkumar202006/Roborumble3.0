@@ -155,7 +155,7 @@ export default function CollegeSearchInput({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.15 }}
-                className="absolute z-[9999] w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl shadow-black/50 flex flex-col"
+                className="absolute z-[9999] w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-xl shadow-black/50 flex flex-col"
               >
                 {/* Scrollable results */}
                 <div className="max-h-40 overflow-y-auto">
