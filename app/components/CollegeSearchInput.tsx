@@ -160,7 +160,7 @@ export default function CollegeSearchInput({
 
       {/* Selected Value Display */}
       {value && !showOtherInput ? (
-        <div className="flex items-center gap-2 w-full pl-10 pr-3 py-2.5 bg-gray-800/50 border border-cyan-500/50 rounded-lg text-white text-sm relative">
+        <div className="flex items-center gap-2 w-full pl-10 pr-3 py-2.5 bg-gray-900 border border-cyan-500/50 rounded-lg text-white text-sm relative">
           <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400" />
           <span className="flex-1 truncate">{value}</span>
           <button
@@ -184,7 +184,7 @@ export default function CollegeSearchInput({
                 setOtherError("");
               }}
               placeholder="Enter your full college name..."
-              className="w-full pl-10 pr-3 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-all text-sm"
+              className="w-full pl-10 pr-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-all text-sm"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -239,7 +239,7 @@ export default function CollegeSearchInput({
             }}
             onFocus={() => setIsOpen(true)}
             placeholder={placeholder}
-            className="w-full pl-10 pr-8 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-all text-sm"
+            className="w-full pl-10 pr-8 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-all text-sm"
           />
           <ChevronDown
             className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}

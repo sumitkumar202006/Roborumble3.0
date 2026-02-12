@@ -353,7 +353,12 @@ export default function CheckoutModal({
                                 }
                               }}
                               onUploadError={(error) => {
-                                setError(error.message);
+                                const msg = error.message?.toLowerCase() || "";
+                                if (msg.includes("size") || msg.includes("filesizemismatch") || msg.includes("invalid config") || msg.includes("too large")) {
+                                  setError("Image size should be less than 4MB");
+                                } else {
+                                  setError(error.message);
+                                }
                               }}
                               appearance={{
                                 button:

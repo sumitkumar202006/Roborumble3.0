@@ -240,8 +240,12 @@ export default function PaymentPage() {
                                                 alert("Upload Completed");
                                             }}
                                             onUploadError={(error: Error) => {
-                                                // Do something with the error.
-                                                alert(`ERROR! ${error.message}`);
+                                                const msg = error.message?.toLowerCase() || "";
+                                                if (msg.includes("size") || msg.includes("filesizemismatch") || msg.includes("invalid config") || msg.includes("too large")) {
+                                                    alert("Image size should be less than 4MB");
+                                                } else {
+                                                    alert(`ERROR! ${error.message}`);
+                                                }
                                             }}
                                             appearance={{
                                                 button: "bg-[#FF003C] text-black font-black font-mono tracking-widest uppercase text-xs px-4 py-2 w-full",
