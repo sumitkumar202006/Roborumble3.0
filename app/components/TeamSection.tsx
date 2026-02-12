@@ -12,18 +12,8 @@ import { HiOutlineMail } from "react-icons/hi";
 const teamData = {
   core: [
     {
-      name: "Devanshu Verma",
-      role: "Coordinator",
-      img: "/devanshu.jpeg",
-      socials: [
-        { icon: FaInstagram, link: "https://www.instagram.com/devanshu_id" },
-        { icon: FaLinkedinIn, link: "https://www.linkedin.com/in/devanshu" },
-        { icon: HiOutlineMail, link: "mailto:devanshuv810@gmail.com" },
-      ],
-    },
-    {
-      name: "Raju Ranjan Singh",
-      role: "Coordinator",
+      name: "Raju Ranjan Yadav",
+      role: "Student Coordinator",
       img: "/Raju.jpeg",
       socials: [
         { icon: FaInstagram, link: "https://www.instagram.com/rraju98181" },
@@ -32,8 +22,18 @@ const teamData = {
       ],
     },
     {
+      name: "Devanshu Verma",
+      role: "Student Coordinator",
+      img: "/devanshu.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "https://www.instagram.com/devanshu_id" },
+        { icon: FaLinkedinIn, link: "https://www.linkedin.com/in/devanshu" },
+        { icon: HiOutlineMail, link: "mailto:devanshuv810@gmail.com" },
+      ],
+    },
+    {
       name: "Qaaid Iqbal Badri",
-      role: "Coordinator",
+      role: "Technical Head",
       img: "/qaaid.jpeg",
       socials: [
         { icon: FaInstagram, link: "#" },
@@ -91,7 +91,7 @@ const teamData = {
     },
     {
       name: "Mukesh Yadav",
-      role: "Event Manager",
+      role: "Volunteer Head",
       img: "/mukesh copy.jpeg",
       socials: [
         { icon: FaInstagram, link: "#" },
@@ -114,7 +114,7 @@ const teamData = {
     },
     {
       name: "Vaishnavi Pal",
-      role: "Hospitality Head",
+      role: "Event Manager",
       img: "/Vaishnavi2.jpeg",
       socials: [
         {
@@ -178,6 +178,26 @@ const teamData = {
           link: "https://www.linkedin.com/in/shruti-gupta-123560295",
         },
         { icon: HiOutlineMail, link: "mailto:sg934016@gmail.com" },
+      ],
+    },
+    {
+      name: "MIK",
+      role: "Sponsorship and Outreach Head",
+      img: "/MIK.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
+    {
+      name: "Lucky Kumar",
+      role: "PR & Media Head",
+      img: "/lucky copy.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
       ],
     },
   ],
@@ -275,6 +295,19 @@ const teamData = {
           link: "https://linkedin.com/in/jai-verma-270a49305",
         },
         { icon: HiOutlineMail, link: "mailto:jaivermacse70@gmail.com" },
+      ],
+    },
+    {
+      name: "Riya Sonker",
+      role: "Contributor",
+      img: "/riya.jpeg",
+      socials: [
+        { icon: FaInstagram, link: "https://www.instagram.com/rittzz._.35" },
+        {
+          icon: FaLinkedinIn,
+          link: "https://www.linkedin.com/in/riya-sonker-53b329371",
+        },
+        { icon: HiOutlineMail, link: "mailto:riyasonker0307@gmail.com" },
       ],
     },
   ],

@@ -82,6 +82,11 @@ export async function POST(req: Request) {
                 currency: "INR"
             });
 
+            // Lock team for paid events (prevent disband/leave after registration)
+            if (event.fees > 0) {
+                await Team.findByIdAndUpdate(teamId, { isLocked: true });
+            }
+
             // Update Profiles of ALL selected members
             await Profile.updateMany(
                 { _id: { $in: selectedMembers } },

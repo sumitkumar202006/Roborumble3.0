@@ -3,6 +3,8 @@
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import CollegeSearchInput from "@/app/components/CollegeSearchInput";
+import SearchableSelect from "@/app/components/SearchableSelect";
 import {
   User,
   Mail,
@@ -643,16 +645,33 @@ export default function ProfilePage() {
                 editValue={editForm.phone}
                 onEditChange={handleEditChange}
               />
-              <EditableField
-                icon={Building2}
-                label="College"
-                value={profile?.college}
-                field="college"
-                color="yellow"
-                isEditing={isEditing}
-                editValue={editForm.college}
-                onEditChange={handleEditChange}
-              />
+              {isEditing ? (
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-700/50 p-4 overflow-visible relative z-20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-lg bg-yellow-500/20 text-yellow-400">
+                      <Building2 size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <CollegeSearchInput
+                        value={editForm.college}
+                        onChange={(val) => handleEditChange("college", val)}
+                        label="College"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <EditableField
+                  icon={Building2}
+                  label="College"
+                  value={profile?.college}
+                  field="college"
+                  color="yellow"
+                  isEditing={false}
+                  editValue={editForm.college}
+                  onEditChange={handleEditChange}
+                />
+              )}
               <EditableField
                 icon={MapPin}
                 label="City"
@@ -696,18 +715,37 @@ export default function ProfilePage() {
               Academic Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <EditableField
-                icon={GraduationCap}
-                label="Degree"
-                value={profile?.degree}
-                field="degree"
-                color="purple"
-                isEditing={isEditing}
-                editValue={editForm.degree}
-                onEditChange={handleEditChange}
-                type="select"
-                options={degreeOptions}
-              />
+              {isEditing ? (
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-700/50 p-4 overflow-visible relative z-20">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-lg bg-purple-500/20 text-purple-400">
+                      <GraduationCap size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <SearchableSelect
+                        value={editForm.degree}
+                        onChange={(val) => handleEditChange("degree", val)}
+                        options={degreeOptions}
+                        label="Degree"
+                        placeholder="Search degree..."
+                        icon={GraduationCap}
+                        otherLabel="Other degree not listed"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <EditableField
+                  icon={GraduationCap}
+                  label="Degree"
+                  value={profile?.degree}
+                  field="degree"
+                  color="purple"
+                  isEditing={false}
+                  editValue={editForm.degree}
+                  onEditChange={handleEditChange}
+                />
+              )}
               <EditableField
                 icon={Building2}
                 label="Branch"

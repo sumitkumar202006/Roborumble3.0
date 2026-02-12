@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import CollegeSearchInput from "@/app/components/CollegeSearchInput";
+import SearchableSelect from "@/app/components/SearchableSelect";
 import {
   LogOut,
   User,
@@ -476,23 +478,27 @@ export default function OnboardingPage() {
               exit="exit"
               className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-4 space-y-4"
             >
-              <AnimatedInput
-                label="College / University"
-                name="college"
+              <CollegeSearchInput
                 value={formData.college}
-                onChange={handleInputChange}
-                placeholder="e.g., IIT Delhi, MIT..."
-                icon={GraduationCap}
+                onChange={(val) => {
+                  setFormData((prev) => ({ ...prev, college: val }));
+                  setError("");
+                }}
                 required
               />
               <div className="grid grid-cols-2 gap-4">
-                <AnimatedSelect
+                <SearchableSelect
                   label="Degree"
-                  name="degree"
                   value={formData.degree}
-                  onChange={handleInputChange}
+                  onChange={(val) => {
+                    setFormData((prev) => ({ ...prev, degree: val }));
+                    setError("");
+                  }}
                   options={degreeOptions}
+                  placeholder="Search degree..."
+                  icon={GraduationCap}
                   required
+                  otherLabel="Other degree not listed"
                 />
                 <AnimatedSelect
                   label="Year"

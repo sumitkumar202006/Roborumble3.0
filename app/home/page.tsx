@@ -418,7 +418,7 @@ export default function Home() {
       name: "Dr. Alok Kumar",
       role: "Patron",
       dept: "Director, UIET",
-      image: "/dr-alok-kumar.jpg",
+      image: "/alok-sir.jpeg",
       bio: "Associate Professor of Computer Science and Director of the School of Engineering & Technology (UIET). His research focus includes Natural Language Processing, Machine Learning, and Sentiment Analysis.",
       specs: [
         "Ph.D. Computer Science",
@@ -449,7 +449,7 @@ export default function Home() {
       bio: "Assistant Professor in Computer Science with expertise in Machine Learning and Network Security. He leads the software integration and cybersecurity protocols for competitive segments.",
       specs: [
         "M.Tech Computer Science",
-        "Expert in Network Security",
+        "Expert in Cyber Security",
         "Machine Learning Specialist",
       ],
     },
@@ -656,7 +656,7 @@ export default function Home() {
             <p className="text-[#FF003C] text-xs mb-4 uppercase tracking-[0.5em] font-black">
               Deployment Countdown
             </p>
-            <Countdown targetDate="2026-03-17T09:00:00" />
+            <Countdown targetDate="2026-03-16T09:00:00" />
           </div>
         </div>
       </section>

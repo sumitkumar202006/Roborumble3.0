@@ -47,7 +47,7 @@ export default function Patrons() {
       name: "Dr. Alok Kumar",
       role: "Patron",
       designation: "Director, UIET",
-      image: "/dr-alok-kumar.jpg",
+      image: "/alok-sir.jpeg",
       bio: "Associate Professor of Computer Science and Director of the School of Engineering & Technology (UIET). His research focus includes Natural Language Processing, Machine Learning, and Sentiment Analysis.",
       specs: [
         "Ph.D. Computer Science",
