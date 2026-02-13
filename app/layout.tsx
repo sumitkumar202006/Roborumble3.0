@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import CustomCursor from "@/components/CustomCursor";
 import ParticleBackground from "./components/ParticleBackground";
+import RegistrationGate from "./components/RegistrationGate";
 
 export default function RootLayout({
   children,
@@ -20,21 +21,27 @@ export default function RootLayout({
   const isOnboarding = pathname.startsWith("/onboarding");
 
   // Hide navbar on admin, dashboard, and onboarding pages
-  const showNavbar = !isIntroPage && !isAdminPage && !isDashboard && !isOnboarding;
+  const showNavbar =
+    !isIntroPage && !isAdminPage && !isDashboard && !isOnboarding;
 
   return (
     <ClerkProvider>
       <html lang="en">
         <head>
           <title>ROBO RUMBLE | The Ultimate Robotics Showdown</title>
-          <meta name="description" content="Join Robo Rumble 3.0 at CSJMU. The Ultimate Robotics Competition." />
+          <meta
+            name="description"
+            content="Join Robo Rumble 3.0 at CSJMU. The Ultimate Robotics Competition."
+          />
           <link rel="icon" href="/skull.png" />
         </head>
         <body>
           {!isDashboard && <ParticleBackground />}
           <AuthProvider>
-            {showNavbar && <Navbar />}
-            {children}
+            <RegistrationGate>
+              {showNavbar && <Navbar />}
+              {children}
+            </RegistrationGate>
             <CustomCursor />
           </AuthProvider>
         </body>
@@ -42,4 +49,3 @@ export default function RootLayout({
     </ClerkProvider>
   );
 }
-
