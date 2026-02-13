@@ -46,10 +46,10 @@ export async function GET(req: Request) {
 
         // Filter out users already in teams if requested
         if (excludeInTeam) {
-            searchFilter.currentTeamId = { $exists: false };
+            searchFilter.currentTeamId = { $in: [null, undefined] };
         }
         if (excludeInEsportsTeam) {
-            searchFilter.esportsTeamId = { $exists: false };
+            searchFilter.esportsTeamId = { $in: [null, undefined] };
         }
 
         // Find matching users
