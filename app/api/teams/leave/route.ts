@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Team from "@/app/models/Team";
 import Profile from "@/app/models/Profile";
+import Registration from "@/app/models/Registration";
+import Cart from "@/app/models/Cart";
 
 // POST - Leave or disband team
 export async function POST(req: Request) {
@@ -55,15 +57,31 @@ export async function POST(req: Request) {
         const isLeader = team.leaderId.toString() === profile._id.toString();
 
         if (isLeader) {
-            // Delete the team - this triggers the cascading hooks in Team.ts
-            // which handles unsetting team IDs for all members, deleting registrations and carts.
-            await Team.findOneAndDelete({ _id: team._id });
+            // Leader is leaving - disband the entire team
 
-            // Clear any pending invitations that reference this team from ALL profiles
+            // 1. Clear team ID from all member profiles (leader + members)
+            const allMemberIds = [team.leaderId, ...team.members];
+            const unsetField = isEsports ? "esportsTeamId" : "currentTeamId";
+
+            await Profile.updateMany(
+                { _id: { $in: allMemberIds } },
+                { $unset: { [unsetField]: 1 } }
+            );
+
+            // 2. Clear any pending invitations that reference this team from ALL profiles
             await Profile.updateMany(
                 { invitations: team._id },
                 { $pull: { invitations: team._id } }
             );
+
+            // 3. Delete all registrations for this team
+            await Registration.deleteMany({ teamId: team._id });
+
+            // 4. Delete cart associated with this team
+            await Cart.deleteMany({ teamId: team._id });
+
+            // 5. Delete the team itself
+            await Team.findByIdAndDelete(team._id);
 
             return NextResponse.json({
                 message: "Team has been disbanded. All members have been removed.",
