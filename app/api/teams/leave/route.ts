@@ -58,11 +58,11 @@ export async function POST(req: Request) {
 
         if (isLeader) {
             // Leader is leaving - disband the entire team
-            
+
             // 1. Clear team ID from all member profiles (leader + members)
             const allMemberIds = [team.leaderId, ...team.members];
             const unsetField = isEsports ? "esportsTeamId" : "currentTeamId";
-            
+
             await Profile.updateMany(
                 { _id: { $in: allMemberIds } },
                 { $unset: { [unsetField]: 1 } }
@@ -82,12 +82,6 @@ export async function POST(req: Request) {
 
             // 5. Delete the team itself
             await Team.findByIdAndDelete(team._id);
-
-            return NextResponse.json({
-                message: "Team has been disbanded. All members have been removed.",
-                disbanded: true,
-            });
-        } else {
 
             return NextResponse.json({
                 message: "Team has been disbanded. All members have been removed.",
