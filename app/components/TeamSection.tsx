@@ -91,7 +91,7 @@ const teamData = {
     },
     {
       name: "Mukesh Yadav",
-      role: "Volunteer Head",
+      role: "Event Manager",
       img: "/mukesh copy.jpeg",
       socials: [
         { icon: FaInstagram, link: "#" },
