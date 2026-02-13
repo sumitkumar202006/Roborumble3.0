@@ -32,23 +32,19 @@ export default function CollegeSearchInput({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdown on outside click and commit typed value
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-        // If user typed something but didn't select from dropdown, use what they typed
-        if (query.trim() && !value) {
-          onChange(query.trim());
-        }
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [query, value, onChange]);
+  const handleSelect = useCallback(
+    (collegeName: string) => {
+      onChange(collegeName);
+      setQuery("");
+      setIsOpen(false);
+    },
+    [onChange],
+  );
+
+  const handleClear = () => {
+    onChange("");
+    setQuery("");
+  };
 
   // Debounced search
   useEffect(() => {
@@ -85,19 +81,19 @@ export default function CollegeSearchInput({
     return () => clearTimeout(timer);
   }, [query, isOpen]);
 
-  const handleSelect = useCallback(
-    (collegeName: string) => {
-      onChange(collegeName);
-      setQuery("");
-      setIsOpen(false);
-    },
-    [onChange],
-  );
-
-  const handleClear = () => {
-    onChange("");
-    setQuery("");
-  };
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="space-y-1 relative z-[100]" ref={containerRef}>
@@ -106,29 +102,30 @@ export default function CollegeSearchInput({
         {required && <span className="text-cyan-400 ml-1">*</span>}
       </label>
 
-      {/* Always show input */}
       <div className="relative">
         <GraduationCap className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${value ? 'text-cyan-400' : 'text-gray-500'}`} />
         <input
           ref={inputRef}
           type="text"
-          value={query || value}
+          value={query !== "" ? query : value}
           onChange={(e) => {
-            setQuery(e.target.value);
+            const val = e.target.value;
+            setQuery(val);
             if (!isOpen) setIsOpen(true);
-            if (value && e.target.value !== value) {
+            // If user clears input, clear the parent value too
+            if (val === "") {
               onChange("");
             }
           }}
           onFocus={() => setIsOpen(true)}
           onBlur={() => {
-            // Short delay to allow dropdown clicks to register
-            setTimeout(() => {
-              if (query.trim() && !value) {
-                onChange(query.trim());
-                setQuery("");
-              }
-            }, 200);
+            // If we have a query, commit it as the value when blurring
+            if (query !== "") {
+              onChange(query.trim());
+              setQuery("");
+            }
+            // Delay closing to allow dropdown clicks
+            setTimeout(() => setIsOpen(false), 200);
           }}
           placeholder={placeholder}
           className={`w-full pl-10 pr-12 py-2.5 bg-gray-900 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-all text-sm ${

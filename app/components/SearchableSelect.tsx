@@ -28,26 +28,6 @@ export default function SearchableSelect({
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Close dropdown on outside click and commit typed value
-    useEffect(() => {
-        function handleClickOutside(e: MouseEvent) {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-                setIsOpen(false);
-                if (query.trim() && !value) {
-                    onChange(query.trim());
-                }
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [query, value, onChange]);
-
-    const filteredOptions = query.length > 0
-        ? options.filter((opt) =>
-            opt.label.toLowerCase().includes(query.toLowerCase())
-        )
-        : options;
-
     const handleSelect = useCallback(
         (val: string) => {
             onChange(val);
@@ -57,12 +37,29 @@ export default function SearchableSelect({
         [onChange]
     );
 
-    const selectedLabel = options.find((o) => o.value === value)?.label || value;
-
     const handleClear = () => {
         onChange("");
         setQuery("");
     };
+
+    const filteredOptions = query.length > 0
+        ? options.filter((opt) =>
+            opt.label.toLowerCase().includes(query.toLowerCase())
+        )
+        : options;
+
+    const selectedLabel = options.find((o) => o.value === value)?.label || value;
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     return (
         <div className="space-y-1 relative z-[100]" ref={containerRef}>
@@ -80,23 +77,22 @@ export default function SearchableSelect({
                 )}
                 <input
                     type="text"
-                    value={query || (options.find(o => o.value === value)?.label || value)}
+                    value={query !== "" ? query : selectedLabel}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        const val = e.target.value;
+                        setQuery(val);
                         if (!isOpen) setIsOpen(true);
-                        // Clear the committed value if user starts typing something else
-                        if (value && e.target.value !== selectedLabel) {
+                        if (val === "") {
                             onChange("");
                         }
                     }}
                     onFocus={() => setIsOpen(true)}
                     onBlur={() => {
-                        setTimeout(() => {
-                            if (query.trim() && !value) {
-                                onChange(query.trim());
-                                setQuery(""); // Reset query so it uses the selectedLabel logic for display
-                            }
-                        }, 200);
+                        if (query !== "") {
+                            onChange(query.trim());
+                            setQuery("");
+                        }
+                        setTimeout(() => setIsOpen(false), 200);
                     }}
                     placeholder={placeholder}
                     className={`w-full pl-10 pr-12 py-2.5 bg-gray-900 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-all text-sm ${
