@@ -25,7 +25,7 @@ export async function POST(req: Request) {
         }
 
         // Check profile completeness
-        const mandatoryFields = ["username", "phone", "college", "city", "state", "degree", "branch", "yearOfStudy"];
+        const mandatoryFields = ["username", "phone", "college", "city", "state", "degree"];
         const isIncomplete = mandatoryFields.some(field => !profile[field as keyof typeof profile]);
 
         if (!profile.onboardingCompleted || isIncomplete) {
