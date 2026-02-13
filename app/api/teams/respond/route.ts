@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
                 // Add user to team
                 const leaderProfile = await Profile.findById(team.leaderId);
-                if (leaderProfile && leaderProfile.college !== profile.college) {
+                if (!team.isEsports && leaderProfile && leaderProfile.college !== profile.college) {
                     return NextResponse.json(
                         { message: `Cross-college teams are not allowed. Your college (${profile.college}) does not match the team leader's college (${leaderProfile.college}).` },
                         { status: 403 }
@@ -69,10 +69,15 @@ export async function POST(req: Request) {
                     $push: { members: profile._id },
                 });
 
-                // Update user's currentTeamId
-                await Profile.findByIdAndUpdate(profile._id, {
-                    currentTeamId: teamId,
-                });
+                // Update user's profile with team ID
+                const updateData: any = {};
+                if (team.isEsports) {
+                    updateData.esportsTeamId = teamId;
+                } else {
+                    updateData.currentTeamId = teamId;
+                }
+                
+                await Profile.findByIdAndUpdate(profile._id, updateData);
 
                 return NextResponse.json({ message: "You have joined the team!" });
             }
@@ -113,9 +118,9 @@ export async function POST(req: Request) {
                     return NextResponse.json({ message: "Team is locked" }, { status: 400 });
                 }
 
-                // Verify college match
+                // Verify college match (unless esports)
                 const requesterProfile = await Profile.findById(userId);
-                if (requesterProfile && requesterProfile.college !== profile.college) {
+                if (!team.isEsports && requesterProfile && requesterProfile.college !== profile.college) {
                     return NextResponse.json(
                         { message: `Cross-college teams are not allowed. Requester's college (${requesterProfile.college}) does not match your college (${profile.college}).` },
                         { status: 403 }
@@ -127,10 +132,15 @@ export async function POST(req: Request) {
                     $push: { members: userId },
                 });
 
-                // Update user's currentTeamId
-                await Profile.findByIdAndUpdate(userId, {
-                    currentTeamId: team._id,
-                });
+                // Update requester's profile with team ID
+                const updateData: any = {};
+                if (team.isEsports) {
+                    updateData.esportsTeamId = team._id;
+                } else {
+                    updateData.currentTeamId = team._id;
+                }
+
+                await Profile.findByIdAndUpdate(userId, updateData);
 
                 return NextResponse.json({ message: "User added to team!" });
             }

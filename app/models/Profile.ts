@@ -18,6 +18,7 @@ export interface IProfile extends Document {
     role: "user" | "admin" | "superadmin";
     interests: string[];
     currentTeamId?: mongoose.Types.ObjectId;
+    esportsTeamId?: mongoose.Types.ObjectId;
     invitations: mongoose.Types.ObjectId[];
     registeredEvents: string[];
     paidEvents: string[];
@@ -58,6 +59,7 @@ const ProfileSchema = new Schema<IProfile>(
 
         // Team Relationships
         currentTeamId: { type: Schema.Types.ObjectId, ref: "Team" },
+        esportsTeamId: { type: Schema.Types.ObjectId, ref: "Team" },
         invitations: [{ type: Schema.Types.ObjectId, ref: "Team" }],
 
         // Event Registrations

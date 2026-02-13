@@ -104,17 +104,19 @@ const HorizontalEventCard = ({
   registration,
   onAddToCart,
   teamData,
+  esportsTeamData,
   isInCart,
   addingToCart,
 }: {
   event: EventData;
-  registration?: RegistrationStatus;  
+  registration?: RegistrationStatus;
   onAddToCart: (
     eventId: string,
     teamId?: string,
     selectedMembers?: string[],
   ) => void;
   teamData: any;
+  esportsTeamData: any;
   isInCart: boolean;
   addingToCart: boolean;
 }) => {
@@ -137,30 +139,36 @@ const HorizontalEventCard = ({
   const maxTeamSize =
     event.maxTeamSize || parseInt(event.teamSize.match(/(\d+)/g)?.pop() || "1");
 
+  // Determine which team to use based on event category
+  const isEsportsEvent = event.category === "Gaming";
+  const activeTeam = isEsportsEvent ? esportsTeamData?.team : teamData?.team;
+  const activeProfileId = isEsportsEvent
+    ? esportsTeamData?.profileId
+    : teamData?.profileId;
+
   // Initialize with team leader if available
   useEffect(() => {
-    if (teamData?.profileId) {
-      setSelectedMembers([teamData.profileId]);
+    if (activeProfileId) {
+      setSelectedMembers([activeProfileId]);
     }
-  }, [teamData]);
+  }, [activeProfileId]);
 
   const handleRegisterClick = () => {
-    if (isTeamEvent && !teamData?.team) {
+    if (isTeamEvent && !activeTeam) {
       alert(
-        "This event requires a team. Please create a team in the 'Team' tab first.",
+        `This event requires a team. Please create a ${isEsportsEvent ? "Esports " : ""}team in the '${isEsportsEvent ? "Esports Team" : "My Team"}' tab first.`,
       );
       return;
     }
 
     // Check if user is team leader for team events
-    if (isTeamEvent && teamData?.team) {
+    if (isTeamEvent && activeTeam) {
       const isLeader =
-        teamData.team.leaderId === teamData.profileId ||
-        teamData.team.leaderId?._id === teamData.profileId ||
-        teamData.team.leaderId === teamData.profile?._id;
+        activeTeam.leaderId === activeProfileId ||
+        activeTeam.leaderId?._id === activeProfileId;
 
       if (!isLeader) {
-        alert("Only the team leader can add team events to cart.");
+        alert(`Only the team leader can add team events to cart.`);
         return;
       }
 
@@ -183,7 +191,7 @@ const HorizontalEventCard = ({
       alert(`Maximum ${maxTeamSize} members allowed`);
       return;
     }
-    onAddToCart(event.eventId, teamData?.team?._id, selectedMembers);
+    onAddToCart(event.eventId, activeTeam?._id, selectedMembers);
     setShowRosterDialog(false);
   };
 
@@ -346,7 +354,7 @@ const HorizontalEventCard = ({
                     Team
                   </div>
                   <div className="text-white font-bold font-mono">
-                    {teamData?.team?.name}
+                    {activeTeam?.name}
                   </div>
                 </div>
                 <div className="text-right">
@@ -366,7 +374,7 @@ const HorizontalEventCard = ({
             </div>
 
             <div className="max-h-64 overflow-y-auto space-y-2 mb-4">
-              {teamData?.team?.members?.map((member: any) => (
+              {activeTeam?.members?.map((member: any) => (
                 <label
                   key={member._id}
                   className={`flex items-center gap-3 p-3 border rounded cursor-pointer transition-all ${
@@ -405,6 +413,12 @@ const HorizontalEventCard = ({
                   <span className="text-sm font-mono text-white">
                     {member.username || member.email}
                   </span>
+                  {member.college &&
+                    member.college !== activeTeam.leaderId?.college && (
+                      <span className="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded ml-auto">
+                        Cross-College
+                      </span>
+                    )}
                 </label>
               ))}
             </div>
@@ -441,6 +455,7 @@ export default function DashboardEventsPage() {
     RegistrationStatus[]
   >([]);
   const [teamData, setTeamData] = useState<any>(null);
+  const [esportsTeamData, setEsportsTeamData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -507,10 +522,20 @@ export default function DashboardEventsPage() {
   async function fetchTeamData() {
     if (!user) return;
     try {
+      // Fetch normal team
       const teamRes = await fetch(`/api/teams?clerkId=${user.id}`);
       if (teamRes.ok) {
         const tData = await teamRes.json();
         setTeamData(tData);
+      }
+
+      // Fetch esports team
+      const esportsRes = await fetch(
+        `/api/teams?clerkId=${user.id}&type=esports`,
+      );
+      if (esportsRes.ok) {
+        const eData = await esportsRes.json();
+        setEsportsTeamData(eData);
       }
     } catch (e) {
       console.error("Failed to fetch team data", e);
@@ -682,6 +707,7 @@ export default function DashboardEventsPage() {
               registration={getRegistrationStatus(event._id)}
               onAddToCart={handleAddToCart}
               teamData={teamData}
+              esportsTeamData={esportsTeamData}
               isInCart={isEventInCart(event.eventId)}
               addingToCart={addingToCart === event.eventId}
             />

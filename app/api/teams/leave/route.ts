@@ -7,7 +7,8 @@ import Profile from "@/app/models/Profile";
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { clerkId } = body;
+        const { clerkId, type } = body;
+        const isEsports = type === "esports";
 
         if (!clerkId) {
             return NextResponse.json(
@@ -27,8 +28,9 @@ export async function POST(req: Request) {
             );
         }
 
-        // Find user's team
+        // Find user's team of specific type
         const team = await Team.findOne({
+            isEsports,
             $or: [
                 { leaderId: profile._id },
                 { members: profile._id },
@@ -58,10 +60,17 @@ export async function POST(req: Request) {
             // Get all member IDs
             const memberIds = team.members || [];
 
-            // Clear currentTeamId for all members
+            // Clear team ID for all members
+            const updateData: any = {};
+            if (isEsports) {
+                updateData.esportsTeamId = 1;
+            } else {
+                updateData.currentTeamId = 1;
+            }
+
             await Profile.updateMany(
                 { _id: { $in: memberIds } },
-                { $unset: { currentTeamId: 1 } }
+                { $unset: updateData }
             );
 
             // Clear any pending invitations that reference this team
@@ -85,9 +94,16 @@ export async function POST(req: Request) {
                 $pull: { members: profile._id },
             });
 
-            // Clear user's currentTeamId
+            // Clear user's team ID
+            const updateData: any = {};
+            if (isEsports) {
+                updateData.esportsTeamId = 1;
+            } else {
+                updateData.currentTeamId = 1;
+            }
+
             await Profile.findByIdAndUpdate(profile._id, {
-                $unset: { currentTeamId: 1 },
+                $unset: updateData,
             });
 
             return NextResponse.json({

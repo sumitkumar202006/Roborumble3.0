@@ -7,6 +7,7 @@ export interface ITeam extends Document {
     joinRequests: mongoose.Types.ObjectId[];
     isLocked: boolean;
     maxMembers: number;
+    isEsports: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -43,6 +44,9 @@ const TeamSchema = new Schema<ITeam>(
 
         // Team pool size limit
         maxMembers: { type: Number, default: 50 },
+
+        // Esports flag
+        isEsports: { type: Boolean, default: false },
     },
     { timestamps: true }
 );

@@ -40,6 +40,7 @@ interface ChannelItem {
 const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home, color: "cyan" },
     { href: "/dashboard/team", label: "My Team", icon: Users, color: "blue" },
+    { href: "/dashboard/esports-team", label: "Esports Team", icon: Trophy, color: "green" },
     { href: "/dashboard/events", label: "Events", icon: Trophy, color: "yellow" },
     { href: "/dashboard/registrations", label: "Registrations", icon: FileText, color: "purple" },
 ];

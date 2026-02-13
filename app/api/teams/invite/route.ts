@@ -100,8 +100,8 @@ export async function POST(req: Request) {
             );
         }
 
-        // Check same-college rule
-        if (inviterProfile.college !== inviteeProfile.college) {
+        // Check same-college rule (unless it's an esports team)
+        if (!team.isEsports && inviterProfile.college !== inviteeProfile.college) {
             return NextResponse.json(
                 { message: `Cross-college teams are not allowed. You can only invite students from ${inviterProfile.college}.` },
                 { status: 403 }

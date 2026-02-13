@@ -10,6 +10,7 @@ export async function GET(req: Request) {
         const query = searchParams.get("q");
         const clerkId = searchParams.get("clerkId"); // Current user's clerkId to exclude
         const excludeInTeam = searchParams.get("excludeInTeam") === "true";
+        const excludeInEsportsTeam = searchParams.get("excludeInEsportsTeam") === "true";
 
         if (!query || query.length < 2) {
             return NextResponse.json(
@@ -43,35 +44,18 @@ export async function GET(req: Request) {
             searchFilter._id = { $ne: currentProfile._id };
         }
 
+        // Filter out users already in teams if requested
+        if (excludeInTeam) {
+            searchFilter.currentTeamId = { $exists: false };
+        }
+        if (excludeInEsportsTeam) {
+            searchFilter.esportsTeamId = { $exists: false };
+        }
+
         // Find matching users
-        let users = await Profile.find(searchFilter)
+        const users = await Profile.find(searchFilter)
             .select("_id username email firstName lastName avatarUrl college degree branch")
             .limit(15);
-
-        // If excludeInTeam is true, filter out users who are already in a team
-        if (excludeInTeam && users.length > 0) {
-            const userIds = users.map((u) => u._id);
-
-            // Find all teams that have any of these users
-            const teamsWithUsers = await Team.find({
-                $or: [
-                    { leaderId: { $in: userIds } },
-                    { members: { $in: userIds } },
-                ],
-            }).select("leaderId members");
-
-            // Create a set of user IDs that are in teams
-            const usersInTeamsSet = new Set<string>();
-            teamsWithUsers.forEach((team) => {
-                if (team.leaderId) usersInTeamsSet.add(team.leaderId.toString());
-                team.members?.forEach((memberId: { toString: () => string }) => {
-                    usersInTeamsSet.add(memberId.toString());
-                });
-            });
-
-            // Filter out users who are in teams
-            users = users.filter((u) => !usersInTeamsSet.has(u._id.toString()));
-        }
 
         // Format the response
         const formattedUsers = users.map((u) => ({

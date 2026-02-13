@@ -9,6 +9,8 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const clerkId = searchParams.get("clerkId");
         const search = searchParams.get("search");
+        const type = searchParams.get("type"); // 'esports' or null for normal
+        const isEsports = type === "esports";
 
         await connectDB();
 
@@ -23,15 +25,17 @@ export async function GET(req: Request) {
             }
 
             const team = await Team.findOne({
+                isEsports,
                 $or: [{ leaderId: profile._id }, { members: profile._id }],
             })
                 .populate("leaderId", "username email avatarUrl")
                 .populate("members", "username email avatarUrl")
                 .lean();
 
-            // Also get pending invitations
+            // Also get pending invitations (filtered by type)
             const invitations = await Team.find({
                 _id: { $in: profile.invitations },
+                isEsports,
             }).populate("leaderId", "username email").lean();
 
             return NextResponse.json({
@@ -46,6 +50,7 @@ export async function GET(req: Request) {
             const teams = await Team.find({
                 name: { $regex: search, $options: "i" },
                 isLocked: false,
+                isEsports,
             })
                 .populate("leaderId", "username email")
                 .limit(10)
@@ -59,6 +64,7 @@ export async function GET(req: Request) {
         if (available === "true") {
             const teams = await Team.find({
                 isLocked: false,
+                isEsports,
             })
                 .populate("leaderId", "username email avatarUrl")
                 .populate("members", "_id")
@@ -86,7 +92,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { clerkId, teamName } = body;
+        const { clerkId, teamName, isEsports } = body;
 
         if (!clerkId || !teamName) {
             return NextResponse.json(
@@ -117,14 +123,15 @@ export async function POST(req: Request) {
             );
         }
 
-        // Check if user is already in a team
+        // Check if user is already in a team of this type
         const existingTeam = await Team.findOne({
+            isEsports: !!isEsports,
             $or: [{ leaderId: profile._id }, { members: profile._id }],
         });
 
         if (existingTeam) {
             return NextResponse.json(
-                { message: "You are already in a team. Leave your current team first." },
+                { message: `You are already in ${isEsports ? 'an esports' : 'a'} team. Leave your current team first.` },
                 { status: 400 }
             );
         }
@@ -147,12 +154,18 @@ export async function POST(req: Request) {
             members: [profile._id],
             joinRequests: [],
             isLocked: false,
+            isEsports: !!isEsports,
         });
 
-        // Update user's currentTeamId
-        await Profile.findByIdAndUpdate(profile._id, {
-            currentTeamId: newTeam._id,
-        });
+        // Update user's profile with team ID
+        const updateData: any = {};
+        if (isEsports) {
+            updateData.esportsTeamId = newTeam._id;
+        } else {
+            updateData.currentTeamId = newTeam._id;
+        }
+
+        await Profile.findByIdAndUpdate(profile._id, updateData);
 
         return NextResponse.json(
             { message: "Team created successfully", team: newTeam },
