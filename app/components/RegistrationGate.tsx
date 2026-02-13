@@ -28,6 +28,7 @@ export default function RegistrationGate({
     "/sign-up",
     "/login",
     "/register",
+    "/onboarding", // Allow onboarding so users can register!
     "/about",
     "/events",
     "/schedule",

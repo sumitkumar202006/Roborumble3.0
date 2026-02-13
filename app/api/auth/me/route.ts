@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import connectDB from "@/lib/mongodb";
 import AuthUser from "@/app/models/AuthUser";
+import Profile from "@/app/models/Profile";
 
 export async function GET() {
   try {
@@ -12,49 +14,66 @@ export async function GET() {
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // 1. Try Legacy Auth first
+    if (token) {
+      try {
+        const decoded = jwt.verify(
+          token.value,
+          process.env.JWT_SECRET || "default_secret"
+        ) as { userId: string };
+
+        if (mongoose.Types.ObjectId.isValid(decoded.userId)) {
+          const legacyUser = await AuthUser.findById(decoded.userId).select(
+            "name email college events paymentStatus role teamName paidEvents createdAt"
+          );
+
+          if (legacyUser) {
+            return NextResponse.json({
+              user: {
+                id: legacyUser._id,
+                name: legacyUser.name,
+                email: legacyUser.email,
+                college: legacyUser.college,
+                events: legacyUser.events,
+                paymentStatus: legacyUser.paymentStatus,
+                role: legacyUser.role,
+                teamName: legacyUser.teamName,
+                paidEvents: legacyUser.paidEvents,
+                createdAt: legacyUser.createdAt,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Legacy JWT verify failed:", e);
+      }
     }
 
-    // Verify Token
-    const decoded = jwt.verify(
-      token.value,
-      process.env.JWT_SECRET || "default_secret"
-    ) as { userId: string };
+    // 2. Fallback to Clerk Auth
+    const { userId: clerkId } = await auth();
+    const clerkUser = await currentUser();
 
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(decoded.userId)) {
-      return NextResponse.json({ error: "Invalid User ID in token" }, { status: 401 });
-    }
-
-    // Fetch User
-    const user = await AuthUser.findById(decoded.userId).select(
-      "name email college events paymentStatus role teamName paidEvents createdAt"
-    );
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(
-      {
+    if (clerkId && clerkUser) {
+      const profile = await Profile.findOne({ clerkId });
+      
+      return NextResponse.json({
         user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          college: user.college,
-          events: user.events,
-          paymentStatus: user.paymentStatus,
-          role: user.role,
-          teamName: user.teamName,
-          paidEvents: user.paidEvents,
-          createdAt: user.createdAt,
-        },
-      },
-      { status: 200 }
-    );
+          id: clerkId,
+          name: profile?.firstName ? `${profile.firstName} ${profile.lastName || ""}`.trim() : (clerkUser.firstName || clerkUser.username || "User"),
+          email: clerkUser.emailAddresses[0].emailAddress,
+          college: profile?.college || "N/A",
+          events: profile?.registeredEvents || [],
+          role: profile?.role || "user",
+          teamName: profile?.username, // Using username as a fallback or if currentTeamId is set we could fetch it, but keeping it simple
+          paymentStatus: profile?.paidEvents?.length ? "paid" : "pending",
+          onboardingCompleted: profile?.onboardingCompleted || false
+        }
+      });
+    }
+
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   } catch (error) {
     console.error("Session Error:", error);
-    return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
