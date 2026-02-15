@@ -122,10 +122,17 @@ export async function GET(req: Request) {
             pending: await PaymentSubmission.countDocuments({ status: "pending" }),
             verified: await PaymentSubmission.countDocuments({ status: "verified" }),
             rejected: await PaymentSubmission.countDocuments({ status: "rejected" }),
+            // REVENUE RESET: Only count payments verified after Feb 15, 2026 12:20 PM IST
+            // ISO: 2026-02-15T06:50:00.000Z
             totalRevenue: (await PaymentSubmission.aggregate([
-                { $match: { status: "verified" } },
+                { 
+                    $match: { 
+                        status: "verified",
+                        verifiedAt: { $gte: new Date("2026-02-15T06:50:00.000Z") }
+                    } 
+                },
                 { $group: { _id: null, total: { $sum: "$totalAmount" } } }
-            ]))[0]?.total || 0
+            ]))[0]?.total || 0,
         };
 
         return NextResponse.json({
