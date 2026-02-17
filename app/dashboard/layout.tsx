@@ -45,6 +45,7 @@ const navItems = [
     { href: "/dashboard/esports-team", label: "Esports Team", icon: Trophy, color: "green" },
     { href: "/dashboard/events", label: "Events", icon: Trophy, color: "yellow" },
     { href: "/dashboard/registrations", label: "Registrations", icon: FileText, color: "purple" },
+    { href: "/dashboard/communities", label: "Communities", icon: MessageSquare, color: "cyan" },
 ];
 
 export default function DashboardLayout({

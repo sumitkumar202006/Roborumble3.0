@@ -42,6 +42,8 @@ export default function AdminEventsPage() {
         fees: 0,
         maxRegistrations: "",
         isLive: true,
+        whatsappGroupLink: "",
+        discordLink: "",
     });
 
     useEffect(() => {
@@ -77,6 +79,8 @@ export default function AdminEventsPage() {
             fees: 0,
             maxRegistrations: "",
             isLive: true,
+            whatsappGroupLink: "",
+            discordLink: "",
         });
         setEditingEvent(null);
         setShowForm(false);
@@ -95,6 +99,10 @@ export default function AdminEventsPage() {
             fees: event.fees,
             maxRegistrations: event.maxRegistrations?.toString() || "",
             isLive: event.isLive,
+            // @ts-ignore
+            whatsappGroupLink: event.whatsappGroupLink || "",
+            // @ts-ignore
+            discordLink: event.discordLink || "",
         });
         setShowForm(true);
     }
@@ -309,6 +317,28 @@ export default function AdminEventsPage() {
                                     value={formData.image}
                                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                                     placeholder="/event-image.jpeg"
+                                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">WhatsApp Group Link</label>
+                                <input
+                                    type="text"
+                                    value={formData.whatsappGroupLink}
+                                    onChange={(e) => setFormData({ ...formData, whatsappGroupLink: e.target.value })}
+                                    placeholder="https://chat.whatsapp.com/..."
+                                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Discord Link</label>
+                                <input
+                                    type="text"
+                                    value={formData.discordLink}
+                                    onChange={(e) => setFormData({ ...formData, discordLink: e.target.value })}
+                                    placeholder="https://discord.gg/..."
                                     className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white"
                                 />
                             </div>
