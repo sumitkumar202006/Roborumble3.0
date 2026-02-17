@@ -17,6 +17,7 @@ import Footer from "../components/Footer";
 import Countdown from "../components/countdown";
 import Image from "next/image";
 import { sponsors, SponsorData } from "../data/sponsors";
+import { events } from "../data/events";
 import { useAudio } from "../hooks/useAudio";
 
 // --- Types ---
@@ -456,25 +457,15 @@ export default function Home() {
   ];
   const stats = [
     {
-      title: "10",
+      title: `${events.length}`,
       subtitle: "ACTIVE_EVENTS",
       desc: "From Robo Wars to Esports",
       icon: <Shield size={20} />,
       details: {
-        headline: "Over 10 Exciting Events",
+        headline: `Over ${events.length} Exciting Events`,
         description:
           "Robo Rumble 3.0 features a diverse range of competitions designed to challenge your skills and creativity.",
-        events: [
-          "Robo War",
-          "Robo Soccer",
-          "Robo Race",
-          "Line Following Robot",
-          "Pick & Place",
-          "RC Flying",
-          "E-Sports",
-          "Exhibition",
-          "Defence Expo",
-        ],
+        events: events.map((e) => e.title),
         note: "Each event offers unique challenges and substantial prizes!",
       },
     },
@@ -645,6 +636,12 @@ export default function Home() {
                 <Download size={20} /> Brochure.pdf
               </button>
             </a>
+          </div>
+
+          <div className="mb-10 animate-pulse text-center">
+            <h2 className="text-3xl md:text-5xl font-black font-mono uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#FF003C] via-[#E661FF] to-[#00F0FF] drop-shadow-[0_0_25px_rgba(230,97,255,0.5)] transform hover:scale-105 transition-transform duration-300">
+              PRIZE_POOL_₹1,50,000+
+            </h2>
           </div>
 
           <div className="flex flex-wrap justify-center gap-12 text-zinc-500 font-mono text-sm mb-16">
@@ -840,7 +837,7 @@ export default function Home() {
                     <div className="flex items-center gap-2 mb-3">
                       <div className="h-[1px] w-8 bg-[#FF003C]" />
                       <span className="text-[#FF003C] font-mono text-xs font-bold tracking-[0.3em]">
-                         {stat.subtitle}
+                        {stat.subtitle}
                       </span>
                     </div>
 
@@ -1073,7 +1070,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6 mb-12">
           <div className="text-center">
             <span className="text-[#E661FF] font-mono text-[10px] uppercase tracking-[0.3em]">
-               Memory_Archive
+              Memory_Archive
             </span>
             <h2 className="text-3xl md:text-4xl font-black font-mono uppercase tracking-tighter mt-2">
               <span className="text-white">Flowing Through </span>
@@ -1296,124 +1293,240 @@ export default function Home() {
             onClick={() => setSelectedMentor(null)}
           />
 
-          <div className="relative w-full max-w-4xl bg-[#050505] border border-white p-1 shadow-[0_0_80px_rgba(255,255,255,0.1)] pointer-events-auto animate-glitch-entry">
-            {/* Top Bar - White Background */}
-            <div className="bg-white text-black px-6 py-3 flex justify-between items-center font-mono text-xs font-black uppercase tracking-widest leading-none">
-              <div className="flex gap-4 items-center">
-                <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
-                <span>PROFILE_ACTIVE</span>
-                <span className="opacity-50">|</span>
-                <span>ID_VERIFIED</span>
-              </div>
-              <button
-                onClick={() => setSelectedMentor(null)}
-                className="hover:bg-black hover:text-white px-4 py-1.5 transition-all border border-black font-bold"
+          {(() => {
+            const getMentorTheme = (role: string) => {
+              if (role === "Chief Patron")
+                return {
+                  main: "#FF003C",
+                  shadow: "rgba(255,0,60,0.4)",
+                  bg: "rgba(255,0,60,0.05)",
+                };
+              if (role === "Faculty Coordinator")
+                return {
+                  main: "#E661FF",
+                  shadow: "rgba(230,97,255,0.4)",
+                  bg: "rgba(230,97,255,0.05)",
+                };
+              return {
+                main: "#00F0FF",
+                shadow: "rgba(0,240,255,0.4)",
+                bg: "rgba(0,240,255,0.05)",
+              }; // Patron & default
+            };
+
+            const theme = getMentorTheme(selectedMentor.role);
+
+            return (
+              <div
+                className="relative w-full max-w-4xl bg-[#050b14] border p-1 pointer-events-auto overflow-hidden animate-glitch-entry"
+                style={{
+                  borderColor: theme.main,
+                  boxShadow: `0 0 50px ${theme.shadow}`,
+                }}
               >
-                [ CLOSE ]
-              </button>
-            </div>
+                {/* Top Bar */}
+                <div
+                  className="text-black px-3 md:px-6 py-2 flex justify-between items-center font-mono text-[9px] md:text-[11px] font-black uppercase tracking-widest leading-none"
+                  style={{ backgroundColor: theme.main }}
+                >
+                  <div className="flex gap-2 md:gap-4 items-center">
+                    <span className="animate-pulse">● PROFILE_ACTIVE</span>
+                    <span className="hidden md:inline">ID_VERIFIED</span>
+                  </div>
+                  <button
+                    onClick={() => setSelectedMentor(null)}
+                    className="hidden md:block hover:bg-black px-2 md:px-4 py-1 transition-all border border-black font-bold text-[8px] md:text-[11px]"
+                    style={{ color: "black" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = theme.main)
+                    }
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "black")}
+                  >
+                    [ CLOSE ]
+                  </button>
+                </div>
 
-            <div className="p-8 md:p-12 max-h-[80vh] overflow-y-auto">
-              <div className="grid md:grid-cols-[300px_1fr] gap-12 items-center">
-                {/* Left Column - Image with Ring */}
-                <div className="flex flex-col items-center">
-                  <div className="relative w-64 h-64 mb-6">
-                    {/* Tech Ring SVG - White */}
-                    <svg
-                      className="absolute inset-0 w-full h-full animate-spin-slow text-white"
-                      viewBox="0 0 100 100"
-                    >
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="48"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1"
-                        strokeDasharray="40 20 40 20"
-                        opacity="0.5"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="44"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeDasharray="100 200"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                <div className="p-4 md:p-8 lg:p-12 max-h-[60vh] md:max-h-[70vh] overflow-y-auto">
+                  <div className="grid md:grid-cols-[280px_1fr] gap-8 md:gap-12 items-center">
+                    {/* Left Column - Image with Ring */}
+                    <div className="flex flex-col items-center">
+                      <div className="relative w-52 h-52 md:w-64 md:h-64 mb-6">
+                        {/* Tech Ring SVG */}
+                        <svg
+                          className="absolute inset-0 w-full h-full animate-spin-slow"
+                          style={{ color: theme.main }}
+                          viewBox="0 0 100 100"
+                        >
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="48"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1"
+                            strokeDasharray="40 20 40 20"
+                            opacity="0.5"
+                          />
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="44"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeDasharray="100 200"
+                            strokeLinecap="round"
+                          />
+                        </svg>
 
-                    {/* Glowing static ring */}
-                    <div className="absolute inset-2 rounded-full border-2 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]" />
+                        {/* Glowing static ring */}
+                        <div
+                          className="absolute inset-2 rounded-full border-2"
+                          style={{
+                            borderColor: theme.main,
+                            boxShadow: `0 0 30px ${theme.shadow}`,
+                          }}
+                        />
 
-                    {/* Image */}
-                    <div className="absolute inset-4 rounded-full overflow-hidden border-2 border-white/30">
-                      <Image
-                        src={selectedMentor.image}
-                        alt={selectedMentor.name}
-                        fill
-                        className="object-cover grayscale"
+                        {/* Image */}
+                        <div
+                          className="absolute inset-4 rounded-full overflow-hidden border-2 bg-black"
+                          style={{
+                            borderColor: `${theme.main}40`, // Adding alpha
+                          }}
+                        >
+                          <Image
+                            src={selectedMentor.image}
+                            alt={selectedMentor.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
+
+                      <div
+                        className="font-mono text-xs uppercase tracking-[0.2em] font-bold"
+                        style={{ color: theme.main }}
+                      >
+                        //{" "}
+                        {selectedMentor.role === "Chief Patron"
+                          ? "CHIEF_PATRON"
+                          : selectedMentor.role
+                            .toUpperCase()
+                            .replace(/\s+/g, "_")}
+                      </div>
+                    </div>
+
+                    {/* Right Column - Content */}
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white font-mono uppercase tracking-tighter leading-none">
+                          {selectedMentor.name}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-2">
+                          <div
+                            className="h-[2px] w-8"
+                            style={{ backgroundColor: theme.main }}
+                          />
+                          <h4
+                            className="text-sm md:text-base font-bold uppercase tracking-wide font-mono"
+                            style={{ color: theme.main }}
+                          >
+                            {selectedMentor.dept}
+                          </h4>
+                        </div>
+                      </div>
+
+                      <div
+                        className="h-[1px] w-full"
+                        style={{
+                          background: `linear-gradient(to right, ${theme.main}80, transparent)`,
+                        }}
                       />
+
+                      {/* Bio with border-left */}
+                      {selectedMentor.bio && (
+                        <div
+                          className="pl-6 border-l-2 py-3 pr-3"
+                          style={{
+                            borderColor: theme.main,
+                            backgroundColor: theme.bg,
+                          }}
+                        >
+                          <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-mono">
+                            {selectedMentor.bio}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Specs in Grid Boxes */}
+                      {selectedMentor.specs && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
+                          {selectedMentor.specs.map((spec, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center gap-3 p-3 md:p-4 bg-zinc-950 border transition-all"
+                              style={{
+                                borderColor: `${theme.main}33`, // roughly 20% opacity
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = theme.main;
+                                e.currentTarget.style.backgroundColor = `${theme.main}1A`; // roughly 10%
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = `${theme.main}33`;
+                                e.currentTarget.style.backgroundColor =
+                                  "rgba(9, 9, 11, 1)"; // zinc-950
+                              }}
+                            >
+                              <span
+                                className="font-bold text-sm"
+                                style={{ color: theme.main }}
+                              >
+                                &gt;
+                              </span>
+                              <span className="text-zinc-300 font-mono text-[10px] md:text-xs uppercase tracking-wide">
+                                {spec}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="text-white font-mono text-xs uppercase tracking-[0.2em] font-bold">
-                    //{" "}
-                    {selectedMentor.role === "Chief Patron"
-                      ? "CHIEF_PATRON"
-                      : "PATRON"}
+                  {/* Mobile Close Button */}
+                  <div
+                    className="md:hidden border-t p-4 mt-6"
+                    style={{ borderColor: `${theme.main}4D` }}
+                  >
+                    <button
+                      onClick={() => setSelectedMentor(null)}
+                      className="w-full text-black py-3 font-black font-mono text-xs uppercase tracking-widest transition-all"
+                      style={{ backgroundColor: theme.main }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.opacity = "0.8")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.opacity = "1")
+                      }
+                    >
+                      [ CLOSE ]
+                    </button>
                   </div>
                 </div>
 
-                {/* Right Column - Content */}
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <h3 className="text-4xl md:text-5xl font-black text-white font-mono uppercase tracking-tighter leading-none">
-                      {selectedMentor.name}
-                    </h3>
-                    <h4 className="text-white/70 text-lg font-bold uppercase tracking-wide font-mono">
-                      {selectedMentor.dept}
-                    </h4>
-                  </div>
-
-                  <div className="border-t border-white/20 my-6" />
-
-                  {/* Bio with border-left */}
-                  {selectedMentor.bio && (
-                    <div className="pl-6 border-l-2 border-white">
-                      <p className="text-zinc-400 text-sm leading-relaxed font-mono">
-                        {selectedMentor.bio}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Specs in Grid Boxes */}
-                  {selectedMentor.specs && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-                      {selectedMentor.specs.map((spec, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-3 p-4 bg-white/5 border border-white/30 hover:bg-white/10 transition-colors"
-                        >
-                          <span className="text-white font-bold text-lg">
-                            &gt;{" "}
-                          </span>
-                          <span className="text-zinc-300 font-mono text-xs uppercase tracking-wide">
-                            {spec}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                {/* Bottom status bar */}
+                <div className="absolute bottom-0 w-full p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
+                  <span>
+                    EST_CONN: 0x
+                    {selectedMentor.name.split(" ")[0].toUpperCase()}
+                  </span>
+                  <span>ROBO_RUMBLE_v3.0_SECURE</span>
                 </div>
               </div>
-            </div>
-
-            {/* Bottom decoration line */}
-            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
-          </div>
+            );
+          })()}
         </div>
       )}
 

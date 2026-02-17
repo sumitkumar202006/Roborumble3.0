@@ -4,7 +4,6 @@ import { useState } from "react";
 import MatrixBackground from "../components/MatrixBackground";
 import { SlotText } from "../components/SlotText";
 import Footer from "../components/Footer";
-import { useAudio } from "../hooks/useAudio";
 
 // --- Types ---
 interface CardData {
@@ -17,50 +16,16 @@ interface CardData {
 }
 
 // --- Internal Component: AboutCard ---
-const AboutCard = ({ data, delay }: { data: CardData; delay: number }) => {
+const AboutCard = ({ data }: { data: CardData }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Preload audio
-  const playOpenSound = useAudio('audio.wav', 0.15);
-  const playCloseSound = useAudio('audio.wav', 0.15);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
-
-  const handleClick = () => {
-    if (showDetails || isLoading) return; // Prevent re-opening
-    setIsLoading(true);
-    playOpenSound();
-
-    setTimeout(() => {
-      setIsLoading(false);
-      setShowDetails(true);
-    }, 600);
-  };
-
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    playCloseSound();
-    setShowDetails(false);
-    setIsHovered(false);
-    setIsLoading(false);
-  };
 
   return (
     <div
-      className="relative group cursor-pointer h-full"
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className="relative group h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Main Preview Card */}
+      {/* Card */}
       <div
         className="relative p-8 bg-black/40 border-l-4 border-t border-[#00F0FF]/50 hover:bg-[#00F0FF]/10 transition-all duration-500 backdrop-blur-sm h-full"
         style={{ clipPath: 'polygon(0 0, 90% 0, 100% 10%, 100% 100%, 10% 100%, 0 90%)' }}
@@ -90,100 +55,13 @@ const AboutCard = ({ data, delay }: { data: CardData; delay: number }) => {
 
         {isHovered && <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00F0FF]/20 to-transparent h-[20%] w-full animate-scan pointer-events-none z-20" />}
       </div>
-
-      {/* Expanded Large Dialog Box */}
-      {(isLoading || showDetails) && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 md:p-4 lg:p-12 pointer-events-none">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
-
-          <div className="relative w-full max-w-sm md:max-w-3xl lg:max-w-5xl bg-[#050505] border border-[#FF003C] p-1 shadow-[0_0_80px_rgba(255,0,60,0.4)] pointer-events-auto overflow-hidden animate-glitch-entry">
-            {/* Top Red Status Bar */}
-            <div className="bg-[#FF003C] text-black px-3 md:px-6 py-2 flex justify-between items-center font-mono text-[9px] md:text-[11px] font-black uppercase tracking-widest">
-              <div className="flex gap-2 md:gap-4">
-                <span className="animate-pulse">● ACCESSING_CORE_DATA</span>
-                <span className="hidden md:inline">NODE_DECRYPTED</span>
-              </div>
-              {/* Desktop Close Button */}
-              <button onClick={handleClose} className="hidden md:block hover:bg-black hover:text-[#FF003C] px-2 md:px-4 py-1 transition-all border border-black font-bold text-[8px] md:text-[11px]">
-                [ CLOSE ]
-              </button>
-            </div>
-
-            <div className="p-4 md:p-8 lg:p-16 max-h-[60vh] md:max-h-[70vh] overflow-y-auto">
-              {isLoading ? (
-                <div className="h-[400px] flex flex-col items-center justify-center space-y-6">
-                  <div className="w-1 bg-[#FF003C] h-24 animate-pulse" />
-                  <p className="text-[#FF003C] font-mono text-xl animate-pulse tracking-[0.7em] font-black">DECRYPTING...</p>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-16">
-                  <div className="space-y-8">
-                    <div className="aspect-video bg-zinc-950 border border-[#FF003C]/30 relative flex items-center justify-center group overflow-hidden">
-                      {data.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={data.image} alt={data.title} className="w-full h-full object-cover opacity-90" />
-                      ) : (
-                        <span className="text-9xl opacity-20 filter blur-[2px]">{data.icon}</span>
-                      )}
-                      <div className="absolute inset-0 border-[30px] border-transparent border-t-[#FF003C]/5 border-l-[#FF003C]/5" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-6 font-mono text-[8px] md:text-[10px]">
-                      <div className="p-4 border border-[#FF003C]/20 bg-red-950/5">
-                        <p className="text-zinc-600 mb-1">STATUS</p>
-                        <p className="text-[#FF003C] font-bold">VERIFIED</p>
-                      </div>
-                      <div className="p-4 border border-[#FF003C]/20 bg-red-950/5">
-                        <p className="text-zinc-600 mb-1">SECURITY</p>
-                        <p className="text-[#FF003C] font-bold">LEVEL_4</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <h4 className="text-3xl md:text-4xl lg:text-5xl font-black text-white font-mono mb-4 uppercase tracking-tighter">
-                      {data.title}
-                    </h4>
-                    <div className="h-1.5 w-32 bg-[#FF003C] mb-8" />
-                    <p className="text-zinc-400 font-mono text-xs md:text-sm lg:text-base leading-relaxed mb-10 first-letter:text-3xl first-letter:text-[#FF003C]">
-                      {data.fullDesc}
-                    </p>
-                    <div className="mt-auto pt-8 border-t border-zinc-900">
-                      <h5 className="text-[#00F0FF] font-mono text-[8px] md:text-[10px] mb-4 uppercase tracking-[0.3em] font-bold">Protocol Specs:</h5>
-                      <div className="grid grid-cols-1 gap-2">
-                        {data.specs.map((spec, i) => (
-                          <div key={i} className="text-zinc-500 font-mono text-[10px] md:text-xs flex gap-2">
-                            <span className="text-[#FF003C]">/</span> {spec}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Mobile Close Button at Bottom */}
-              <div className="md:hidden border-t border-[#FF003C]/30 p-4">
-                <button
-                  onClick={handleClose}
-                  className="w-full bg-[#FF003C] text-black py-3 font-black font-mono text-xs uppercase tracking-widest hover:bg-[#FF003C]/80 transition-all"
-                >
-                  [ CLOSE ]
-                </button>
-              </div>
-            </div>
-            <div className="absolute bottom-0 w-full p-2 text-[7px] text-zinc-800 font-mono flex justify-between">
-              <span>EST_CONN: 0x882.11</span>
-              <span>ROBO_RUMBLE_v3.0_SECURE</span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 // --- Default Export: AboutPage ---
 export default function AboutPage() {
+
   const cards: CardData[] = [
     {
       title: "HANDS-ON LEARNING",
@@ -320,7 +198,7 @@ export default function AboutPage() {
           <div className="flex gap-6 md:gap-10 w-max animate-infinite-scroll hover:pause">
             {[...cards, ...cards, ...cards].map((card, i) => (
               <div key={i} className="w-[80vw] sm:w-[70vw] md:w-[400px] h-[140px] md:h-[160px] shrink-0">
-                <AboutCard data={card} delay={0} />
+                <AboutCard data={card} />
               </div>
             ))}
           </div>
@@ -348,6 +226,8 @@ export default function AboutPage() {
         </div>
       </div>
 
+
+
       <Footer />
 
       <style jsx global>{`
@@ -355,7 +235,7 @@ export default function AboutPage() {
         .animate-scan { position: absolute; animation: scan 2.5s linear infinite; }
         @keyframes infinite-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
         .animate-infinite-scroll { animation: infinite-scroll 20s linear infinite; }
-        .hover\:pause:hover { animation-play-state: paused; }
+        .hover\\:pause:hover { animation-play-state: paused; }
         .mask-linear-fade { mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); }
         @keyframes glitch-entry {
           0% { opacity: 0; transform: scale(0.98) skewX(-5deg); }
