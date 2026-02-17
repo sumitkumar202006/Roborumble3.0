@@ -41,6 +41,10 @@ interface Channel {
     _id: string;
     name: string;
     description?: string;
+    eventId?: {
+        whatsappGroupLink?: string;
+        discordLink?: string;
+    };
 }
 
 export default function ChannelPage() {
@@ -155,13 +159,37 @@ export default function ChannelPage() {
                         <p className="text-gray-400 mt-1">{channel.description}</p>
                     )}
                 </div>
-                <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl font-bold uppercase tracking-wide hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all flex items-center gap-2"
-                >
-                    <Send size={18} />
-                    New Discussion
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    {channel?.eventId?.whatsappGroupLink && (
+                        <a
+                            href={channel.eventId.whatsappGroupLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-[#25D366] text-white rounded-lg font-bold text-sm uppercase flex items-center gap-2 hover:brightness-110 transition-all shadow-[0_0_15px_rgba(37,211,102,0.3)]"
+                        >
+                            <img src="/whatsapp-white.png" alt="WA" className="w-5 h-5 invert brightness-0" />
+                            Join WhatsApp
+                        </a>
+                    )}
+                    {channel?.eventId?.discordLink && (
+                        <a
+                            href={channel.eventId.discordLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-[#5865F2] text-white rounded-lg font-bold text-sm uppercase flex items-center gap-2 hover:brightness-110 transition-all shadow-[0_0_15px_rgba(88,101,242,0.3)]"
+                        >
+                            <img src="/discord-white.png" alt="DC" className="w-5 h-5 invert brightness-0" />
+                            Join Discord
+                        </a>
+                    )}
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl font-bold uppercase tracking-wide hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all flex items-center gap-2"
+                    >
+                        <Send size={18} />
+                        New Discussion
+                    </button>
+                </div>
             </div>
 
             {/* Posts List */}

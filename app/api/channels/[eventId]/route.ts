@@ -21,7 +21,11 @@ export async function GET(
         const { eventId } = await params;
         await connectDB();
 
-        const channel = await Channel.findOne({ eventId });
+        const channel = await Channel.findOne({ eventId }).populate({
+            path: "eventId",
+            model: Event,
+            select: "whatsappGroupLink discordLink title registrationDeadline"
+        });
 
         if (!channel) {
             return NextResponse.json(

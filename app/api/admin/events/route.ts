@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { title, category, description, teamSize, prize, rules, image, fees, maxRegistrations, registrationDeadline, isLive } = body;
+        const { title, category, description, teamSize, prize, rules, image, fees, maxRegistrations, registrationDeadline, isLive, whatsappGroupLink, discordLink } = body;
 
         if (!title || !category || !description || !teamSize || !prize) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -81,6 +81,8 @@ export async function POST(req: Request) {
             maxRegistrations,
             registrationDeadline: registrationDeadline ? new Date(registrationDeadline) : undefined,
             isLive: isLive !== false,
+            whatsappGroupLink: whatsappGroupLink || "",
+            discordLink: discordLink || "",
             createdBy: profile._id,
         });
 

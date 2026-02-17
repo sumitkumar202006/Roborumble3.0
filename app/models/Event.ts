@@ -29,6 +29,10 @@ export interface IEvent extends Document {
     // Status
     isLive: boolean;
 
+    // Community Links
+    whatsappGroupLink?: string;
+    discordLink?: string;
+
     // Admin who created the event
     createdBy?: mongoose.Types.ObjectId;
     createdAt: Date;
@@ -64,6 +68,10 @@ const EventSchema = new Schema<IEvent>(
 
         // Status
         isLive: { type: Boolean, default: true },
+
+        // Community
+        whatsappGroupLink: { type: String, default: "" },
+        discordLink: { type: String, default: "" },
 
         // Admin who created the event
         createdBy: { type: Schema.Types.ObjectId, ref: "Profile" },
