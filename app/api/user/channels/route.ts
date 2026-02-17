@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth as clerkAuth, currentUser } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Event from "@/app/models/Event";
 import Channel from "@/app/models/Channel";
@@ -9,15 +10,31 @@ import Profile from "@/app/models/Profile";
 // GET /api/user/channels - Get all event channels with access status for current user
 export async function GET(request: NextRequest) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await clerkAuth();
+        if (clerkSession?.userId) {
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        } 
+        // 2. Check NextAuth
+        else {
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        // Get user profile
-        const profile = await Profile.findOne({ clerkId: userId });
+        // Get user profile by email (unified identifier)
+        const profile = await Profile.findOne({ email });
+        
         if (!profile) {
             return NextResponse.json({ error: "Complete profile details" }, { status: 404 });
         }

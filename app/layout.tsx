@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
@@ -20,32 +21,42 @@ export default function RootLayout({
   const isDashboard = pathname.startsWith("/dashboard");
   const isOnboarding = pathname.startsWith("/onboarding");
 
-  // Hide navbar on admin, dashboard, and onboarding pages
+  const isLogin = pathname.startsWith("/login");
+  const isRegister = pathname.startsWith("/register");
+
+  // Hide navbar on admin, dashboard, onboarding, login, and register pages
   const showNavbar =
-    !isIntroPage && !isAdminPage && !isDashboard && !isOnboarding;
+    !isIntroPage &&
+    !isAdminPage &&
+    !isDashboard &&
+    !isOnboarding &&
+    !isLogin &&
+    !isRegister;
 
   return (
     <ClerkProvider>
-      <html lang="en">
-        <head>
-          <title>ROBO RUMBLE | The Ultimate Robotics Showdown</title>
-          <meta
-            name="description"
-            content="Join Robo Rumble 3.0 at CSJMU. The Ultimate Robotics Competition."
-          />
-          <link rel="icon" href="/skull.png" />
-        </head>
-        <body>
-          {!isDashboard && <ParticleBackground />}
-          <AuthProvider>
-            <RegistrationGate>
-              {showNavbar && <Navbar />}
-              {children}
-            </RegistrationGate>
-            <CustomCursor />
-          </AuthProvider>
-        </body>
-      </html>
+      <SessionProvider>
+        <html lang="en">
+          <head>
+            <title>ROBO RUMBLE | The Ultimate Robotics Showdown</title>
+            <meta
+              name="description"
+              content="Join Robo Rumble 3.0 at CSJMU. The Ultimate Robotics Competition."
+            />
+            <link rel="icon" href="/skull.png" />
+          </head>
+          <body>
+            {!isDashboard && <ParticleBackground />}
+            <AuthProvider>
+              <RegistrationGate>
+                {showNavbar && <Navbar />}
+                {children}
+              </RegistrationGate>
+              <CustomCursor />
+            </AuthProvider>
+          </body>
+        </html>
+      </SessionProvider>
     </ClerkProvider>
   );
 }

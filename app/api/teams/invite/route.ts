@@ -22,7 +22,15 @@ export async function POST(req: Request) {
         await connectDB();
 
         // Get inviter's profile
-        const inviterProfile = await Profile.findOne({ clerkId });
+        const mongoose = (await import("mongoose")).default;
+        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+
+        const inviterProfile = await Profile.findOne({
+            $or: [
+                { clerkId: clerkId },
+                ...(isObjectId ? [{ _id: clerkId }] : [])
+            ]
+        });
         if (!inviterProfile) {
             return NextResponse.json(
                 { message: "Your profile was not found" },
@@ -110,7 +118,7 @@ export async function POST(req: Request) {
         }
 
         // Check search profile completeness for invitee
-        const mandatoryFields = ["username", "phone", "college", "city", "state", "degree", "branch", "yearOfStudy"];
+        const mandatoryFields = ["username", "phone", "college", "city", "state", "degree"];
         const inviteeIncomplete = mandatoryFields.some(field => !inviteeProfile![field as keyof typeof inviteeProfile]);
 
         if (!inviteeProfile.onboardingCompleted || inviteeIncomplete) {
@@ -172,7 +180,15 @@ export async function GET(req: Request) {
         await connectDB();
 
         // Get user's profile
-        const profile = await Profile.findOne({ clerkId });
+        const mongoose = (await import("mongoose")).default;
+        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+
+        const profile = await Profile.findOne({
+            $or: [
+                { clerkId: clerkId },
+                ...(isObjectId ? [{ _id: clerkId }] : [])
+            ]
+        });
         if (!profile) {
             return NextResponse.json(
                 { message: "Complete profile details" },

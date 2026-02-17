@@ -1,4 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import NextAuth from "next-auth";
+import authConfig from "./auth.config";
+import { NextResponse } from "next/server";
+
+const { auth: nextAuth } = NextAuth(authConfig);
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
@@ -7,7 +12,7 @@ const isPublicRoute = createRouteMatcher([
     "/sign-in(.*)",
     "/sign-up(.*)",
     "/api/webhooks(.*)",
-    "/api/auth(.*)",   // Legacy auth endpoints
+    "/api/auth(.*)",   // Legacy auth + NextAuth endpoints
     "/schedule(.*)",
     "/patrons(.*)",
     "/gallery(.*)",
@@ -25,6 +30,14 @@ const isPublicRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
     const url = new URL(req.url);
 
+    // 1. Check NextAuth Session
+    const session = await nextAuth();
+    if (session?.user) {
+        // User is logged in with NextAuth, skip Clerk checks
+        return NextResponse.next();
+    }
+
+    // 2. Normal Clerk Logic
     // Always allow the root path
     if (url.pathname === "/") {
         return;

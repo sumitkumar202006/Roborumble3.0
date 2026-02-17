@@ -16,7 +16,17 @@ export async function GET(req: Request) {
 
         // If clerkId provided, get user's current team
         if (clerkId) {
-            const profile = await Profile.findOne({ clerkId }).lean();
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+            
+            const profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkId },
+                    { email: clerkId },
+                    ...(isObjectId ? [{ _id: clerkId }] : [])
+                ]
+            }).lean();
+
             if (!profile) {
                 return NextResponse.json(
                     { message: "Complete profile details" },
@@ -102,9 +112,16 @@ export async function POST(req: Request) {
         }
 
         await connectDB();
+        const mongoose = (await import("mongoose")).default;
+        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
 
         // Get user profile
-        const profile = await Profile.findOne({ clerkId });
+        const profile = await Profile.findOne({
+            $or: [
+                { clerkId: clerkId },
+                ...(isObjectId ? [{ _id: clerkId }] : [])
+            ]
+        });
         if (!profile) {
             return NextResponse.json(
                 { message: "Complete profile details" },

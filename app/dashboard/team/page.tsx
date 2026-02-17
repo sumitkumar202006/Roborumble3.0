@@ -1,7 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Users,
@@ -154,7 +155,30 @@ function LoadingSkeleton() {
 }
 
 export default function TeamPage() {
-    const { user } = useUser();
+    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+    const { data: session, status: sessionStatus } = useSession();
+
+    const user = useMemo(() => {
+        if (clerkUser) {
+            return {
+                id: clerkUser.id,
+                firstName: clerkUser.firstName,
+                isClerk: true,
+            };
+        }
+        if (session?.user) {
+            return {
+                // @ts-ignore
+                id: session.user.id || session.user.email,
+                firstName: session.user.name?.split(" ")[0] || "Champion",
+                isClerk: false,
+            };
+        }
+        return null;
+    }, [clerkUser, session]);
+
+    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+
     const [team, setTeam] = useState<TeamData | null>(null);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
     const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
@@ -231,12 +255,12 @@ export default function TeamPage() {
     }
 
     useEffect(() => {
-        if (user?.id) {
+        if (isLoaded && user?.id) {
             fetchTeamData();
-        } else {
+        } else if (isLoaded && !user) {
             setLoading(false);
         }
-    }, [user?.id]);
+    }, [user?.id, isLoaded]);
 
     // Fetch available teams for users without a team
     async function fetchAvailableTeams() {
@@ -488,7 +512,7 @@ export default function TeamPage() {
         }
     }
 
-    if (loading) return <LoadingSkeleton />;
+    if (!isLoaded || loading) return <LoadingSkeleton />;
 
     return (
         <>

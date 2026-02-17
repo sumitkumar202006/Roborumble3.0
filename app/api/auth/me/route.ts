@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth as clerkAuth, currentUser as clerkCurrentUser } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import AuthUser from "@/app/models/AuthUser";
 import Profile from "@/app/models/Profile";
@@ -14,7 +15,7 @@ export async function GET() {
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
-    // 1. Try Legacy Auth first
+    // 1. Try Legacy Auth first (Custom JWT)
     if (token) {
       try {
         const decoded = jwt.verify(
@@ -49,9 +50,30 @@ export async function GET() {
       }
     }
 
-    // 2. Fallback to Clerk Auth
-    const { userId: clerkId } = await auth();
-    const clerkUser = await currentUser();
+    // 2. Try NextAuth
+    const nextAuthSession = await nextAuth();
+    if (nextAuthSession?.user?.email) {
+         const profile = await Profile.findOne({ email: nextAuthSession.user.email });
+         if (profile) {
+              return NextResponse.json({
+                user: {
+                    id: profile._id,
+                    name: profile.firstName ? `${profile.firstName} ${profile.lastName || ""}`.trim() : nextAuthSession.user.name || "User",
+                    email: profile.email,
+                    college: profile.college || "N/A",
+                    events: profile.registeredEvents || [],
+                    role: profile.role || "user",
+                    teamName: profile.username,
+                    paymentStatus: profile.paidEvents?.length ? "paid" : "pending",
+                    onboardingCompleted: profile.onboardingCompleted || false
+                }
+            });
+         }
+    }
+
+    // 3. Fallback to Clerk Auth
+    const { userId: clerkId } = await clerkAuth();
+    const clerkUser = await clerkCurrentUser();
 
     if (clerkId && clerkUser) {
       const profile = await Profile.findOne({ clerkId });
@@ -64,7 +86,7 @@ export async function GET() {
           college: profile?.college || "N/A",
           events: profile?.registeredEvents || [],
           role: profile?.role || "user",
-          teamName: profile?.username, // Using username as a fallback or if currentTeamId is set we could fetch it, but keeping it simple
+          teamName: profile?.username, 
           paymentStatus: profile?.paidEvents?.length ? "paid" : "pending",
           onboardingCompleted: profile?.onboardingCompleted || false
         }

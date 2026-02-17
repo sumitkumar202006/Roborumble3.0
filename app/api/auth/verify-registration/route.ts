@@ -1,37 +1,50 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth as clerkAuth, currentUser } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
-import AuthUser from "@/app/models/AuthUser";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
-        const { userId: clerkId } = await auth();
-        const user = await currentUser();
+        let email = "";
+        let authId = "";
 
-        if (!clerkId || !user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        // 1. Check Clerk
+        const clerkSession = await clerkAuth();
+        if (clerkSession?.userId) {
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+            authId = clerkSession.userId;
+        }
+        // 2. Check NextAuth
+        else {
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+                authId = nextSession.user.id || `google_${email}`;
+            }
         }
 
-        const email = user.emailAddresses?.[0]?.emailAddress;
         if (!email) {
-            return NextResponse.json({ error: "Email not found" }, { status: 400 });
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        // Check if user exists in Profile (new system) or AuthUser (legacy system)
-        const [profile, legacyUser] = await Promise.all([
-            Profile.findOne({ $or: [{ clerkId }, { email }] }),
-            AuthUser.findOne({ email })
-        ]);
+        // Check Profile
+        const profile = await Profile.findOne({ email });
 
-        const isRegistered = !!profile || !!legacyUser;
+        // User is "registered" if they have a profile AND onboarding is completed
+        // legacy check for "AuthUser" removed as we are migrating to Profile-based hybrid system
+        // providing 'registered' as true only if onboarding is completed.
+
+        const isOnboarded = profile?.onboardingCompleted === true;
 
         return NextResponse.json({
-            registered: isRegistered,
+            registered: !!profile,
+            onboardingCompleted: isOnboarded,
             email: email
         });
 

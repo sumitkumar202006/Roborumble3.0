@@ -2,10 +2,12 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IProfile extends Document {
     clerkId: string;
+    googleId?: string;
     email: string;
     firstName?: string;
     lastName?: string;
     avatarUrl?: string;
+    password?: string;
     username?: string;
     bio?: string;
     phone?: string;
@@ -32,10 +34,13 @@ const ProfileSchema = new Schema<IProfile>(
     {
         // Clerk Integration
         clerkId: { type: String, unique: true, sparse: true },
+        googleId: { type: String, unique: true, sparse: true }, // Google Subject ID
         email: { type: String, required: true },
         firstName: String,
         lastName: String,
         avatarUrl: String,
+        password: { type: String, select: false }, // For credentials login
+
 
         // Profile Data
         username: { type: String, unique: true, sparse: true },

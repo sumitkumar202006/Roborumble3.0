@@ -1,7 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,6 +23,7 @@ import {
   MapPin,
   GraduationCap,
   Activity,
+  Bot,
 } from "lucide-react";
 
 interface TeamData {
@@ -87,8 +89,8 @@ function LoadingSkeleton() {
       </div>
 
       {/* Cards Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className="h-48 bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700/50 animate-pulse"
@@ -210,8 +212,33 @@ function ActionCard({
 }
 
 export default function DashboardPage() {
-  const { user, isLoaded } = useUser();
+  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+  const { data: session, status: sessionStatus } = useSession();
+
+  // Unified user object for data fetching
+  const user = useMemo(() => {
+    if (clerkUser) {
+      return {
+        id: clerkUser.id,
+        firstName: clerkUser.firstName,
+        isClerk: true,
+      };
+    }
+    if (session?.user) {
+      return {
+        // @ts-ignore
+        id: session.user.id || session.user.email,
+        firstName: session.user.name?.split(" ")[0] || "Champion",
+        isClerk: false,
+      };
+    }
+    return null;
+  }, [clerkUser, session]);
+
+  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+
   const [team, setTeam] = useState<TeamData | null>(null);
+  const [esportsTeam, setEsportsTeam] = useState<TeamData | null>(null);
   const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -220,16 +247,20 @@ export default function DashboardPage() {
     async function fetchData() {
       if (!user?.id) return;
       try {
-        const [teamRes, regRes, profileRes] = await Promise.all([
+        setLoading(true);
+        const [teamRes, esportsRes, regRes, profileRes] = await Promise.all([
           fetch(`/api/teams?clerkId=${user.id}`),
+          fetch(`/api/teams?clerkId=${user.id}&type=esports`),
           fetch(`/api/registrations?clerkId=${user.id}`),
           fetch(`/api/users?clerkId=${user.id}`),
         ]);
         const teamData = await teamRes.json();
+        const esportsData = await esportsRes.json();
         const regData = await regRes.json();
         const profileData = await profileRes.json();
 
         setTeam(teamData.team);
+        setEsportsTeam(esportsData.team);
         setRegistrations(regData.registrations || []);
         setProfile(profileData.user);
       } catch (e) {
@@ -239,8 +270,9 @@ export default function DashboardPage() {
       }
     }
     if (isLoaded && user) fetchData();
-    else if (isLoaded && !user) setLoading(false);
-  }, [user, isLoaded]);
+    else if (isClerkLoaded && sessionStatus !== "loading" && !user)
+      setLoading(false);
+  }, [user, isLoaded, isClerkLoaded, sessionStatus]);
 
   const paidCount = registrations.filter(
     (r) => r.paymentStatus === "paid" || r.paymentStatus === "manual_verified",
@@ -302,7 +334,7 @@ export default function DashboardPage() {
           {/* Action Cards */}
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {/* Team Card */}
             <motion.div variants={itemVariants}>
@@ -336,8 +368,46 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <p className="text-gray-400 text-sm mb-4 min-h-[40px]">
-                    You haven&apos;t joined a team yet. Create one or join an
-                    existing team!
+                    You haven&apos;t joined a robotics team yet. Create one or
+                    join an existing team!
+                  </p>
+                )}
+              </ActionCard>
+            </motion.div>
+
+            {/* Esports Team Card */}
+            <motion.div variants={itemVariants}>
+              <ActionCard
+                icon={Bot}
+                title="Esports Team"
+                linkText={esportsTeam ? "Manage Squad" : "Build Esports Squad"}
+                href="/dashboard/team?type=esports"
+                color="from-purple-500/20 to-pink-500/20"
+                accentColor="bg-purple-500/20 text-purple-400"
+              >
+                {esportsTeam ? (
+                  <div className="mb-4">
+                    <p className="text-2xl font-bold text-white mb-1">
+                      {esportsTeam.name}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-gray-400 text-sm">
+                        {esportsTeam.members?.length || 0} Members
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          esportsTeam.isLocked
+                            ? "bg-red-500/20 text-red-400"
+                            : "bg-green-500/20 text-green-400"
+                        }`}
+                      >
+                        {esportsTeam.isLocked ? "🔒 Locked" : "✓ Open"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-sm mb-4 min-h-[40px]">
+                    Build your elite gaming squad for Esports events.
                   </p>
                 )}
               </ActionCard>

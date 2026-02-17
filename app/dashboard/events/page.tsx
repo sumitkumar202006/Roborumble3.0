@@ -1,7 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import {
   Trophy,
@@ -443,7 +444,30 @@ const HorizontalEventCard = ({
 };
 
 export default function DashboardEventsPage() {
-  const { user } = useUser();
+  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+  const { data: session, status: sessionStatus } = useSession();
+
+  const user = useMemo(() => {
+    if (clerkUser) {
+      return {
+        id: clerkUser.id,
+        firstName: clerkUser.firstName,
+        isClerk: true,
+      };
+    }
+    if (session?.user) {
+      return {
+        // @ts-ignore
+        id: session.user.id || session.user.email,
+        firstName: session.user.name?.split(" ")[0] || "Champion",
+        isClerk: false,
+      };
+    }
+    return null;
+  }, [clerkUser, session]);
+
+  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+
   const [events, setEvents] = useState<EventData[]>([]);
   const [registeredEvents, setRegisteredEvents] = useState<
     RegistrationStatus[]
@@ -462,12 +486,14 @@ export default function DashboardEventsPage() {
 
   useEffect(() => {
     fetchEvents();
-    if (user?.id) {
+    if (isLoaded && user?.id) {
       fetchRegistrationStatus();
       fetchTeamData();
       fetchCart();
+    } else if (isLoaded && !user) {
+      setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isLoaded]);
 
   async function fetchEvents() {
     try {

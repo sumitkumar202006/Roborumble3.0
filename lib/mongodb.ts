@@ -1,14 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-// Fallback for build phase
-if (!MONGODB_URI) {
-    console.warn("Please define the MONGODB_URI environment variable. Using mock for build.");
-}
-// Ensure we have a string to prevent types issues, even if it fails connection later
-const validURI = MONGODB_URI || "mongodb://mock-build-uri";
-
 interface MongooseCache {
     conn: typeof mongoose | null;
     promise: Promise<typeof mongoose> | null;
@@ -26,24 +17,33 @@ if (!global.mongoose) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
+    const MONGODB_URI = process.env.MONGODB_URI;
+
+    if (!MONGODB_URI) {
+        console.warn("Please define the MONGODB_URI environment variable. Using mock for build.");
+    }
+
+    const validURI = MONGODB_URI || "mongodb://mock-build-uri";
+
     if (cached.conn) {
         return cached.conn;
     }
 
     if (!cached.promise) {
         const opts = {
-            bufferCommands: false, // Disable buffering
-            serverSelectionTimeoutMS: 10000, // Timeout after 10s instead of default 30s
-            socketTimeoutMS: 45000, // Close sockets after 45s
-            maxPoolSize: 50, // Handle concurrent requests (production)
-            minPoolSize: 10, // Keep connections warm
-            retryWrites: true, // Auto-retry failed writes
-            retryReads: true, // Auto-retry failed reads
+            bufferCommands: false,
+            serverSelectionTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
+            maxPoolSize: 50,
+            minPoolSize: 10,
+            retryWrites: true,
+            retryReads: true,
         };
 
         if (validURI === "mongodb://mock-build-uri") {
             console.warn("Mocking MongoDB connection for build.");
-            cached.promise = Promise.resolve({} as any);
+            // Return a mock object or handle gracefully for build time
+            cached.promise = Promise.resolve(mongoose);
         } else {
             cached.promise = mongoose.connect(validURI, opts).then((mongoose) => {
                 console.log("Connected to MongoDB Atlas");

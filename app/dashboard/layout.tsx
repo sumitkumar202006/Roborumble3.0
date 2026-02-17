@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { UserButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser, useClerk } from "@clerk/nextjs";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -53,7 +54,13 @@ export default function DashboardLayout({
 }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { isLoaded: userLoaded } = useUser();
+    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+    const { data: session, status: sessionStatus } = useSession();
+    const { signOut: clerkSignOut } = useClerk();
+
+    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+    const isAuthenticated = !!clerkUser || !!session?.user;
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
@@ -68,7 +75,7 @@ export default function DashboardLayout({
                 const res = await fetch('/api/onboarding');
                 const data = await res.json();
                 
-                if (res.ok && !data.completed) {
+                if (res.ok && !data.onboardingCompleted) {
                     router.push('/onboarding');
                 } else if (!res.ok && res.status === 401) {
                     // Clerk will handle redirect to sign-in if needed, 
@@ -83,10 +90,12 @@ export default function DashboardLayout({
             }
         }
         
-        if (userLoaded) {
+        if (isLoaded && isAuthenticated) {
             checkOnboarding();
+        } else if (isLoaded && !isAuthenticated) {
+            setOnboardingChecked(true); // Let middleware handle redirection if necessary
         }
-    }, [userLoaded, router]);
+    }, [isLoaded, isAuthenticated, router]);
 
     // Fetch user's event channels with access status
     useEffect(() => {
@@ -114,7 +123,7 @@ export default function DashboardLayout({
         green: "from-green-500/20 to-green-500/5 border-green-500/30 text-green-400",
     };
 
-    if (!userLoaded || !onboardingChecked) {
+    if (!isLoaded || (isAuthenticated && !onboardingChecked)) {
         return (
             <div className="min-h-screen bg-[#020617] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
@@ -303,7 +312,13 @@ export default function DashboardLayout({
                 <div className="p-3 border-t border-gray-800/50 space-y-2">
                     {/* User Profile */}
                     <div className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-xl">
-                        <UserButton afterSignOutUrl="/" />
+                        {clerkUser ? (
+                            <UserButton afterSignOutUrl="/" />
+                        ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                                {session?.user?.name?.[0] || session?.user?.email?.[0] || "?"}
+                            </div>
+                        )}
                         <Link
                             href="/dashboard/profile"
                             onClick={() => setMobileMenuOpen(false)}
@@ -315,12 +330,20 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Logout Button */}
-                    <SignOutButton>
-                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-500/10 to-red-500/5 border border-red-500/20 text-red-400 hover:from-red-500/20 hover:to-red-500/10 hover:border-red-500/30 transition-all duration-300 text-sm">
-                            <LogOut size={16} />
-                            <span className="font-medium">Sign Out</span>
-                        </button>
-                    </SignOutButton>
+                    <button
+                        onClick={async () => {
+                            if (clerkUser) {
+                                await clerkSignOut();
+                            } else {
+                                await nextAuthSignOut({ redirect: false });
+                            }
+                            router.push("/home");
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-500/10 to-red-500/5 border border-red-500/20 text-red-400 hover:from-red-500/20 hover:to-red-500/10 hover:border-red-500/30 transition-all duration-300 text-sm"
+                    >
+                        <LogOut size={16} />
+                        <span className="font-medium">Sign Out</span>
+                    </button>
 
                 </div>
             </aside>

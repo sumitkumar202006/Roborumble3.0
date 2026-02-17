@@ -1,7 +1,8 @@
 "use client";
 
 import { useUser, useClerk } from "@clerk/nextjs";
-import { useState } from "react";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Settings,
@@ -166,8 +167,31 @@ function SettingsRow({
 }
 
 export default function SettingsPage() {
-    const { user, isLoaded } = useUser();
-    const { signOut } = useClerk();
+    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+    const { data: session, status: sessionStatus } = useSession();
+
+    const user = useMemo(() => {
+        if (clerkUser) {
+            return {
+                id: clerkUser.id,
+                firstName: clerkUser.firstName,
+                isClerk: true,
+            };
+        }
+        if (session?.user) {
+            return {
+                // @ts-ignore
+                id: session.user.id || session.user.email,
+                firstName: session.user.name?.split(" ")[0] || "Champion",
+                isClerk: false,
+            };
+        }
+        return null;
+    }, [clerkUser, session]);
+
+    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+
+    const { signOut: clerkSignOut } = useClerk();
     const router = useRouter();
 
     // State for various settings
@@ -181,7 +205,11 @@ export default function SettingsPage() {
     const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
 
     const handleLogout = async () => {
-        await signOut();
+        if (user?.isClerk) {
+            await clerkSignOut();
+        } else {
+            await nextAuthSignOut({ redirect: false });
+        }
         router.push("/home");
     };
 

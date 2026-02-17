@@ -16,7 +16,15 @@ export async function GET(req: Request) {
         }
 
         await connectDB();
-        const user = await Profile.findOne({ clerkId });
+        const mongoose = (await import("mongoose")).default;
+        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+
+        const user = await Profile.findOne({
+            $or: [
+                { clerkId: clerkId },
+                ...(isObjectId ? [{ _id: clerkId }] : [])
+            ]
+        });
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -40,12 +48,24 @@ export async function PATCH(req: Request) {
         }
 
         await connectDB();
+        const mongoose = (await import("mongoose")).default;
+        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+
+        const filter = {
+            $or: [
+                { clerkId: clerkId },
+                ...(isObjectId ? [{ _id: clerkId }] : [])
+            ]
+        };
 
         // Check for username uniqueness if changed
         if (username) {
             const existingUser = await Profile.findOne({
                 username: username.trim(),
-                clerkId: { $ne: clerkId }
+                $and: [
+                    { clerkId: { $ne: clerkId } },
+                    ...(isObjectId ? [{ _id: { $ne: clerkId } }] : [])
+                ]
             });
 
             if (existingUser) {
@@ -73,7 +93,7 @@ export async function PATCH(req: Request) {
         };
 
         const updatedUser = await Profile.findOneAndUpdate(
-            { clerkId },
+            filter,
             { $set: updateData },
             { new: true }
         );

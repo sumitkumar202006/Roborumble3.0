@@ -1,7 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CollegeSearchInput from "@/app/components/CollegeSearchInput";
 import SearchableSelect from "@/app/components/SearchableSelect";
@@ -242,7 +243,36 @@ function StatBadge({
 }
 
 export default function ProfilePage() {
-  const { user, isLoaded } = useUser();
+  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+  const { data: session, status: sessionStatus } = useSession();
+
+  const user = useMemo(() => {
+    if (clerkUser) {
+      return {
+        id: clerkUser.id,
+        firstName: clerkUser.firstName,
+        fullName: clerkUser.fullName,
+        imageUrl: clerkUser.imageUrl,
+        emailAddresses: clerkUser.emailAddresses,
+        isClerk: true,
+      };
+    }
+    if (session?.user) {
+      return {
+        // @ts-ignore
+        id: session.user.id || session.user.email,
+        firstName: session.user.name?.split(" ")[0] || "Champion",
+        fullName: session.user.name,
+        imageUrl: session.user.image,
+        emailAddresses: [{ emailAddress: session.user.email }],
+        isClerk: false,
+      };
+    }
+    return null;
+  }, [clerkUser, session]);
+
+  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [team, setTeam] = useState<TeamData | null>(null);
   const [registrationCount, setRegistrationCount] = useState(0);
@@ -271,6 +301,7 @@ export default function ProfilePage() {
     async function fetchData() {
       if (!user?.id) return;
       try {
+        setLoading(true);
         const [userRes, teamRes, regRes] = await Promise.all([
           fetch(`/api/users?clerkId=${user.id}`),
           fetch(`/api/teams?clerkId=${user.id}`),
@@ -312,7 +343,7 @@ export default function ProfilePage() {
     }
     if (isLoaded && user) fetchData();
     else if (isLoaded && !user) setLoading(false);
-  }, [user, isLoaded]);
+  }, [user?.id, isLoaded]);
 
   const handleEditChange = (field: string, value: string) => {
     setEditForm((prev) => ({ ...prev, [field]: value }));
@@ -716,9 +747,13 @@ export default function ProfilePage() {
                 />
                 {isEditing && (
                   <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg flex gap-2 items-start">
-                    <AlertCircle size={14} className="text-yellow-500 mt-0.5 shrink-0" />
+                    <AlertCircle
+                      size={14}
+                      className="text-yellow-500 mt-0.5 shrink-0"
+                    />
                     <p className="text-yellow-500/90 text-xs">
-                      <span className="font-bold">Note:</span> Subject to availability.
+                      <span className="font-bold">Note:</span> Subject to
+                      availability.
                     </p>
                   </div>
                 )}

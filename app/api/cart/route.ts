@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth as clerkAuth, currentUser } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Cart from "@/app/models/Cart";
@@ -11,14 +12,36 @@ import Registration from "@/app/models/Registration";
 // GET - Fetch current user's cart
 export async function GET() {
     try {
-        const { userId: clerkId } = await auth();
-        if (!clerkId) {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await clerkAuth();
+        if (clerkSession?.userId) {
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        const cart = await Cart.findOne({ clerkId })
+        const profile = await Profile.findOne({ email });
+        if (!profile) {
+            return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+        }
+
+        const cartIdentifier = profile.clerkId || profile._id.toString();
+
+        const cart = await Cart.findOne({ clerkId: cartIdentifier })
             .populate({
                 path: "items.eventId",
                 model: Event,
@@ -67,12 +90,27 @@ export async function GET() {
 // POST - Add event to cart
 export async function POST(req: Request) {
     try {
-        const { userId: clerkId } = await auth();
-        if (!clerkId) {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await clerkAuth();
+        if (clerkSession?.userId) {
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { eventId, selectedMembers, teamId } = await req.json();
+        const { eventId, teamId, selectedMembers } = await req.json();
 
         if (!eventId) {
             return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
@@ -80,23 +118,24 @@ export async function POST(req: Request) {
 
         await connectDB();
 
-        // Find the event by eventId string field
-        const event = await Event.findOne({ eventId, isLive: true });
-        if (!event) {
-            return NextResponse.json({ error: "Event not found or not available" }, { status: 404 });
-        }
-
         // Get user profile
-        const profile = await Profile.findOne({ clerkId });
+        const profile = await Profile.findOne({ email });
         if (!profile) {
-            return NextResponse.json({ error: "Complete profile details. Complete onboarding first." }, { status: 404 });
+            return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+        }
+        const userClerkId = profile.clerkId;
+
+        // Get event details
+        const event = await Event.findOne({ eventId });
+        if (!event) {
+            return NextResponse.json({ error: "Event not found" }, { status: 404 });
         }
 
         // Check if already registered for this event
         const existingReg = await Registration.findOne({
             eventId: event._id,
             $or: [
-                { teamId: teamId },
+                ...(teamId ? [{ teamId: teamId }] : []),
                 { selectedMembers: profile._id }
             ],
             paymentStatus: { $in: ["paid", "manual_verified", "pending", "verification_pending"] }
@@ -134,11 +173,12 @@ export async function POST(req: Request) {
         }
 
         // Find or create cart
-        let cart = await Cart.findOne({ clerkId });
+        const cartIdentifier = profile.clerkId || profile._id.toString();
+        let cart = await Cart.findOne({ clerkId: cartIdentifier });
 
         if (!cart) {
             cart = new Cart({
-                clerkId,
+                clerkId: cartIdentifier,
                 teamId: teamId || undefined,
                 items: [],
                 expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -182,8 +222,23 @@ export async function POST(req: Request) {
 // DELETE - Remove event from cart
 export async function DELETE(req: Request) {
     try {
-        const { userId: clerkId } = await auth();
-        if (!clerkId) {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await clerkAuth();
+        if (clerkSession?.userId) {
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -196,6 +251,13 @@ export async function DELETE(req: Request) {
 
         await connectDB();
 
+        // Get user profile first to get clerkId
+        const profile = await Profile.findOne({ email });
+        if (!profile) {
+            return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+        }
+        const userClerkId = profile.clerkId;
+
         // Find the event
         const event = await Event.findOne({ eventId });
         if (!event) {
@@ -203,7 +265,8 @@ export async function DELETE(req: Request) {
         }
 
         // Find cart and remove item
-        const cart = await Cart.findOne({ clerkId });
+        const cartIdentifier = profile.clerkId || profile._id.toString();
+        const cart = await Cart.findOne({ clerkId: cartIdentifier });
         if (!cart) {
             return NextResponse.json({ error: "Cart not found" }, { status: 404 });
         }
@@ -219,7 +282,7 @@ export async function DELETE(req: Request) {
 
         // Delete cart if empty
         if (cart.items.length === 0) {
-            await Cart.deleteOne({ clerkId });
+            await Cart.deleteOne({ clerkId: cartIdentifier });
         } else {
             await cart.save();
         }

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import CollegeSearchInput from "@/app/components/CollegeSearchInput";
@@ -205,9 +206,13 @@ function AnimatedSelect({
 
 export default function OnboardingPage() {
   const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(0);
+  // NextAuth
+  const { data: session } = useSession();
+
   const [formData, setFormData] = useState({
     username: "",
     bio: "",
@@ -226,13 +231,14 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     async function checkCurrentStatus() {
-      if (!isLoaded || !user) return;
+      // Check if we have EITHER Clerk user OR NextAuth session
+      if ((!isLoaded || !user) && !session) return;
 
       try {
         const res = await fetch("/api/onboarding");
         const data = await res.json();
 
-        if (res.ok && data.completed) {
+        if (res.ok && data.onboardingCompleted) {
           router.push("/dashboard");
         } else {
           setLoading(false);
@@ -244,12 +250,17 @@ export default function OnboardingPage() {
     }
 
     checkCurrentStatus();
-  }, [isLoaded, user, router]);
+  }, [isLoaded, user, session, router]);
 
   useEffect(() => {
-    if (user?.username)
+    if (user?.username) {
       setFormData((prev) => ({ ...prev, username: user.username || "" }));
-  }, [user]);
+    } else if (session?.user?.name) {
+      // Optional: Try to suggest username from email or name
+      // const suggested = session.user.email?.split('@')[0] || "";
+      // setFormData((prev) => ({ ...prev, username: suggested }));
+    }
+  }, [user, session]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -358,10 +369,6 @@ export default function OnboardingPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clerkId: user?.id,
-          email: user?.primaryEmailAddress?.emailAddress,
-          firstName: user?.firstName,
-          lastName: user?.lastName,
           username: formData.username.trim(),
           bio: formData.bio.trim(),
           phone: formData.phone.trim(),
@@ -416,11 +423,16 @@ export default function OnboardingPage() {
               Robo Rumble
             </span>
           </Link>
-          <SignOutButton>
-            <button className="flex items-center gap-1 px-3 py-1.5 text-gray-400 text-sm hover:text-white transition-colors">
-              <LogOut size={14} /> Logout
-            </button>
-          </SignOutButton>
+          <button
+            onClick={async () => {
+              await nextAuthSignOut({ redirect: false });
+              await signOut();
+              router.push("/");
+            }}
+            className="flex items-center gap-1 px-3 py-1.5 text-gray-400 text-sm hover:text-white transition-colors"
+          >
+            <LogOut size={14} /> Logout
+          </button>
         </div>
 
         {/* Progress */}

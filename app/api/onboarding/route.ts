@@ -1,13 +1,45 @@
 import { NextResponse } from "next/server";
-import { currentUser, auth } from "@clerk/nextjs/server";
+import { currentUser, auth as clerkAuth } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
 
+async function getAuthenticatedUser() {
+    // Check Clerk
+    const clerkSession = await clerkAuth();
+    if (clerkSession?.userId) {
+        const user = await currentUser();
+        return {
+            id: clerkSession.userId,
+            email: user?.emailAddresses?.[0]?.emailAddress || "",
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+            avatarUrl: user?.imageUrl || "",
+            isClerk: true
+        };
+    }
+
+    // Check NextAuth
+    const nextSession = await nextAuth();
+    if (nextSession?.user?.email) {
+        return {
+            id: nextSession.user.id || `google_${nextSession.user.email}`, // Fallback ID if needed
+            email: nextSession.user.email,
+            firstName: nextSession.user.name?.split(" ")[0] || "",
+            lastName: nextSession.user.name?.split(" ")[1] || "",
+            avatarUrl: nextSession.user.image || "",
+            isClerk: false
+        };
+    }
+
+    return null;
+}
+
 export async function POST(req: Request) {
     try {
-        const { userId: clerkId } = await auth();
+        const user = await getAuthenticatedUser();
 
-        if (!clerkId) {
+        if (!user) {
             return NextResponse.json(
                 { message: "Not authenticated" },
                 { status: 401 }
@@ -17,7 +49,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { username, phone, college, city, state, degree, branch, yearOfStudy, interests, bio, boarding } = body;
 
-        // Validation - Removed branch and yearOfStudy from mandatory to support school students
+        // Validation
         const mandatoryFields = {
             username: "Username",
             phone: "Mobile number",
@@ -46,10 +78,12 @@ export async function POST(req: Request) {
 
         await connectDB();
 
-        // Check if username is already taken
+        // Check if username is already taken (exclude current user)
+        let dbId = user.isClerk ? user.id : (user.id || `google_${user.email}`);
+
         const existingUsername = await Profile.findOne({
             username: username.trim(),
-            clerkId: { $ne: clerkId },
+            email: { $ne: user.email }, // Safer to exclude by email
         });
 
         if (existingUsername) {
@@ -59,14 +93,12 @@ export async function POST(req: Request) {
             );
         }
 
-        // Get current user from Clerk
-        const user = await currentUser();
-
         // Update or Create the profile
         const updatedProfile = await Profile.findOneAndUpdate(
-            { clerkId },
+            { email: user.email },
             {
                 $set: {
+                    clerkId: dbId, // Update ID to ensure consistency
                     username: username.trim(),
                     bio: bio?.trim() || "",
                     phone: phone?.trim() || "",
@@ -78,13 +110,17 @@ export async function POST(req: Request) {
                     yearOfStudy: yearOfStudy ? parseInt(yearOfStudy.toString()) : undefined,
                     interests,
                     onboardingCompleted: true,
-                    email: user?.emailAddresses?.[0]?.emailAddress || "",
-                    firstName: user?.firstName || "",
-                    lastName: user?.lastName || "",
-                    avatarUrl: user?.imageUrl || "",
-                    role: "user",
+                    // Ensure basic info is synced
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    avatarUrl: user.avatarUrl,
                     boarding: boarding === "yes" || boarding === true,
                 },
+                $setOnInsert: {
+                    role: "user",
+                    createdAt: new Date(),
+                }
             },
             { new: true, upsert: true, setDefaultsOnInsert: true }
         );
@@ -114,19 +150,18 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     try {
-        const { searchParams } = new URL(req.url);
-        const clerkId = searchParams.get("clerkId");
+        const user = await getAuthenticatedUser();
 
-        if (!clerkId) {
+        if (!user) {
             return NextResponse.json(
-                { message: "clerkId is required" },
-                { status: 400 }
+                { message: "Not authenticated" },
+                { status: 401 }
             );
         }
 
         await connectDB();
 
-        const profile = await Profile.findOne({ clerkId });
+        const profile = await Profile.findOne({ email: user.email });
 
         if (!profile) {
             return NextResponse.json(

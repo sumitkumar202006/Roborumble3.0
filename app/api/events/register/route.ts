@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth as clerkAuth, currentUser } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
@@ -9,17 +10,30 @@ import Registration from "@/app/models/Registration";
 
 export async function POST(req: Request) {
     try {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await clerkAuth();
+        if (clerkSession?.userId) {
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const { eventId, teamId, selectedMembers } = await req.json();
 
         if (!eventId) {
             return NextResponse.json({ error: "Event ID required" }, { status: 400 });
-        }
-
-        // Get Clerk auth
-        const { userId: clerkId } = await auth();
-
-        if (!clerkId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
@@ -30,8 +44,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Event not found or not available" }, { status: 400 });
         }
 
-        // Find user profile
-        const profile = await Profile.findOne({ clerkId });
+        // Find user profile by email
+        const profile = await Profile.findOne({ email });
         if (!profile) {
             return NextResponse.json({ error: "Complete profile details. Complete onboarding first." }, { status: 404 });
         }
@@ -138,9 +152,9 @@ export async function POST(req: Request) {
             currency: "INR"
         });
 
-        // Add event to registered events
-        await Profile.findOneAndUpdate(
-            { clerkId },
+        // Add event to registered events. Use profileId instead of clerkId for robustness
+        await Profile.findByIdAndUpdate(
+            profileId,
             {
                 $addToSet: { registeredEvents: eventId },
                 $set: { updatedAt: new Date() }
@@ -149,8 +163,8 @@ export async function POST(req: Request) {
 
         // For free events, also add to paidEvents and increment count
         if (event.fees === 0) {
-            await Profile.findOneAndUpdate(
-                { clerkId },
+            await Profile.findByIdAndUpdate(
+                profileId,
                 { $addToSet: { paidEvents: eventId } }
             );
             await Event.findOneAndUpdate(

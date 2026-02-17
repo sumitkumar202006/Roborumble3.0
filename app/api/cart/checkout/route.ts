@@ -15,8 +15,25 @@ const UPI_NAME = "Robo Rumble";
 // POST - Submit payment proof
 export async function POST(req: Request) {
     try {
-        const { userId: clerkId } = await auth();
-        if (!clerkId) {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await auth();
+        if (clerkSession?.userId) {
+            const { currentUser } = await import("@clerk/nextjs/server");
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const { auth: nextAuth } = await import("@/auth");
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -24,8 +41,16 @@ export async function POST(req: Request) {
 
         await connectDB();
 
+        // Get user profile first
+        const profile = await Profile.findOne({ email });
+        if (!profile) {
+            return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+        }
+
+        const cartIdentifier = profile.clerkId || profile._id.toString();
+
         // Get user's cart
-        const cart = await Cart.findOne({ clerkId }).populate({
+        const cart = await Cart.findOne({ clerkId: cartIdentifier }).populate({
             path: "items.eventId",
             model: Event,
         });
@@ -58,11 +83,7 @@ export async function POST(req: Request) {
             }
         }
 
-        // Get user profile for email
-        const profile = await Profile.findOne({ clerkId });
-        if (!profile) {
-            return NextResponse.json({ error: "Complete profile details" }, { status: 404 });
-        }
+        // Profile already fetched above
 
         // Prepare events data
         const events = cart.items.map((item: any) => ({
@@ -77,7 +98,7 @@ export async function POST(req: Request) {
 
         // Create payment submission
         const submission = await PaymentSubmission.create({
-            clerkId,
+            clerkId: cartIdentifier,
             cartId: cart._id,
             teamId: cart.teamId,
             transactionId: isFree ? `FREE_${Date.now()}` : transactionId.trim(),
@@ -129,7 +150,7 @@ export async function POST(req: Request) {
         }
 
         // Clear the cart after successful submission
-        await Cart.deleteOne({ clerkId });
+        await Cart.deleteOne({ clerkId: cartIdentifier });
 
         return NextResponse.json({
             message: isFree ? "Registration successful" : "Payment submitted for verification",
@@ -148,14 +169,39 @@ export async function POST(req: Request) {
 // GET - Get checkout info (cart summary + QR code data)
 export async function GET() {
     try {
-        const { userId: clerkId } = await auth();
-        if (!clerkId) {
+        let email = "";
+
+        // 1. Check Clerk
+        const clerkSession = await auth();
+        if (clerkSession?.userId) {
+            const { currentUser } = await import("@clerk/nextjs/server");
+            const user = await currentUser();
+            email = user?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const { auth: nextAuth } = await import("@/auth");
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        const cart = await Cart.findOne({ clerkId }).populate({
+        // Get user profile
+        const profile = await Profile.findOne({ email });
+        if (!profile) {
+            return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+        }
+
+        const cartIdentifier = profile.clerkId || profile._id.toString();
+
+        const cart = await Cart.findOne({ clerkId: cartIdentifier }).populate({
             path: "items.eventId",
             model: Event,
         });

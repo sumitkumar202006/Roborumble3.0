@@ -24,7 +24,15 @@ export async function GET(req: Request) {
         // Get current user's profile to exclude from results
         let currentProfile = null;
         if (clerkId) {
-            currentProfile = await Profile.findOne({ clerkId });
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+            
+            currentProfile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkId },
+                    ...(isObjectId ? [{ _id: clerkId }] : [])
+                ]
+            });
         }
 
         // Build search query - search by username OR email

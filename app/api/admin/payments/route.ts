@@ -104,7 +104,12 @@ export async function GET(req: Request) {
         // Enrich with leaderFullName and handle fallback for leaderPhone
         const enrichedSubmissions = await Promise.all(
             (submissions as unknown as EnrichedSubmission[]).map(async (sub) => {
-                const profile = await Profile.findOne({ clerkId: sub.clerkId }).select("firstName lastName username phone") as PopulatedMember | null;
+                const profile = await Profile.findOne({
+                    $or: [
+                        { clerkId: sub.clerkId },
+                        ...(mongoose.Types.ObjectId.isValid(sub.clerkId) ? [{ _id: sub.clerkId }] : [])
+                    ]
+                }).select("firstName lastName username phone") as PopulatedMember | null;
 
                 const leaderFullName = profile
                     ? [profile.firstName, profile.lastName].filter(Boolean).join(" ") || profile.username || sub.leaderName
@@ -228,7 +233,12 @@ export async function POST(req: Request) {
                         // Simplified: update if found by Clerk ID via Profile look up if needed, 
                         // but for now relying on teamId or just logging the failure.
                         // Actually, we can look up the profile from clerkId
-                        const profile = await Profile.findOne({ clerkId: submission.clerkId });
+                        const profile = await Profile.findOne({
+                            $or: [
+                                { clerkId: submission.clerkId },
+                                ...(mongoose.Types.ObjectId.isValid(submission.clerkId) ? [{ _id: submission.clerkId }] : [])
+                            ]
+                        });
                         if (profile) {
                             fallbackQuery.selectedMembers = profile._id;
                         }
@@ -262,7 +272,12 @@ export async function POST(req: Request) {
             // Update user profile with paid events
             const eventIds = submission.events.map((e) => e.eventId.toString());
             await Profile.findOneAndUpdate(
-                { clerkId: submission.clerkId },
+                {
+                    $or: [
+                        { clerkId: submission.clerkId },
+                        ...(mongoose.Types.ObjectId.isValid(submission.clerkId) ? [{ _id: submission.clerkId }] : [])
+                    ]
+                },
                 {
                     $addToSet: {
                         registeredEvents: { $each: eventIds },

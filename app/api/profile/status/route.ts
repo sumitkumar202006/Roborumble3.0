@@ -9,15 +9,31 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
-        const { userId: clerkId } = await auth();
+        let email = "";
 
-        if (!clerkId) {
+        // 1. Check Clerk
+        const clerkSession = await auth();
+        if (clerkSession?.userId) {
+            const { currentUser } = await import("@clerk/nextjs/server");
+            const clerkUser = await currentUser();
+            email = clerkUser?.emailAddresses?.[0]?.emailAddress || "";
+        }
+        // 2. Check NextAuth
+        else {
+            const { auth: nextAuth } = await import("@/auth");
+            const nextSession = await nextAuth();
+            if (nextSession?.user?.email) {
+                email = nextSession.user.email;
+            }
+        }
+
+        if (!email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        const profile = await Profile.findOne({ clerkId });
+        const profile = await Profile.findOne({ email });
 
         if (!profile) {
             return NextResponse.json({

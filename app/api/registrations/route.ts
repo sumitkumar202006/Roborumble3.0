@@ -20,7 +20,15 @@ export async function GET(request: Request) {
         try {
             await connectDB();
             const Profile = (await import("@/app/models/Profile")).default;
-            const profile = await Profile.findOne({ clerkId });
+            const mongoose = (await import("mongoose")).default;
+
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+            const profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkId },
+                    ...(isObjectId ? [{ _id: clerkId }] : [])
+                ]
+            });
 
             if (!profile) {
                 return NextResponse.json({ message: "Complete profile details" }, { status: 404 });
