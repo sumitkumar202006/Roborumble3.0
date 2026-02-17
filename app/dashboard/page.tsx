@@ -381,7 +381,7 @@ export default function DashboardPage() {
                 icon={Bot}
                 title="Esports Team"
                 linkText={esportsTeam ? "Manage Squad" : "Build Esports Squad"}
-                href="/dashboard/team?type=esports"
+                href="/dashboard/esports-team"
                 color="from-purple-500/20 to-pink-500/20"
                 accentColor="bg-purple-500/20 text-purple-400"
               >
