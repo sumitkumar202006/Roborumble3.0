@@ -19,9 +19,15 @@ import Image from "next/image";
 import { sponsors, SponsorData } from "../data/sponsors";
 import { events } from "../data/events";
 import { useAudio } from "../hooks/useAudio";
-import { Creepster } from 'next/font/google';
+import { Creepster, Iceberg } from 'next/font/google';
 
 const creepster = Creepster({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+const iceberg = Iceberg({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
@@ -588,7 +594,7 @@ export default function Home() {
                 </span>
                 <span className="relative text-white">ROBO</span>
               </div>
-              <span className="text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono animate-pulse">
+              <span className="text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono">
                 3.0
               </span>
             </div>
@@ -645,12 +651,6 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="relative z-20 mb-8 md:mb-10 text-center w-full px-4 overflow-hidden">
-            <h2 className={`${creepster.className} text-lg sm:text-2xl md:text-5xl normal-case tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#FF003C] via-[#E661FF] to-[#00F0FF] drop-shadow-[0_0_25px_rgba(230,97,255,0.5)] transform hover:scale-105 transition-transform duration-300 whitespace-nowrap`}>
-              Prize Pool ₹1,50,000+
-            </h2>
-          </div>
-
           <div className="flex flex-wrap justify-center gap-12 text-zinc-500 font-mono text-sm mb-16">
             <div className="flex items-center gap-3">
               <Calendar size={18} className="text-[#E661FF]" />
@@ -659,6 +659,17 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <MapPin size={18} className="text-[#E661FF]" />
               <span className="tracking-tighter">CSJMU_CAMPUS_KANPUR</span>
+            </div>
+          </div>
+
+          <div className="relative z-20 mb-12 text-center w-full px-4 transform rotate-[-2.5deg]">
+            <div className={`${iceberg.className} flex flex-col items-center gap-1`}>
+              <span className="text-xl sm:text-2xl md:text-3xl text-zinc-400 font-bold uppercase tracking-[0.3em]">
+                Prize Pool
+              </span>
+              <span className="text-4xl sm:text-5xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-[#FF003C] via-[#E661FF] to-[#00F0FF] drop-shadow-[0_0_20px_rgba(230,97,255,0.4)] font-black">
+                ₹1,50,000+
+              </span>
             </div>
           </div>
 

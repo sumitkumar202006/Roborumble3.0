@@ -77,7 +77,9 @@ export async function GET(req: Request) {
 
         await connectDB();
 
-        const filter: Record<string, string> = {};
+        const filter: Record<string, any> = {
+            screenshotUrl: { $ne: "FREE_EVENT" }
+        };
         if (status && status !== "all") {
             filter.status = status;
         }
@@ -125,15 +127,16 @@ export async function GET(req: Request) {
         );
 
         const stats = {
-            pending: await PaymentSubmission.countDocuments({ status: "pending" }),
-            verified: await PaymentSubmission.countDocuments({ status: "verified" }),
-            rejected: await PaymentSubmission.countDocuments({ status: "rejected" }),
+            pending: await PaymentSubmission.countDocuments({ status: "pending", screenshotUrl: { $ne: "FREE_EVENT" } }),
+            verified: await PaymentSubmission.countDocuments({ status: "verified", screenshotUrl: { $ne: "FREE_EVENT" } }),
+            rejected: await PaymentSubmission.countDocuments({ status: "rejected", screenshotUrl: { $ne: "FREE_EVENT" } }),
             // REVENUE RESET: Only count payments verified after Feb 15, 2026 12:20 PM IST
             // ISO: 2026-02-15T06:50:00.000Z
             totalRevenue: (await PaymentSubmission.aggregate([
                 { 
                     $match: { 
                         status: "verified",
+                        screenshotUrl: { $ne: "FREE_EVENT" },
                         verifiedAt: { $gte: new Date("2026-02-15T06:50:00.000Z") }
                     } 
                 },
