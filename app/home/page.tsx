@@ -19,6 +19,13 @@ import Image from "next/image";
 import { sponsors, SponsorData } from "../data/sponsors";
 import { events } from "../data/events";
 import { useAudio } from "../hooks/useAudio";
+import { Creepster } from 'next/font/google';
+
+const creepster = Creepster({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 // --- Types ---
 interface TeamMember {
@@ -638,9 +645,9 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="relative z-20 mb-8 md:mb-10 animate-pulse text-center w-full px-4 overflow-hidden">
-            <h2 className="text-lg sm:text-2xl md:text-5xl font-black font-mono uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#FF003C] via-[#E661FF] to-[#00F0FF] drop-shadow-[0_0_25px_rgba(230,97,255,0.5)] transform hover:scale-105 transition-transform duration-300 whitespace-nowrap">
-              PRIZE_POOL_₹1,50,000+
+          <div className="relative z-20 mb-8 md:mb-10 text-center w-full px-4 overflow-hidden">
+            <h2 className={`${creepster.className} text-lg sm:text-2xl md:text-5xl normal-case tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#FF003C] via-[#E661FF] to-[#00F0FF] drop-shadow-[0_0_25px_rgba(230,97,255,0.5)] transform hover:scale-105 transition-transform duration-300 whitespace-nowrap`}>
+              Prize Pool ₹1,50,000+
             </h2>
           </div>
 

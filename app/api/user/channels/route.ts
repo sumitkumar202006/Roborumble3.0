@@ -5,6 +5,7 @@ import connectDB from "@/lib/mongodb";
 import Event from "@/app/models/Event";
 import Channel from "@/app/models/Channel";
 import Registration from "@/app/models/Registration";
+import DanceRegistration from "@/app/models/DanceRegistration";
 import Profile from "@/app/models/Profile";
 
 // GET /api/user/channels - Get all event channels with access status for current user
@@ -57,10 +58,23 @@ export async function GET(request: NextRequest) {
 
         const paidEventIds = new Set(paidRegistrations.map(r => r.eventId.toString()));
 
+        // Get user's dance registrations (always treated as "paid" for community access)
+        const danceRegistrations = await DanceRegistration.find({
+            profileId: profile._id
+        }).select('_id').lean();
+
+        const hasDanceAccess = danceRegistrations.length > 0;
+
         // Build response with access status
         const channelsWithAccess = channels.map(channel => {
             const event = events.find(e => e._id.toString() === channel.eventId.toString());
-            const hasAccess = paidEventIds.has(channel.eventId.toString());
+            
+            let hasAccess = paidEventIds.has(channel.eventId.toString());
+            
+            // Special check for Dance Performance channel
+            if (event?.slug === 'dance-performance') {
+                hasAccess = hasDanceAccess;
+            }
 
             return {
                 channelId: channel._id,

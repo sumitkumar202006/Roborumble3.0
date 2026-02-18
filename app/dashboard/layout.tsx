@@ -24,6 +24,7 @@ import {
     Lock,
     Unlock,
     MessageSquare,
+    Music,
 } from "lucide-react";
 import NotificationBell from "@/app/components/NotificationBell";
 import CartSidebar from "@/app/components/CartSidebar";
@@ -45,6 +46,7 @@ const navItems = [
     { href: "/dashboard/esports-team", label: "Esports Team", icon: Trophy, color: "green" },
     { href: "/dashboard/events", label: "Events", icon: Trophy, color: "yellow" },
     { href: "/dashboard/registrations", label: "Registrations", icon: FileText, color: "purple" },
+    { href: "/dashboard/dance", label: "Dance Performance", icon: Music, color: "green" },
     { href: "/dashboard/communities", label: "Communities", icon: MessageSquare, color: "cyan" },
 ];
 
