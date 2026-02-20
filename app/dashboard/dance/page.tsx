@@ -156,10 +156,10 @@ export default function DancePage() {
                     </div>
                     <div>
                         <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-2">
-                            DANCE <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">PERFORMANCE</span>
+                            STREET <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">DANCE BATTLE</span>
                         </h1>
                         <p className="text-zinc-400 font-mono text-sm max-w-xl">
-                            Unlock your rhythm. Participate in Solo or Group performances and compete for the ultimate title. 
+                            Hit the streets and own the stage. Solo artists or group crews — bring your raw energy and compete for the ultimate title.
                             Live audition voting enabled.
                         </p>
                     </div>

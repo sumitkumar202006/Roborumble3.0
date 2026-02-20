@@ -224,10 +224,10 @@ export const events = [
   },
   {
     id: "dance-performance",
-    title: "Dance Battle",
+    title: "Street Dance Battle",
     category: "Performance",
     icon: Music,
-    desc: "The stage is yours. Whether you are a solo star or a powerhouse group, bring your rhythm and passion to the ultimate dance showdown.",
+    desc: "Hit the streets and own the stage. Whether you're a solo artist or a powerhouse crew, bring your rhythm and raw energy to the ultimate street dance showdown.",
     teamSize: "1-5 Members",
     prize: "Gift Hampers / Live Voting",
     cost: 0,
