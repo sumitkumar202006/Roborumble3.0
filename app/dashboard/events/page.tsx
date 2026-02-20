@@ -444,140 +444,133 @@ const HorizontalEventCard = ({
 };
 
 export default function DashboardEventsPage() {
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
-  const { data: session, status: sessionStatus } = useSession();
+    const { data: session, status: sessionStatus } = useSession();
 
-  const user = useMemo(() => {
-    if (clerkUser) {
-      return {
-        id: clerkUser.id,
-        firstName: clerkUser.firstName,
-        isClerk: true,
-      };
-    }
-    if (session?.user) {
-      return {
-        // @ts-ignore
-        id: session.user.id || session.user.email,
-        firstName: session.user.name?.split(" ")[0] || "Champion",
-        isClerk: false,
-      };
-    }
-    return null;
-  }, [clerkUser, session]);
-
-  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
-
-  const [events, setEvents] = useState<EventData[]>([]);
-  const [registeredEvents, setRegisteredEvents] = useState<
-    RegistrationStatus[]
-  >([]);
-  const [teamData, setTeamData] = useState<any>(null);
-  const [esportsTeamData, setEsportsTeamData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [addingToCart, setAddingToCart] = useState<string | null>(null);
-  const [message, setMessage] = useState({ type: "", text: "" });
-
-  // Cart state
-  const [cartItems, setCartItems] = useState<string[]>([]);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("Upcoming");
-
-  useEffect(() => {
-    fetchEvents();
-    if (isLoaded && user?.id) {
-      fetchRegistrationStatus();
-      fetchTeamData();
-      fetchCart();
-    } else if (isLoaded && !user) {
-      setLoading(false);
-    }
-  }, [user?.id, isLoaded]);
-
-  async function fetchEvents() {
-    try {
-      const res = await fetch("/api/events");
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data.events || []);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async function fetchRegistrationStatus() {
-    try {
-      const res = await fetch("/api/profile/status");
-      if (res.ok) {
-        const data = await res.json();
-
-        let statuses: RegistrationStatus[] = [];
-
-        if (data.registrations) {
-          statuses = data.registrations.map((r: any) => ({
-            eventId: r.eventId,
-            status: r.status,
-          }));
-        } else {
-          const userEvents = data.registeredEvents || [];
-          const paidEvents = data.paidEvents || [];
-
-          statuses = userEvents.map((eventId: string) => ({
-            eventId,
-            status: paidEvents.includes(eventId) ? "paid" : "registered",
-          }));
+    const user = useMemo(() => {
+        if (session?.user) {
+            return {
+                // @ts-ignore
+                id: session.user.id,
+                firstName: session.user.name?.split(" ")[0] || "Champion",
+            };
         }
-        setRegisteredEvents(statuses);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      // Slight delay for smooth transition
-      setTimeout(() => setLoading(false), 500);
-    }
-  }
+        return null;
+    }, [session]);
 
-  async function fetchTeamData() {
-    if (!user) return;
-    try {
-      // Fetch normal team
-      const teamRes = await fetch(`/api/teams?clerkId=${user.id}`);
-      if (teamRes.ok) {
-        const tData = await teamRes.json();
-        setTeamData(tData);
-      }
+    const isLoaded = sessionStatus !== "loading";
 
-      // Fetch esports team
-      const esportsRes = await fetch(
-        `/api/teams?clerkId=${user.id}&type=esports`,
-      );
-      if (esportsRes.ok) {
-        const eData = await esportsRes.json();
-        setEsportsTeamData(eData);
-      }
-    } catch (e) {
-      console.error("Failed to fetch team data", e);
-    }
-  }
+    const [events, setEvents] = useState<EventData[]>([]);
+    const [registeredEvents, setRegisteredEvents] = useState<
+        RegistrationStatus[]
+    >([]);
+    const [teamData, setTeamData] = useState<any>(null);
+    const [esportsTeamData, setEsportsTeamData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [addingToCart, setAddingToCart] = useState<string | null>(null);
+    const [message, setMessage] = useState({ type: "", text: "" });
 
-  async function fetchCart() {
-    try {
-      const res = await fetch("/api/cart");
-      if (res.ok) {
-        const data = await res.json();
-        const eventIds =
-          data.items?.map(
-            (item: any) => item.eventId?.eventId || item.eventId,
-          ) || [];
-        setCartItems(eventIds);
-        setCartCount(data.itemCount || 0);
-      }
-    } catch (e) {
-      console.error("Failed to fetch cart", e);
+    // Cart state
+    const [cartItems, setCartItems] = useState<string[]>([]);
+    const [cartCount, setCartCount] = useState(0);
+    const [cartOpen, setCartOpen] = useState(false);
+    const [activeFilter, setActiveFilter] = useState("Upcoming");
+
+    async function fetchEvents() {
+        try {
+            const res = await fetch("/api/events");
+            if (res.ok) {
+                const data = await res.json();
+                setEvents(data.events || []);
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
-  }
+
+    async function fetchRegistrationStatus() {
+        if (!session?.user) return;
+        try {
+            const res = await fetch("/api/profile/status");
+            if (res.ok) {
+                const data = await res.json();
+
+                let statuses: RegistrationStatus[] = [];
+
+                if (data.registrations) {
+                    statuses = data.registrations.map((r: any) => ({
+                        eventId: r.eventId,
+                        status: r.status,
+                    }));
+                } else {
+                    const userEvents = data.registeredEvents || [];
+                    const paidEvents = data.paidEvents || [];
+
+                    statuses = userEvents.map((eventId: string) => ({
+                        eventId,
+                        status: paidEvents.includes(eventId) ? "paid" : "registered",
+                    }));
+                }
+                setRegisteredEvents(statuses);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            // Slight delay for smooth transition
+            setTimeout(() => setLoading(false), 500);
+        }
+    }
+
+    async function fetchTeamData() {
+        if (!session?.user) return;
+        try {
+            // Fetch normal team
+            const teamRes = await fetch(`/api/teams`);
+            if (teamRes.ok) {
+                const tData = await teamRes.json();
+                setTeamData(tData);
+            }
+
+            // Fetch esports team
+            const esportsRes = await fetch(
+                `/api/teams?type=esports`,
+            );
+            if (esportsRes.ok) {
+                const eData = await esportsRes.json();
+                setEsportsTeamData(eData);
+            }
+        } catch (e) {
+            console.error("Failed to fetch team data", e);
+        }
+    }
+
+    async function fetchCart() {
+        if (!session?.user) return;
+        try {
+            const res = await fetch("/api/cart");
+            if (res.ok) {
+                const data = await res.json();
+                const eventIds =
+                    data.items?.map(
+                        (item: any) => item.eventId?.eventId || item.eventId,
+                    ) || [];
+                setCartItems(eventIds);
+                setCartCount(data.itemCount || 0);
+            }
+        } catch (e) {
+            console.error("Failed to fetch cart", e);
+        }
+    }
+
+    useEffect(() => {
+        fetchEvents();
+        if (isLoaded && session?.user) {
+            fetchRegistrationStatus();
+            fetchTeamData();
+            fetchCart();
+        } else if (isLoaded && !session?.user) {
+            setLoading(false);
+        }
+    }, [session, isLoaded]);
 
   function getRegistrationStatus(
     eventId: string,

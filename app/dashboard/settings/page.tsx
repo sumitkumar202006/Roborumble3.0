@@ -167,31 +167,20 @@ function SettingsRow({
 }
 
 export default function SettingsPage() {
-    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
     const { data: session, status: sessionStatus } = useSession();
 
     const user = useMemo(() => {
-        if (clerkUser) {
-            return {
-                id: clerkUser.id,
-                firstName: clerkUser.firstName,
-                isClerk: true,
-            };
-        }
         if (session?.user) {
             return {
                 // @ts-ignore
-                id: session.user.id || session.user.email,
+                id: session.user.id,
                 firstName: session.user.name?.split(" ")[0] || "Champion",
-                isClerk: false,
             };
         }
         return null;
-    }, [clerkUser, session]);
+    }, [session]);
 
-    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
-
-    const { signOut: clerkSignOut } = useClerk();
+    const isLoaded = sessionStatus !== "loading";
     const router = useRouter();
 
     // State for various settings
@@ -205,11 +194,7 @@ export default function SettingsPage() {
     const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
 
     const handleLogout = async () => {
-        if (user?.isClerk) {
-            await clerkSignOut();
-        } else {
-            await nextAuthSignOut({ redirect: false });
-        }
+        await nextAuthSignOut({ redirect: false });
         router.push("/home");
     };
 
@@ -371,15 +356,15 @@ export default function SettingsPage() {
                         description="Manage your account security"
                         accentColor="green"
                     >
-                        <button className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition-colors group">
+                        <button className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition-colors group cursor-not-allowed opacity-50">
                             <div className="flex items-center gap-3">
                                 <Shield size={18} className="text-gray-400" />
                                 <div className="text-left">
                                     <p className="text-white font-medium">
-                                        Manage Account via Clerk
+                                        Account Security
                                     </p>
                                     <p className="text-gray-500 text-sm">
-                                        Update email, password, and security settings
+                                        Email and password management (Coming Soon)
                                     </p>
                                 </div>
                             </div>

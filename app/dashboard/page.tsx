@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
@@ -212,30 +211,21 @@ function ActionCard({
 }
 
 export default function DashboardPage() {
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
   const { data: session, status: sessionStatus } = useSession();
 
   // Unified user object for data fetching
   const user = useMemo(() => {
-    if (clerkUser) {
-      return {
-        id: clerkUser.id,
-        firstName: clerkUser.firstName,
-        isClerk: true,
-      };
-    }
     if (session?.user) {
       return {
         // @ts-ignore
-        id: session.user.id || session.user.email,
+        id: session.user.id,
         firstName: session.user.name?.split(" ")[0] || "Champion",
-        isClerk: false,
       };
     }
     return null;
-  }, [clerkUser, session]);
+  }, [session]);
 
-  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+  const isLoaded = sessionStatus !== "loading";
 
   const [team, setTeam] = useState<TeamData | null>(null);
   const [esportsTeam, setEsportsTeam] = useState<TeamData | null>(null);
@@ -245,14 +235,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!user?.id) return;
+      if (!session?.user) return;
       try {
         setLoading(true);
         const [teamRes, esportsRes, regRes, profileRes] = await Promise.all([
-          fetch(`/api/teams?clerkId=${user.id}`),
-          fetch(`/api/teams?clerkId=${user.id}&type=esports`),
-          fetch(`/api/registrations?clerkId=${user.id}`),
-          fetch(`/api/users?clerkId=${user.id}`),
+          fetch(`/api/teams`),
+          fetch(`/api/teams?type=esports`),
+          fetch(`/api/registrations`),
+          fetch(`/api/users`),
         ]);
         const teamData = await teamRes.json();
         const esportsData = await esportsRes.json();
@@ -269,10 +259,10 @@ export default function DashboardPage() {
         setLoading(false);
       }
     }
-    if (isLoaded && user) fetchData();
-    else if (isClerkLoaded && sessionStatus !== "loading" && !user)
+    if (isLoaded && session?.user) fetchData();
+    else if (sessionStatus !== "loading" && !session?.user)
       setLoading(false);
-  }, [user, isLoaded, isClerkLoaded, sessionStatus]);
+  }, [session, isLoaded, sessionStatus]);
 
   const paidCount = registrations.filter(
     (r) => r.paymentStatus === "paid" || r.paymentStatus === "manual_verified",

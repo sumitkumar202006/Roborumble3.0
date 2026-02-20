@@ -13,16 +13,11 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
-import { useUser, useClerk } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-
-  // Clerk Session
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
-  const { signOut: clerkSignOut } = useClerk();
 
   // NextAuth Session
   const { data: session, status: sessionStatus } = useSession();
@@ -33,11 +28,8 @@ const Navbar = () => {
   const pathname = usePathname();
 
   // Unified User Data
-  const user = clerkUser || session?.user;
-  const isLoaded = isClerkLoaded || sessionStatus !== "loading";
-
-  // Login Source (for specific logout logic if needed, but we'll just nuke both)
-  const isNextAuth = !!session?.user;
+  const user = session?.user;
+  const isLoaded = sessionStatus !== "loading";
 
   /* Nav Items adapted for Robo Rumble */
   const navItems = [
@@ -78,10 +70,8 @@ const Navbar = () => {
     setIsProfileDropdownOpen(false);
     closeSidebar();
 
-    // Sign out from both potential sessions
     try {
-      if (clerkUser) await clerkSignOut();
-      if (session) await nextAuthSignOut({ redirect: false });
+      await nextAuthSignOut({ redirect: false });
     } catch (e) {
       console.error("Logout error", e);
     }
@@ -98,15 +88,9 @@ const Navbar = () => {
 
   // Get user display name
   const userName =
-    clerkUser?.firstName ||
-    clerkUser?.username ||
-    clerkUser?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ||
-    session?.user?.name ||
-    session?.user?.email?.split("@")[0] ||
-    "User";
+    session?.user?.name || session?.user?.email?.split("@")[0] || "User";
 
-  const userEmail =
-    clerkUser?.emailAddresses?.[0]?.emailAddress || session?.user?.email || "";
+  const userEmail = session?.user?.email || "";
 
   return (
     <div className="fixed top-0 left-0 w-full z-50">

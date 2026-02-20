@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn as nextAuthSignIn, useSession } from "next-auth/react";
-import { useAuth, SignIn, useSignIn } from "@clerk/nextjs";
 import { FaGoogle, FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -13,10 +12,6 @@ export default function LoginPage() {
   // NextAuth Session
   const { data: session, status: sessionStatus } = useSession();
   
-  // Clerk Session
-  const { isSignedIn: isClerkSignedIn, isLoaded: isClerkLoaded } = useAuth();
-  const { signIn: clerkSignIn, setActive, isLoaded: isSignInLoaded } = useSignIn();
-
   const [showLegacy, setShowLegacy] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,10 +19,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (sessionStatus === "authenticated" || (isClerkLoaded && isClerkSignedIn)) {
+    if (sessionStatus === "authenticated") {
       router.replace("/dashboard");
     }
-  }, [sessionStatus, isClerkLoaded, isClerkSignedIn, router]);
+  }, [sessionStatus, router]);
 
   const handleGoogleLogin = async () => {
     await nextAuthSignIn("google", { callbackUrl: "/dashboard" });
@@ -59,7 +54,7 @@ export default function LoginPage() {
     }
   };
 
-  if (sessionStatus === "loading" || !isClerkLoaded) {
+  if (sessionStatus === "loading") {
     return (
       <div className="min-h-screen bg-[#020617] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
@@ -181,7 +176,7 @@ export default function LoginPage() {
         
         <p className="text-center text-gray-500 text-sm mt-8">
             Don't have an account?{" "}
-            <a href="/sign-up" className="text-purple-400 hover:text-purple-300 transition-colors">
+            <a href="/register" className="text-purple-400 hover:text-purple-300 transition-colors">
                 Register for Robo Rumble
             </a>
         </p>

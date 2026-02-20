@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,21 +26,8 @@ import {
   Heart,
 } from "lucide-react";
 
-const AVAILABLE_INTERESTS = [
-  { name: "Robotics", icon: "🤖", color: "from-cyan-500 to-blue-500" },
-  { name: "AI/ML", icon: "🧠", color: "from-purple-500 to-pink-500" },
-  { name: "Web Dev", icon: "🌐", color: "from-blue-500 to-cyan-500" },
-  { name: "App Dev", icon: "📱", color: "from-green-500 to-emerald-500" },
-  { name: "IOT", icon: "🔌", color: "from-orange-500 to-red-500" },
-  { name: "CyberSec", icon: "🔐", color: "from-red-500 to-rose-500" },
-  { name: "UI/UX", icon: "🎨", color: "from-pink-500 to-purple-500" },
-  { name: "Cloud", icon: "☁️", color: "from-sky-500 to-blue-500" },
-  { name: "Blockchain", icon: "⛓️", color: "from-indigo-500 to-blue-500" },
-];
-
 interface UserProfile {
   _id: string;
-  clerkId: string;
   username: string;
   email: string;
   phone?: string;
@@ -242,36 +228,36 @@ function StatBadge({
   );
 }
 
+const AVAILABLE_INTERESTS = [
+  { name: "Robotics", icon: "🤖", color: "from-cyan-500 to-blue-500" },
+  { name: "AI/ML", icon: "🧠", color: "from-purple-500 to-pink-500" },
+  { name: "Web Dev", icon: "🌐", color: "from-blue-500 to-cyan-500" },
+  { name: "App Dev", icon: "📱", color: "from-green-500 to-emerald-500" },
+  { name: "IOT", icon: "🔌", color: "from-orange-500 to-red-500" },
+  { name: "CyberSec", icon: "🔐", color: "from-red-500 to-rose-500" },
+  { name: "UI/UX", icon: "🎨", color: "from-pink-500 to-purple-500" },
+  { name: "Cloud", icon: "☁️", color: "from-sky-500 to-blue-500" },
+  { name: "Blockchain", icon: "⛓️", color: "from-indigo-500 to-blue-500" },
+];
+
 export default function ProfilePage() {
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
   const { data: session, status: sessionStatus } = useSession();
 
   const user = useMemo(() => {
-    if (clerkUser) {
-      return {
-        id: clerkUser.id,
-        firstName: clerkUser.firstName,
-        fullName: clerkUser.fullName,
-        imageUrl: clerkUser.imageUrl,
-        emailAddresses: clerkUser.emailAddresses,
-        isClerk: true,
-      };
-    }
     if (session?.user) {
       return {
         // @ts-ignore
-        id: session.user.id || session.user.email,
+        id: session.user.id,
         firstName: session.user.name?.split(" ")[0] || "Champion",
         fullName: session.user.name,
         imageUrl: session.user.image,
         emailAddresses: [{ emailAddress: session.user.email }],
-        isClerk: false,
       };
     }
     return null;
-  }, [clerkUser, session]);
+  }, [session]);
 
-  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+  const isLoaded = sessionStatus !== "loading";
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [team, setTeam] = useState<TeamData | null>(null);
@@ -299,13 +285,13 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!user?.id) return;
+      if (!session?.user) return;
       try {
         setLoading(true);
         const [userRes, teamRes, regRes] = await Promise.all([
-          fetch(`/api/users?clerkId=${user.id}`),
-          fetch(`/api/teams?clerkId=${user.id}`),
-          fetch(`/api/registrations?clerkId=${user.id}`),
+          fetch(`/api/users`),
+          fetch(`/api/teams`),
+          fetch(`/api/registrations`),
         ]);
 
         if (userRes.ok) {
@@ -325,7 +311,6 @@ export default function ProfilePage() {
             yearOfStudy: userData.user?.yearOfStudy?.toString() || "",
             boarding: userData.user?.boarding ? "yes" : "no",
           });
-          console.log("Profile data initialized:", userData.user);
         }
         if (teamRes.ok) {
           const teamData = await teamRes.json();
@@ -341,9 +326,9 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
-    if (isLoaded && user) fetchData();
-    else if (isLoaded && !user) setLoading(false);
-  }, [user?.id, isLoaded]);
+    if (isLoaded && session?.user) fetchData();
+    else if (isLoaded && !session?.user) setLoading(false);
+  }, [session, isLoaded]);
 
   const handleEditChange = (field: string, value: string) => {
     setEditForm((prev) => ({ ...prev, [field]: value }));
@@ -359,7 +344,7 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!user?.id) return;
+    if (!session?.user) return;
     setSaving(true);
     setMessage(null);
 
@@ -368,7 +353,6 @@ export default function ProfilePage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clerkId: user.id,
           ...editForm,
           yearOfStudy: editForm.yearOfStudy
             ? parseInt(editForm.yearOfStudy)
@@ -920,7 +904,7 @@ export default function ProfilePage() {
 
                 {/* Team Members */}
                 <div className="flex flex-wrap gap-2">
-                  {team.members?.map((member) => (
+                  {team.members?.map((member: { _id: string; username: string; email: string }) => (
                     <div
                       key={member._id}
                       className={`px-3 py-2 rounded-lg bg-gray-800/50 border ${

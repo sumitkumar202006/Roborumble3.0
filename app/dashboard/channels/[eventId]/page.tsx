@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     MessageSquare,
@@ -50,7 +50,9 @@ interface Channel {
 export default function ChannelPage() {
     const params = useParams();
     const router = useRouter();
-    const { isLoaded, userId } = useAuth();
+    const { data: session, status: sessionStatus } = useSession();
+    const isLoaded = sessionStatus !== "loading";
+    const userId = session?.user?.id;
     const eventId = params.eventId as string;
 
     const [channel, setChannel] = useState<Channel | null>(null);

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useUser, useClerk } from "@clerk/nextjs";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -205,13 +204,10 @@ function AnimatedSelect({
 }
 
 export default function OnboardingPage() {
-  const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(0);
-  // NextAuth
-  const { data: session } = useSession();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -231,8 +227,11 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     async function checkCurrentStatus() {
-      // Check if we have EITHER Clerk user OR NextAuth session
-      if ((!isLoaded || !user) && !session) return;
+      if (sessionStatus === "loading") return;
+      if (!session) {
+        router.push("/login");
+        return;
+      }
 
       try {
         const res = await fetch("/api/onboarding");
@@ -250,17 +249,19 @@ export default function OnboardingPage() {
     }
 
     checkCurrentStatus();
-  }, [isLoaded, user, session, router]);
+  }, [session, sessionStatus, router]);
 
   useEffect(() => {
-    if (user?.username) {
-      setFormData((prev) => ({ ...prev, username: user.username || "" }));
-    } else if (session?.user?.name) {
-      // Optional: Try to suggest username from email or name
-      // const suggested = session.user.email?.split('@')[0] || "";
-      // setFormData((prev) => ({ ...prev, username: suggested }));
+    if (session?.user?.name) {
+      setFormData((prev) => ({
+        ...prev,
+        username:
+          prev.username ||
+          session.user?.name?.toLowerCase().replace(/\s+/g, "_") ||
+          "",
+      }));
     }
-  }, [user, session]);
+  }, [session]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -395,7 +396,7 @@ export default function OnboardingPage() {
     }
   };
 
-  if (!isLoaded)
+  if (sessionStatus === "loading")
     return (
       <div className="h-screen flex items-center justify-center bg-[#020617]">
         <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
@@ -425,9 +426,7 @@ export default function OnboardingPage() {
           </Link>
           <button
             onClick={async () => {
-              await nextAuthSignOut({ redirect: false });
-              await signOut();
-              router.push("/");
+              await nextAuthSignOut({ callbackUrl: "/home" });
             }}
             className="flex items-center gap-1 px-3 py-1.5 text-gray-400 text-sm hover:text-white transition-colors"
           >
