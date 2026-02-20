@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         await connectDB();
 
         // Get user profile by email (unified identifier)
-        const profile = await Profile.findOne({ email });
+        const profile = await Profile.findOne({ email: email.toLowerCase() });
 
         if (!profile) {
             return NextResponse.json({ error: "Complete profile details" }, { status: 404 });
@@ -41,9 +41,16 @@ export async function GET(request: NextRequest) {
         const channels = await Channel.find({ eventId: { $in: eventIds }, isActive: true })
             .lean();
 
-        // Get user's paid registrations
+        // Get user's paid registrations (Hybrid: Individual + Team)
+        const Team = (await import("@/app/models/Team")).default;
+        const teams = await Team.find({ members: profile._id });
+        const teamIds = teams.map(t => t._id);
+
         const paidRegistrations = await Registration.find({
-            selectedMembers: profile._id,
+            $or: [
+                { selectedMembers: profile._id },
+                { teamId: { $in: teamIds } }
+            ],
             paymentStatus: { $in: ['paid', 'manual_verified'] }
         }).select('eventId').lean();
 

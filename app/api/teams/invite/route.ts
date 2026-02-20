@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Team from "@/app/models/Team";
 import Profile from "@/app/models/Profile";
@@ -8,13 +9,19 @@ const MAX_TEAM_SIZE = 50;
 // POST - Invite a user to team by username or email
 export async function POST(req: Request) {
     try {
+        const session = await nextAuth();
         const body = await req.json();
-        const { clerkId, inviteQuery, inviteUserId } = body;
+        const { clerkId: clerkIdParam, inviteQuery, inviteUserId } = body;
+
+        let inviterEmail = session?.user?.email;
+        if (!inviterEmail && !clerkIdParam) {
+            return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+        }
 
         // Support both: inviteQuery (username/email) OR inviteUserId (direct ID)
-        if (!clerkId || (!inviteQuery && !inviteUserId)) {
+        if (!inviteQuery && !inviteUserId) {
             return NextResponse.json(
-                { message: "clerkId and inviteQuery or inviteUserId are required" },
+                { message: "inviteQuery or inviteUserId are required" },
                 { status: 400 }
             );
         }
@@ -22,15 +29,21 @@ export async function POST(req: Request) {
         await connectDB();
 
         // Get inviter's profile
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        let inviterProfile = null;
+        if (inviterEmail) {
+            inviterProfile = await Profile.findOne({ email: inviterEmail.toLowerCase() });
+        } else if (clerkIdParam) {
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            inviterProfile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
+                ]
+            });
+        }
 
-        const inviterProfile = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
         if (!inviterProfile) {
             return NextResponse.json(
                 { message: "Your profile was not found" },
@@ -68,7 +81,7 @@ export async function POST(req: Request) {
         if (inviteUserId) {
             inviteeProfile = await Profile.findById(inviteUserId);
         } else {
-            // Search by username or email
+            // Search by username or email (case-insensitive)
             const query = inviteQuery.trim().toLowerCase();
             inviteeProfile = await Profile.findOne({
                 $or: [
@@ -167,28 +180,33 @@ export async function POST(req: Request) {
 // GET - Get pending invitations sent by the team
 export async function GET(req: Request) {
     try {
+        const session = await nextAuth();
         const { searchParams } = new URL(req.url);
-        const clerkId = searchParams.get("clerkId");
+        const clerkIdParam = searchParams.get("clerkId");
 
-        if (!clerkId) {
-            return NextResponse.json(
-                { message: "clerkId is required" },
-                { status: 400 }
-            );
+        let email = session?.user?.email;
+        if (!email && !clerkIdParam) {
+            return NextResponse.json({ message: "Authentication required" }, { status: 401 });
         }
 
         await connectDB();
 
         // Get user's profile
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        let profile = null;
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() });
+        } else if (clerkIdParam) {
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
+                ]
+            });
+        }
 
-        const profile = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
         if (!profile) {
             return NextResponse.json(
                 { message: "Complete profile details" },

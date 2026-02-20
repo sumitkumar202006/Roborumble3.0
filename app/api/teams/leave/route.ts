@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Team from "@/app/models/Team";
 import Profile from "@/app/models/Profile";
@@ -8,29 +9,34 @@ import Cart from "@/app/models/Cart";
 // POST - Leave or disband team
 export async function POST(req: Request) {
     try {
+        const session = await nextAuth();
         const body = await req.json();
-        const { clerkId, type } = body;
+        const { clerkId: clerkIdParam, type } = body;
         const isEsports = type === "esports";
 
-        if (!clerkId) {
-            return NextResponse.json(
-                { message: "clerkId is required" },
-                { status: 400 }
-            );
+        let email = session?.user?.email;
+        if (!email && !clerkIdParam) {
+            return NextResponse.json({ message: "Authentication required" }, { status: 401 });
         }
 
         await connectDB();
 
         // Get user's profile
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        let profile = null;
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() });
+        } else if (clerkIdParam) {
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
+                ]
+            });
+        }
 
-        const profile = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
         if (!profile) {
             return NextResponse.json(
                 { message: "Complete profile details" },
@@ -47,7 +53,23 @@ export async function POST(req: Request) {
             ],
         });
 
-        if (!team) {
+        if (!profile) {
+            return NextResponse.json(
+                { message: "Complete profile details" },
+                { status: 404 }
+            );
+        }
+
+        // Find user's team of specific type
+        const findTeam = await Team.findOne({
+            isEsports,
+            $or: [
+                { leaderId: profile._id },
+                { members: profile._id },
+            ],
+        });
+
+        if (!findTeam) {
             return NextResponse.json(
                 { message: "You are not in a team" },
                 { status: 400 }
@@ -55,20 +77,20 @@ export async function POST(req: Request) {
         }
 
         // Check if team is locked (paid for event)
-        if (team.isLocked) {
+        if (findTeam.isLocked) {
             return NextResponse.json(
                 { message: "Cannot leave a locked team. Your team has already registered for an event." },
                 { status: 400 }
             );
         }
 
-        const isLeader = team.leaderId.toString() === profile._id.toString();
+        const isLeader = findTeam.leaderId.toString() === profile._id.toString();
 
         if (isLeader) {
             // Leader is leaving - disband the entire team
 
             // 1. Clear team ID from all member profiles (leader + members)
-            const allMemberIds = [team.leaderId, ...team.members];
+            const allMemberIds = [findTeam.leaderId, ...findTeam.members];
             const unsetField = isEsports ? "esportsTeamId" : "currentTeamId";
 
             await Profile.updateMany(
@@ -78,18 +100,18 @@ export async function POST(req: Request) {
 
             // 2. Clear any pending invitations that reference this team from ALL profiles
             await Profile.updateMany(
-                { invitations: team._id },
-                { $pull: { invitations: team._id } }
+                { invitations: findTeam._id },
+                { $pull: { invitations: findTeam._id } }
             );
 
             // 3. Delete all registrations for this team
-            await Registration.deleteMany({ teamId: team._id });
+            await Registration.deleteMany({ teamId: findTeam._id });
 
             // 4. Delete cart associated with this team
-            await Cart.deleteMany({ teamId: team._id });
+            await Cart.deleteMany({ teamId: findTeam._id });
 
             // 5. Delete the team itself
-            await Team.findByIdAndDelete(team._id);
+            await Team.findByIdAndDelete(findTeam._id);
 
             return NextResponse.json({
                 message: "Team has been disbanded. All members have been removed.",
@@ -97,7 +119,7 @@ export async function POST(req: Request) {
             });
         } else {
             // Member is leaving - just remove from team
-            await Team.findByIdAndUpdate(team._id, {
+            await Team.findByIdAndUpdate(findTeam._id, {
                 $pull: { members: profile._id },
             });
 

@@ -53,7 +53,8 @@ export async function GET() {
     // 2. Try NextAuth
     const nextAuthSession = await nextAuth();
     if (nextAuthSession?.user?.email) {
-         const profile = await Profile.findOne({ email: nextAuthSession.user.email });
+         const email = nextAuthSession.user.email.toLowerCase();
+         const profile = await Profile.findOne({ email });
          if (profile) {
               return NextResponse.json({
                 user: {

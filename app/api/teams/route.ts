@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Team from "@/app/models/Team";
 import Profile from "@/app/models/Profile";
@@ -6,34 +7,34 @@ import Profile from "@/app/models/Profile";
 // GET - List teams or get user's team
 export async function GET(req: Request) {
     try {
+        const session = await nextAuth();
         const { searchParams } = new URL(req.url);
-        const clerkId = searchParams.get("clerkId");
+        const clerkIdParam = searchParams.get("clerkId"); // Keep for legacy/compat
         const search = searchParams.get("search");
         const type = searchParams.get("type"); // 'esports' or null for normal
         const isEsports = type === "esports";
 
         await connectDB();
 
-        // If clerkId provided, get user's current team
-        if (clerkId) {
+        // 1. GET USER'S TEAM (If authenticated or clerkId provided)
+        let email = session?.user?.email;
+        let profile = null;
+
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() }).lean();
+        } else if (clerkIdParam) {
             const mongoose = (await import("mongoose")).default;
-            const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
-            
-            const profile = await Profile.findOne({
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
                 $or: [
-                    { clerkId: clerkId },
-                    { email: clerkId },
-                    ...(isObjectId ? [{ _id: clerkId }] : [])
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
                 ]
             }).lean();
+        }
 
-            if (!profile) {
-                return NextResponse.json(
-                    { message: "Complete profile details" },
-                    { status: 404 }
-                );
-            }
-
+        if (profile) {
             const team = await Team.findOne({
                 isEsports,
                 $or: [{ leaderId: profile._id }, { members: profile._id }],
@@ -44,18 +45,21 @@ export async function GET(req: Request) {
 
             // Also get pending invitations (filtered by type)
             const invitations = await Team.find({
-                _id: { $in: profile.invitations },
+                _id: { $in: profile.invitations || [] },
                 isEsports,
             }).populate("leaderId", "username email").lean();
 
-            return NextResponse.json({
-                team,
-                invitations,
-                profileId: profile._id,
-            });
+            // If we found a team or invitations, OR if it's a direct user lookup, return it
+            if (!search && searchParams.get("available") !== "true") {
+                return NextResponse.json({
+                    team,
+                    invitations,
+                    profileId: profile._id,
+                });
+            }
         }
 
-        // If search query provided, search teams by name
+        // 2. SEARCH TEAMS
         if (search) {
             const teams = await Team.find({
                 name: { $regex: search, $options: "i" },
@@ -69,7 +73,7 @@ export async function GET(req: Request) {
             return NextResponse.json({ teams });
         }
 
-        // If available=true, fetch available teams (not locked)
+        // 3. LIST AVAILABLE TEAMS
         const available = searchParams.get("available");
         if (available === "true") {
             const teams = await Team.find({
@@ -85,8 +89,13 @@ export async function GET(req: Request) {
             return NextResponse.json({ teams });
         }
 
+        // Default: If they just wanted their team but none found
+        if (profile) {
+            return NextResponse.json({ team: null, invitations: [], profileId: profile._id });
+        }
+
         return NextResponse.json(
-            { message: "Provide clerkId, search query, or available=true" },
+            { message: "Provide clerkId/session, search query, or available=true" },
             { status: 400 }
         );
     } catch (error) {
@@ -101,27 +110,43 @@ export async function GET(req: Request) {
 // POST - Create a new team
 export async function POST(req: Request) {
     try {
+        const session = await nextAuth();
         const body = await req.json();
-        const { clerkId, teamName, isEsports } = body;
+        const { clerkId: clerkIdParam, teamName, isEsports } = body;
 
-        if (!clerkId || !teamName) {
+        let email = session?.user?.email;
+        if (!email && !clerkIdParam) {
             return NextResponse.json(
-                { message: "clerkId and teamName are required" },
+                { message: "Authentication required" },
+                { status: 401 }
+            );
+        }
+
+        if (!teamName) {
+            return NextResponse.json(
+                { message: "teamName is required" },
                 { status: 400 }
             );
         }
 
         await connectDB();
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        
+        // Find profile
+        let profile = null;
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() });
+        } else if (clerkIdParam) {
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
+                ]
+            });
+        }
 
-        // Get user profile
-        const profile = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
         if (!profile) {
             return NextResponse.json(
                 { message: "Complete profile details" },
@@ -129,7 +154,7 @@ export async function POST(req: Request) {
             );
         }
 
-        // Check profile completeness
+        // Check profile completeness (Hybrid check)
         const mandatoryFields = ["username", "phone", "college", "city", "state", "degree"];
         const isIncomplete = mandatoryFields.some(field => !profile[field as keyof typeof profile]);
 

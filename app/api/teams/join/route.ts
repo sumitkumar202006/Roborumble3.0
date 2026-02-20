@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Team from "@/app/models/Team";
 import Profile from "@/app/models/Profile";
@@ -6,33 +7,42 @@ import Profile from "@/app/models/Profile";
 // POST - Request to join a team
 export async function POST(req: Request) {
     try {
+        const session = await nextAuth();
         const body = await req.json();
-        const { clerkId, teamId } = body;
+        const { clerkId: clerkIdParam, teamId } = body;
 
-        if (!clerkId || !teamId) {
-            return NextResponse.json(
-                { message: "clerkId and teamId are required" },
-                { status: 400 }
-            );
+        let email = session?.user?.email;
+        if (!email && !clerkIdParam) {
+            return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+        }
+
+        if (!teamId) {
+            return NextResponse.json({ message: "teamId is required" }, { status: 400 });
         }
 
         await connectDB();
 
         // Get requester's profile
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        let profile = null;
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() });
+        } else if (clerkIdParam) {
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
+                ]
+            });
+        }
 
-        const profile = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
         if (!profile) {
             return NextResponse.json({ message: "Complete profile details" }, { status: 404 });
         }
 
-        // Check profile completeness
+        // Check profile completeness (Hybrid check)
         const mandatoryFields = ["username", "phone", "college", "city", "state", "degree"];
         const isIncomplete = mandatoryFields.some(field => !profile[field as keyof typeof profile]);
 
@@ -112,26 +122,34 @@ export async function POST(req: Request) {
 // GET - Get pending join requests for a team (leader only)
 export async function GET(req: Request) {
     try {
+        const session = await nextAuth();
         const { searchParams } = new URL(req.url);
-        const clerkId = searchParams.get("clerkId");
+        const clerkIdParam = searchParams.get("clerkId");
         const type = searchParams.get("type"); // 'esports' or null
         const isEsports = type === "esports";
 
-        if (!clerkId) {
-            return NextResponse.json({ message: "clerkId is required" }, { status: 400 });
+        let email = session?.user?.email;
+        if (!email && !clerkIdParam) {
+            return NextResponse.json({ message: "Authentication required" }, { status: 401 });
         }
 
         await connectDB();
 
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        let profile = null;
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() });
+        } else if (clerkIdParam) {
+            const mongoose = (await import("mongoose")).default;
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
+                $or: [
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
+                ]
+            });
+        }
 
-        const profile = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
         if (!profile) {
             return NextResponse.json({ message: "Complete profile details" }, { status: 404 });
         }

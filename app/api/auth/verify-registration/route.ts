@@ -22,9 +22,9 @@ export async function GET() {
         }
 
         await connectDB();
-
+ 
         // Check Profile
-        const profile = await Profile.findOne({ email });
+        const profile = await Profile.findOne({ email: email.toLowerCase() });
 
         // User is "registered" if they have a profile AND onboarding is completed
         // legacy check for "AuthUser" removed as we are migrating to Profile-based hybrid system

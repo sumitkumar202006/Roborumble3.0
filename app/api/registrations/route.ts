@@ -1,41 +1,54 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Registration from "@/app/models/Registration";
+import Profile from "@/app/models/Profile";
+import Team from "@/app/models/Team";
 
 export const dynamic = "force-dynamic";
 
-// Middleware-like check for admin session
-async function isAdmin() {
-    const cookieStore = await cookies();
-    return cookieStore.get("admin_session")?.value === "true";
-}
-
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const clerkId = searchParams.get("clerkId");
+    try {
+        const session = await nextAuth();
+        const { searchParams } = new URL(request.url);
+        const clerkIdParam = searchParams.get("clerkId"); // Keep for legacy/compat
 
-    // If clerkId is provided, fetch user's registrations
-    if (clerkId) {
-        try {
-            await connectDB();
-            const Profile = (await import("@/app/models/Profile")).default;
+        await connectDB();
+
+        // 1. ADMIN CHECK (Hybrid: NextAuth session or Admin Cookie)
+        // @ts-ignore
+        const isAdminSession = session?.user?.role === "admin" || session?.user?.role === "superadmin";
+
+        // If it's an admin request (no clerkIdParam search) and user is admin
+        if (!clerkIdParam && isAdminSession) {
+            const data = await Registration.find()
+                .populate("teamId")
+                .populate("eventId")
+                .sort({ createdAt: -1 });
+            return NextResponse.json(data);
+        }
+
+        // 2. USER REGISTRATIONS
+        let email = session?.user?.email;
+        let profile = null;
+
+        if (email) {
+            profile = await Profile.findOne({ email: email.toLowerCase() });
+        } else if (clerkIdParam) {
+            // Fallback for legacy calls or specific ID lookups
             const mongoose = (await import("mongoose")).default;
-
-            const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
-            const profile = await Profile.findOne({
+            const isObjectId = mongoose.Types.ObjectId.isValid(clerkIdParam);
+            profile = await Profile.findOne({
                 $or: [
-                    { clerkId: clerkId },
-                    ...(isObjectId ? [{ _id: clerkId }] : [])
+                    { clerkId: clerkIdParam },
+                    { email: clerkIdParam.toLowerCase() },
+                    ...(isObjectId ? [{ _id: clerkIdParam }] : [])
                 ]
             });
+        }
 
-            if (!profile) {
-                return NextResponse.json({ message: "Complete profile details" }, { status: 404 });
-            }
-
+        if (profile) {
             // Find all teams where user is a member
-            const Team = (await import("@/app/models/Team")).default;
             const teams = await Team.find({ members: profile._id });
             const teamIds = teams.map(t => t._id);
 
@@ -44,8 +57,8 @@ export async function GET(request: Request) {
             // 2. Individual registrations where user is in selectedMembers
             const registrations = await Registration.find({
                 $or: [
-                    { teamId: { $in: teamIds } }, // Team registrations
-                    { selectedMembers: profile._id } // Individual registrations
+                    { teamId: { $in: teamIds } },
+                    { selectedMembers: profile._id }
                 ]
             })
                 .populate("teamId")
@@ -54,27 +67,18 @@ export async function GET(request: Request) {
                 .sort({ createdAt: -1 });
 
             return NextResponse.json({ registrations });
-        } catch (error) {
-            console.error("Error fetching user registrations:", error);
-            return NextResponse.json({ message: "Error fetching registrations" }, { status: 500 });
         }
-    }
 
-    // Admin route - fetch all registrations
-    if (!(await isAdmin())) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+        // If no profile found and not an admin
+        if (!session) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
 
-    try {
-        await connectDB();
-        const data = await Registration.find()
-            .populate("teamId")
-            .populate("eventId")
-            .sort({ createdAt: -1 });
-        return NextResponse.json(data);
+        return NextResponse.json({ registrations: [] });
+
     } catch (error) {
-        console.error("Error fetching registrations:", error);
-        return NextResponse.json({ message: "Error fetching registrations" }, { status: 500 });
+        console.error("Error in registrations GET:", error);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
 

@@ -124,16 +124,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const email = session.user?.email?.toLowerCase();
                 const dbUser = await Profile.findOne({ email });
                 if (dbUser) {
-                    log(`DB User found: ${dbUser._id}, clerkId: ${dbUser.clerkId}`);
+                    log(`DB User found: ${dbUser._id}, email: ${dbUser.email}`);
                     // @ts-ignore
                     session.user.id = dbUser._id.toString();
+                    // @ts-ignore
+                    session.user.email = email; // Ensure consistency
                     // @ts-ignore
                     session.user.role = dbUser.role;
                     // @ts-ignore
                     session.user.college = dbUser.college;
                     // @ts-ignore
                     session.user.onboardingCompleted = dbUser.onboardingCompleted;
-                    log(`Session updated with id: ${session.user.id}`);
+                    // @ts-ignore
+                    session.user.firstName = dbUser.firstName;
+                    // @ts-ignore
+                    session.user.lastName = dbUser.lastName;
+                    
+                    // Sync name and image if they exist in DB
+                    if (dbUser.firstName) {
+                        session.user.name = `${dbUser.firstName} ${dbUser.lastName || ""}`.trim();
+                    }
+                    if (dbUser.avatarUrl) {
+                        session.user.image = dbUser.avatarUrl;
+                    }
+
+                    log(`Session updated for: ${session.user.email}`);
                 } else {
                     log(`DB User NOT found for email: ${session.user?.email}`);
                 }

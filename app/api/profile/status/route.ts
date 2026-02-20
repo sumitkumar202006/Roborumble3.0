@@ -23,7 +23,7 @@ export async function GET() {
 
         await connectDB();
 
-        const profile = await Profile.findOne({ email });
+        const profile = await Profile.findOne({ email: email.toLowerCase() });
 
         if (!profile) {
             return NextResponse.json({
