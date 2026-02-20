@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -37,7 +36,6 @@ interface RegistrationData {
 }
 
 export default function AdminPage() {
-  const { user } = useAuth();
   const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -45,10 +43,9 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchRegistrations();
-  }, [user?.id, statusFilter]);
+  }, [statusFilter]);
 
   async function fetchRegistrations() {
-    if (!user?.id) return;
     try {
       const params = new URLSearchParams({
         ...(statusFilter !== "all" && { status: statusFilter }),
@@ -85,7 +82,6 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clerkId: user?.id,
           registrationId,
           action,
           notes,
