@@ -44,7 +44,7 @@ export default function AdminSidebar() {
     { name: "Users List", icon: Users, href: "/admin/users" },
     { name: "Announcements", icon: Shield, href: "/admin/announcements" },
     { name: "Events", icon: Calendar, href: "/admin/events" },
-    { name: "Dance Competition", icon: Music, href: "/admin/dance" },
+    { name: "Street Dance Battle", icon: Music, href: "/admin/dance" },
     { name: "Boarding", icon: Hotel, href: "/admin/boarding" },
     { name: "Settings", icon: Settings, href: "/admin/settings" },
   ];

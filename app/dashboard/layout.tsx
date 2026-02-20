@@ -57,7 +57,7 @@ const navItems = [
   },
   {
     href: "/dashboard/dance",
-    label: "Dance Battle",
+    label: "Street Dance Battle",
     icon: Music,
     color: "green",
   },

@@ -20,6 +20,7 @@ const publicRoutes = [
     "/about",
     "/login",
     "/register",
+    "/admin",          // Admin uses legacy JWT cookie auth, not NextAuth — AdminLayoutClient handles auth guard
     "/admin/login",
 ];
 
