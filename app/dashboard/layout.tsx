@@ -46,7 +46,7 @@ const navItems = [
     { href: "/dashboard/esports-team", label: "Esports Team", icon: Trophy, color: "green" },
     { href: "/dashboard/events", label: "Events", icon: Trophy, color: "yellow" },
     { href: "/dashboard/registrations", label: "Registrations", icon: FileText, color: "purple" },
-    { href: "/dashboard/dance", label: "Dance Performance", icon: Music, color: "green" },
+    { href: "/dashboard/dance", label: "Dance Battle", icon: Music, color: "green" },
     { href: "/dashboard/communities", label: "Communities", icon: MessageSquare, color: "cyan" },
 ];
 
@@ -77,7 +77,7 @@ export default function DashboardLayout({
             try {
                 const res = await fetch('/api/onboarding');
                 const data = await res.json();
-                
+
                 if (res.ok && !data.onboardingCompleted) {
                     router.push('/onboarding');
                 } else if (!res.ok && res.status === 401) {
@@ -92,7 +92,7 @@ export default function DashboardLayout({
                 setOnboardingChecked(true);
             }
         }
-        
+
         if (isLoaded && isAuthenticated) {
             checkOnboarding();
         } else if (isLoaded && !isAuthenticated) {

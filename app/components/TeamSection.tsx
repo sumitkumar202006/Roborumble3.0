@@ -201,6 +201,16 @@ const teamData = {
         { icon: HiOutlineMail, link: "#" },
       ],
     },
+    {
+      name: "Disciplinary Head",
+      role: "Disciplinary Head",
+      img: "/disciplinary_head.png",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
   ],
 
   tech: [

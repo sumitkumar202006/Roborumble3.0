@@ -224,7 +224,7 @@ export const events = [
   },
   {
     id: "dance-performance",
-    title: "Dance Performance",
+    title: "Dance Battle",
     category: "Performance",
     icon: Music,
     desc: "The stage is yours. Whether you are a solo star or a powerhouse group, bring your rhythm and passion to the ultimate dance showdown.",
@@ -247,6 +247,6 @@ export const events = [
       "Selection Phase: Video submission required for shortlisting.",
       "Finals: Live performance during the event evening."
     ],
-    image: "/dance.jpeg"
+    image: "/dance.png"
   }
 ];

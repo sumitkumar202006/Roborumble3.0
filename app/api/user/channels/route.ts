@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         if (clerkSession?.userId) {
             const user = await currentUser();
             email = user?.emailAddresses?.[0]?.emailAddress || "";
-        } 
+        }
         // 2. Check NextAuth
         else {
             const nextSession = await nextAuth();
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
         // Get user profile by email (unified identifier)
         const profile = await Profile.findOne({ email });
-        
+
         if (!profile) {
             return NextResponse.json({ error: "Complete profile details" }, { status: 404 });
         }
@@ -68,10 +68,10 @@ export async function GET(request: NextRequest) {
         // Build response with access status
         const channelsWithAccess = channels.map(channel => {
             const event = events.find(e => e._id.toString() === channel.eventId.toString());
-            
+
             let hasAccess = paidEventIds.has(channel.eventId.toString());
-            
-            // Special check for Dance Performance channel
+
+            // Special check for Dance Battle channel
             if (event?.slug === 'dance-performance') {
                 hasAccess = hasDanceAccess;
             }
