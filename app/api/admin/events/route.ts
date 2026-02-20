@@ -1,26 +1,18 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
-import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Event, { generateSlug, parseTeamSize } from "@/app/models/Event";
-import Profile from "@/app/models/Profile";
+import { verifyAdminRequest } from "@/lib/adminAuth";
 
 // GET - List all events (admin only)
 export async function GET() {
     try {
-        const session = await nextAuth();
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
-
-        // Check if user is admin
-        const profile = await Profile.findOne({ email: session.user.email });
-        if (!profile || !["admin", "superadmin"].includes(profile.role)) {
-            return NextResponse.json({ error: "Admin access required" }, { status: 403 });
-        }
-
         const events = await Event.find({}).sort({ createdAt: -1 });
         return NextResponse.json({ events });
     } catch (error) {
@@ -32,21 +24,14 @@ export async function GET() {
 // POST - Create new event (admin only)
 export async function POST(req: Request) {
     try {
-        const session = await nextAuth();
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        // Check if user is admin
-        const profile = await Profile.findOne({ email: session.user.email });
-        if (!profile || !["admin", "superadmin"].includes(profile.role)) {
-            return NextResponse.json({ error: "Admin access required" }, { status: 403 });
-        }
-
         const body = await req.json();
-// ... (omitting rules etc but keeping logic)
         const { title, category, description, teamSize, prize, rules, image, fees, maxRegistrations, registrationDeadline, isLive, whatsappGroupLink, discordLink } = body;
 
         const { min, max } = parseTeamSize(teamSize);
@@ -71,7 +56,6 @@ export async function POST(req: Request) {
             isLive: isLive !== false,
             whatsappGroupLink: whatsappGroupLink || "",
             discordLink: discordLink || "",
-            createdBy: profile._id,
         });
 
         await event.save();
@@ -85,20 +69,14 @@ export async function POST(req: Request) {
 // PUT - Update event (admin only)
 export async function PUT(req: Request) {
     try {
-        const session = await nextAuth();
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
 
-        const profile = await Profile.findOne({ email: session.user.email });
-        if (!profile || !["admin", "superadmin"].includes(profile.role)) {
-            return NextResponse.json({ error: "Admin access required" }, { status: 403 });
-        }
-
         const body = await req.json();
-// ...
         const { eventId, ...updates } = body;
         if (!eventId) return NextResponse.json({ error: "Event ID required" }, { status: 400 });
 
@@ -121,17 +99,12 @@ export async function PUT(req: Request) {
 // DELETE - Delete event (admin only)
 export async function DELETE(req: Request) {
     try {
-        const session = await nextAuth();
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectDB();
-
-        const profile = await Profile.findOne({ email: session.user.email });
-        if (!profile || !["admin", "superadmin"].includes(profile.role)) {
-            return NextResponse.json({ error: "Admin access required" }, { status: 403 });
-        }
 
         const { searchParams } = new URL(req.url);
         const eventId = searchParams.get("eventId");

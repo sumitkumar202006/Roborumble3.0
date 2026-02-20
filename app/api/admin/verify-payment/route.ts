@@ -1,21 +1,14 @@
 import { NextResponse } from "next/server";
-import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Registration from "@/app/models/Registration";
-import Profile from "@/app/models/Profile";
 import Team from "@/app/models/Team";
+import { verifyAdminRequest } from "@/lib/adminAuth";
 
 export async function POST(req: Request) {
     try {
-        const session = await nextAuth();
-
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
-
-        // @ts-ignore
-        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
-            return NextResponse.json({ message: "Forbidden" }, { status: 403 });
         }
 
         const body = await req.json();
@@ -32,7 +25,7 @@ export async function POST(req: Request) {
             await Registration.findByIdAndUpdate(registrationId, {
                 paymentStatus: "manual_verified",
                 manualVerification: {
-                    verifiedBy: session.user.id,
+                    verifiedBy: admin.email,
                     verifiedAt: new Date(),
                     notes: notes || "Manually verified by admin",
                 },
@@ -48,7 +41,7 @@ export async function POST(req: Request) {
             await Registration.findByIdAndUpdate(registrationId, {
                 paymentStatus: "failed",
                 manualVerification: {
-                    verifiedBy: session.user.id,
+                    verifiedBy: admin.email,
                     verifiedAt: new Date(),
                     notes: notes || "Rejected by admin",
                 },

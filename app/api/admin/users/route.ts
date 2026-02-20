@@ -1,26 +1,19 @@
 import { NextResponse } from "next/server";
-import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
+import { verifyAdminRequest } from "@/lib/adminAuth";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const session = await nextAuth();
-
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-        }
-
-        // @ts-ignore
-        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
-            return NextResponse.json({ error: "FORBIDDEN: ADMIN_ACCESS_ONLY" }, { status: 403 });
         }
 
         await connectDB();
 
-        // Fetch all profiles
         const allProfiles = await Profile.find()
             .select(
                 "clerkId email firstName lastName username phone college role registeredEvents paidEvents onboardingCompleted createdAt"
@@ -43,15 +36,9 @@ export async function GET() {
 
 export async function DELETE(req: Request) {
     try {
-        const session = await nextAuth();
-
-        if (!session?.user?.email) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-        }
-
-        // @ts-ignore
-        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
-            return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
         }
 
         await connectDB();
@@ -62,7 +49,6 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ error: "MISSING_USER_ID" }, { status: 400 });
         }
 
-        // Delete the profile
         const deletedProfile = await Profile.findByIdAndDelete(userId);
 
         if (!deletedProfile) {
