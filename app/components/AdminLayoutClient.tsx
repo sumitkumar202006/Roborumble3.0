@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AdminSidebar from "./AdminSidebar";
 
 type AdminUser = { role: string; name: string; email: string } | null;
@@ -15,6 +15,8 @@ export default function AdminLayoutClient({
   const router = useRouter();
   const [adminUser, setAdminUser] = useState<AdminUser>(null);
   const [checking, setChecking] = useState(true);
+  // Use a ref to make sure we only auth-check once per mount, not on every render
+  const hasChecked = useRef(false);
 
   const isLoginPage = pathname === "/admin/login";
 
@@ -25,6 +27,10 @@ export default function AdminLayoutClient({
       return;
     }
 
+    // Only fetch once — don't re-run if we already confirmed the user
+    if (hasChecked.current) return;
+    hasChecked.current = true;
+
     // Check auth via the me endpoint (reads JWT cookie from admin login)
     fetch("/api/auth/me")
       .then((res) => {
@@ -32,21 +38,22 @@ export default function AdminLayoutClient({
         return res.json();
       })
       .then((data) => {
-        const role = data?.user?.role?.toLowerCase();
+        const role = (data?.user?.role || "").toLowerCase();
         if (role === "admin" || role === "superadmin") {
           setAdminUser(data.user);
         } else {
-          // Authenticated but not admin
-          router.push("/admin/login");
+          // Authenticated via NextAuth but not an admin — redirect
+          router.replace("/admin/login");
         }
       })
       .catch(() => {
-        router.push("/admin/login");
+        router.replace("/admin/login");
       })
       .finally(() => {
         setChecking(false);
       });
-  }, [isLoginPage, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoginPage]); // intentionally exclude router to prevent re-runs on navigation
 
   // Login page: just render children with no layout
   if (isLoginPage) {
