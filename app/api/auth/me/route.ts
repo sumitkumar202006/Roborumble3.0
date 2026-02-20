@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
-import { auth as clerkAuth, currentUser as clerkCurrentUser } from "@clerk/nextjs/server";
+
 import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import AuthUser from "@/app/models/AuthUser";
@@ -69,28 +69,6 @@ export async function GET() {
                 }
             });
          }
-    }
-
-    // 3. Fallback to Clerk Auth
-    const { userId: clerkId } = await clerkAuth();
-    const clerkUser = await clerkCurrentUser();
-
-    if (clerkId && clerkUser) {
-      const profile = await Profile.findOne({ clerkId });
-      
-      return NextResponse.json({
-        user: {
-          id: clerkId,
-          name: profile?.firstName ? `${profile.firstName} ${profile.lastName || ""}`.trim() : (clerkUser.firstName || clerkUser.username || "User"),
-          email: clerkUser.emailAddresses[0].emailAddress,
-          college: profile?.college || "N/A",
-          events: profile?.registeredEvents || [],
-          role: profile?.role || "user",
-          teamName: profile?.username, 
-          paymentStatus: profile?.paidEvents?.length ? "paid" : "pending",
-          onboardingCompleted: profile?.onboardingCompleted || false
-        }
-      });
     }
 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

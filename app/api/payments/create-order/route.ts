@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { auth } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
 import Event from "@/app/models/Event";
@@ -22,7 +22,7 @@ try {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { clerkId, eventId } = body;
+        const { eventId } = body;
 
         if (!eventId) {
             return NextResponse.json(
@@ -31,13 +31,13 @@ export async function POST(req: Request) {
             );
         }
 
-        // Get auth from Clerk
-        const { userId: authClerkId } = await auth();
-        const userClerkId = clerkId || authClerkId;
-
-        if (!userClerkId) {
+        // Get auth from NextAuth
+        const session = await nextAuth();
+        if (!session?.user?.email) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
+
+        const email = session.user.email;
 
         await connectDB();
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         }
 
         // Get user profile
-        const profile = await Profile.findOne({ clerkId: userClerkId });
+        const profile = await Profile.findOne({ email });
         if (!profile) {
             return NextResponse.json({ message: "Complete profile details. Complete onboarding first." }, { status: 404 });
         }
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         // Handle free events
         if (event.fees === 0) {
             await Profile.findOneAndUpdate(
-                { clerkId: userClerkId },
+                { email },
                 {
                     $addToSet: { registeredEvents: eventId, paidEvents: eventId },
                     $set: { updatedAt: new Date() }
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
             currency: "INR",
             receipt: `reg_${profile._id}_${eventId}_${Date.now()}`,
             notes: {
-                clerkId: userClerkId,
+                clerkId: profile.clerkId || profile._id.toString(),
                 eventId: eventId,
                 eventTitle: event.title,
                 email: profile.email,
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
 
         // Mark as registered (payment pending)
         await Profile.findOneAndUpdate(
-            { clerkId: userClerkId },
+            { email },
             {
                 $addToSet: { registeredEvents: eventId },
                 $set: { updatedAt: new Date() }

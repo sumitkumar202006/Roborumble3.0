@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Post from "@/app/models/Post";
 import Profile from "@/app/models/Profile";
@@ -10,8 +10,8 @@ export async function POST(
     { params }: { params: Promise<{ postId: string }> }
 ) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        const session = await nextAuth();
+        if (!session?.user?.email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -29,7 +29,7 @@ export async function POST(
 
         await connectDB();
 
-        const profile = await Profile.findOne({ clerkId: userId });
+        const profile = await Profile.findOne({ email: session.user.email });
         if (!profile) {
             return NextResponse.json({ error: "Complete profile details" }, { status: 404 });
         }

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth as clerkAuth, currentUser } from "@clerk/nextjs/server";
 import { auth as nextAuth } from "@/auth";
 import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
@@ -12,18 +11,10 @@ export async function POST(req: Request) {
     try {
         let email = "";
 
-        // 1. Check Clerk
-        const clerkSession = await clerkAuth();
-        if (clerkSession?.userId) {
-            const user = await currentUser();
-            email = user?.emailAddresses?.[0]?.emailAddress || "";
-        }
-        // 2. Check NextAuth
-        else {
-            const nextSession = await nextAuth();
-            if (nextSession?.user?.email) {
-                email = nextSession.user.email;
-            }
+        // Check NextAuth
+        const nextSession = await nextAuth();
+        if (nextSession?.user?.email) {
+            email = nextSession.user.email;
         }
 
         if (!email) {

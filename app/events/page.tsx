@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser } from "@clerk/nextjs";
+
 import MatrixBackground from "../components/MatrixBackground";
 import {
   Trophy,
@@ -123,16 +123,16 @@ const CardBackground = ({
       <div className="absolute inset-0 z-0 opacity-30 overflow-hidden">
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-purple-500/20 to-transparent"></div>
         <div className="absolute inset-0 flex items-end justify-around gap-1 px-4 opacity-40">
-           {[...Array(12)].map((_, i) => (
-             <div 
-               key={i} 
-               className="w-1 bg-purple-500 rounded-t-full animate-audio-bar" 
-               style={{ 
-                 height: `${Math.random() * 60 + 20}%`,
-                 animationDelay: `${i * 0.1}s`
-               }}
-             />
-           ))}
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="w-1 bg-purple-500 rounded-t-full animate-audio-bar"
+              style={{
+                height: `${Math.random() * 60 + 20}%`,
+                animationDelay: `${i * 0.1}s`,
+              }}
+            />
+          ))}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
       </div>
@@ -501,7 +501,6 @@ const EventCard = ({
 };
 
 export default function EventsPage() {
-  const { user, isLoaded } = useUser();
   const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [loadingEventId, setLoadingEventId] = useState<string | null>(null);
@@ -509,7 +508,6 @@ export default function EventsPage() {
   const playCloseSound = useAudio("audio.wav", 0.1);
 
   const fetchUserData = async () => {
-    if (!user) return;
     try {
       const res = await fetch("/api/auth/me");
       if (res.ok) {
@@ -522,10 +520,8 @@ export default function EventsPage() {
   };
 
   useEffect(() => {
-    if (isLoaded && user) {
-      fetchUserData();
-    }
-  }, [isLoaded, user]);
+    fetchUserData();
+  }, []);
 
   const handleOpenEvent = (id: string) => {
     setActiveEventId(null);
@@ -881,8 +877,13 @@ export default function EventsPage() {
           }
         }
         @keyframes audio-bar {
-          0%, 100% { transform: scaleY(1); }
-          50% { transform: scaleY(1.5); }
+          0%,
+          100% {
+            transform: scaleY(1);
+          }
+          50% {
+            transform: scaleY(1.5);
+          }
         }
         .animate-audio-bar {
           animation: audio-bar 0.8s ease-in-out infinite;

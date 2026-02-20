@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { auth } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
 import Event from "@/app/models/Event";
@@ -44,16 +44,18 @@ export async function POST(req: Request) {
             );
         }
 
-        // Get user from Clerk auth
-        const { userId: clerkId } = await auth();
-        if (!clerkId) {
+        // Get user from NextAuth
+        const session = await nextAuth();
+        if (!session?.user?.email) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
+
+        const email = session.user.email;
 
         await connectDB();
 
         // Find user profile
-        const profile = await Profile.findOne({ clerkId });
+        const profile = await Profile.findOne({ email });
         if (!profile) {
             return NextResponse.json({ message: "Complete profile details" }, { status: 404 });
         }
@@ -63,7 +65,7 @@ export async function POST(req: Request) {
             const paidEvents = profile.paidEvents || [];
             if (!paidEvents.includes(eventId)) {
                 await Profile.findOneAndUpdate(
-                    { clerkId },
+                    { email },
                     {
                         $addToSet: { paidEvents: eventId, registeredEvents: eventId },
                         $set: { updatedAt: new Date() }

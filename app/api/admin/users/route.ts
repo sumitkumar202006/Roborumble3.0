@@ -1,28 +1,20 @@
 import { NextResponse } from "next/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-import AuthUser from "@/app/models/AuthUser";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
+        const session = await nextAuth();
 
-        if (!token) {
+        if (!session?.user?.email) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
         }
 
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
+        // @ts-ignore
+        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
             return NextResponse.json({ error: "FORBIDDEN: ADMIN_ACCESS_ONLY" }, { status: 403 });
         }
 
@@ -51,20 +43,14 @@ export async function GET() {
 
 export async function DELETE(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
+        const session = await nextAuth();
 
-        if (!token) {
+        if (!session?.user?.email) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
         }
 
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
+        // @ts-ignore
+        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
             return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
         }
 
@@ -78,7 +64,7 @@ export async function DELETE(req: Request) {
 
         // Delete the profile
         const deletedProfile = await Profile.findByIdAndDelete(userId);
-        
+
         if (!deletedProfile) {
             return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
         }

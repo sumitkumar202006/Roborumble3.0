@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Channel from "@/app/models/Channel";
 import Event from "@/app/models/Event";
@@ -10,8 +10,8 @@ export async function GET(
     { params }: { params: Promise<{ eventId: string }> }
 ) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        const session = await nextAuth();
+        if (!session?.user?.email) {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 401 }

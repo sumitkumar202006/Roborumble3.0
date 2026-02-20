@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Channel from "@/app/models/Channel";
 import Post from "@/app/models/Post";
@@ -7,8 +7,8 @@ import Profile from "@/app/models/Profile";
 import Registration from "@/app/models/Registration";
 
 // Helper: Verify user has access to event (paid participant)
-async function verifyEventAccess(eventId: string, clerkId: string) {
-    const profile = await Profile.findOne({ clerkId });
+async function verifyEventAccess(eventId: string, email: string) {
+    const profile = await Profile.findOne({ email });
     if (!profile) return false;
 
     const registration = await Registration.findOne({
@@ -26,8 +26,8 @@ export async function GET(
     { params }: { params: Promise<{ eventId: string }> }
 ) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        const session = await nextAuth();
+        if (!session?.user?.email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -35,7 +35,7 @@ export async function GET(
         await connectDB();
 
         // Verify access
-        const hasAccess = await verifyEventAccess(eventId, userId);
+        const hasAccess = await verifyEventAccess(eventId, session.user.email);
         if (!hasAccess) {
             return NextResponse.json(
                 { error: "Access denied. Only verified participants can view this channel." },
@@ -67,8 +67,8 @@ export async function POST(
     { params }: { params: Promise<{ eventId: string }> }
 ) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        const session = await nextAuth();
+        if (!session?.user?.email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -85,7 +85,7 @@ export async function POST(
         await connectDB();
 
         // Verify access
-        const hasAccess = await verifyEventAccess(eventId, userId);
+        const hasAccess = await verifyEventAccess(eventId, session.user.email);
         if (!hasAccess) {
             return NextResponse.json(
                 { error: "Access denied. Only verified participants can post." },
@@ -98,7 +98,7 @@ export async function POST(
             return NextResponse.json({ error: "Channel not found" }, { status: 404 });
         }
 
-        const profile = await Profile.findOne({ clerkId: userId });
+        const profile = await Profile.findOne({ email: session.user.email });
         if (!profile) {
             return NextResponse.json({ error: "Complete profile details" }, { status: 404 });
         }

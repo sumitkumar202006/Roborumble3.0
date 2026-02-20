@@ -1,28 +1,18 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
-import { auth } from "@clerk/nextjs/server";
-
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-import AuthUser from "@/app/models/AuthUser";
+import { auth as nextAuth } from "@/auth";
 
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
-
-        if (!token) {
+        const session = await nextAuth();
+        
+        if (!session?.user?.email) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
         }
 
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
+        // @ts-ignore
+        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
             return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
         }
 

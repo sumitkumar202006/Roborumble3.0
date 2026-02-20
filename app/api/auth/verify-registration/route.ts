@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth as clerkAuth, currentUser } from "@clerk/nextjs/server";
 import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
@@ -11,20 +10,11 @@ export async function GET() {
         let email = "";
         let authId = "";
 
-        // 1. Check Clerk
-        const clerkSession = await clerkAuth();
-        if (clerkSession?.userId) {
-            const user = await currentUser();
-            email = user?.emailAddresses?.[0]?.emailAddress || "";
-            authId = clerkSession.userId;
-        }
-        // 2. Check NextAuth
-        else {
-            const nextSession = await nextAuth();
-            if (nextSession?.user?.email) {
-                email = nextSession.user.email;
-                authId = nextSession.user.id || `google_${email}`;
-            }
+        // Check NextAuth
+        const nextSession = await nextAuth();
+        if (nextSession?.user?.email) {
+            email = nextSession.user.email;
+            authId = nextSession.user.id || `google_${email}`;
         }
 
         if (!email) {

@@ -1,30 +1,25 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
 
 export const dynamic = "force-dynamic";
 
-// GET - Get user profile by clerkId
+// GET - Get user profile by id or email
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
-        const clerkId = searchParams.get("clerkId");
+        const id = searchParams.get("id");
+        const email = searchParams.get("email");
 
-        if (!clerkId) {
-            return NextResponse.json({ error: "clerkId is required" }, { status: 400 });
+        if (!id && !email) {
+            return NextResponse.json({ error: "id or email is required" }, { status: 400 });
         }
 
         await connectDB();
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
-
-        const user = await Profile.findOne({
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        });
+        
+        const filter = id ? { _id: id } : { email: email };
+        const user = await Profile.findOne(filter);
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -37,44 +32,30 @@ export async function GET(req: Request) {
     }
 }
 
-// PATCH - Update user profile
+// PATCH - Update current user profile
 export async function PATCH(req: Request) {
     try {
-        const body = await req.json();
-        const { clerkId, username, phone, college, city, state, degree, branch, yearOfStudy, boarding } = body;
-
-        if (!clerkId) {
-            return NextResponse.json({ error: "clerkId is required" }, { status: 400 });
+        const session = await nextAuth();
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        await connectDB();
-        const mongoose = (await import("mongoose")).default;
-        const isObjectId = mongoose.Types.ObjectId.isValid(clerkId);
+        const body = await req.json();
+        const { username, phone, college, city, state, degree, branch, yearOfStudy, boarding } = body;
 
-        const filter = {
-            $or: [
-                { clerkId: clerkId },
-                ...(isObjectId ? [{ _id: clerkId }] : [])
-            ]
-        };
+        await connectDB();
 
         // Check for username uniqueness if changed
         if (username) {
             const existingUser = await Profile.findOne({
                 username: username.trim(),
-                $and: [
-                    { clerkId: { $ne: clerkId } },
-                    ...(isObjectId ? [{ _id: { $ne: clerkId } }] : [])
-                ]
+                email: { $ne: session.user.email }
             });
 
             if (existingUser) {
                 return NextResponse.json({ error: "Username is already taken" }, { status: 400 });
             }
         }
-
-        // Get current user details from Clerk for sync
-        const clerkUser = await currentUser();
 
         const updateData: any = {
             ...(username && { username: username.trim() }),
@@ -85,15 +66,11 @@ export async function PATCH(req: Request) {
             ...(degree && { degree: degree.trim() }),
             ...(branch && { branch: branch.trim() }),
             ...(yearOfStudy !== undefined && { yearOfStudy }),
-            ...(clerkUser?.imageUrl && { avatarUrl: clerkUser.imageUrl }),
-            ...(clerkUser?.emailAddresses?.[0]?.emailAddress && { email: clerkUser.emailAddresses[0].emailAddress }),
-            ...(clerkUser?.firstName && { firstName: clerkUser.firstName }),
-            ...(clerkUser?.lastName && { lastName: clerkUser.lastName }),
             ...(boarding !== undefined && { boarding: boarding === "yes" || boarding === true }),
         };
 
         const updatedUser = await Profile.findOneAndUpdate(
-            filter,
+            { email: session.user.email },
             { $set: updateData },
             { new: true }
         );

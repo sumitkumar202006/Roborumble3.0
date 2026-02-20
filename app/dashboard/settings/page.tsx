@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useClerk } from "@clerk/nextjs";
+
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";

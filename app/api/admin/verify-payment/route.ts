@@ -1,29 +1,20 @@
 import { NextResponse } from "next/server";
+import { auth as nextAuth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Registration from "@/app/models/Registration";
 import Profile from "@/app/models/Profile";
 import Team from "@/app/models/Team";
 
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-import AuthUser from "@/app/models/AuthUser";
-
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
+        const session = await nextAuth();
 
-        if (!token) {
+        if (!session?.user?.email) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
+        // @ts-ignore
+        if (!["ADMIN", "SUPERADMIN"].includes(session.user.role?.toUpperCase())) {
             return NextResponse.json({ message: "Forbidden" }, { status: 403 });
         }
 
@@ -41,7 +32,7 @@ export async function POST(req: Request) {
             await Registration.findByIdAndUpdate(registrationId, {
                 paymentStatus: "manual_verified",
                 manualVerification: {
-                    verifiedBy: decoded.userId,
+                    verifiedBy: session.user.id,
                     verifiedAt: new Date(),
                     notes: notes || "Manually verified by admin",
                 },
@@ -57,7 +48,7 @@ export async function POST(req: Request) {
             await Registration.findByIdAndUpdate(registrationId, {
                 paymentStatus: "failed",
                 manualVerification: {
-                    verifiedBy: decoded.userId,
+                    verifiedBy: session.user.id,
                     verifiedAt: new Date(),
                     notes: notes || "Rejected by admin",
                 },
