@@ -31,7 +31,6 @@ interface Registration {
 }
 
 export default function DancePage() {
-    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
     const { data: session, status: sessionStatus } = useSession();
     
     const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -46,8 +45,8 @@ export default function DancePage() {
     const [teamName, setTeamName] = useState("");
     const [memberNames, setMemberNames] = useState<string[]>(["", "", ""]); // Min 3 for Group
 
-    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
-    const userEmail = clerkUser?.emailAddresses?.[0]?.emailAddress || session?.user?.email;
+    const isLoaded = sessionStatus !== "loading";
+    const userEmail = session?.user?.email;
 
     useEffect(() => {
         if (isLoaded && userEmail) {
@@ -105,7 +104,7 @@ export default function DancePage() {
             danceStyle,
             videoLink,
             teamName: category === "Group" ? teamName : undefined,
-            members: category === "Group" ? memberNames.filter(n => n.trim() !== "") : [clerkUser?.fullName || session?.user?.name || "Solo Performer"]
+            members: category === "Group" ? memberNames.filter(n => n.trim() !== "") : [session?.user?.name || "Solo Performer"]
         };
 
         try {

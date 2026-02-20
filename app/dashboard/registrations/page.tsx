@@ -84,33 +84,22 @@ const statusConfig: Record<
 };
 
 export default function RegistrationsPage() {
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
   const { data: session, status: sessionStatus } = useSession();
 
   const user = useMemo(() => {
-    if (clerkUser) {
-      return {
-        id: clerkUser.id,
-        firstName: clerkUser.firstName,
-        fullName: clerkUser.fullName,
-        email: clerkUser.emailAddresses?.[0]?.emailAddress,
-        isClerk: true,
-      };
-    }
     if (session?.user) {
       return {
         // @ts-ignore
-        id: session.user.id || session.user.email,
+        id: session.user.id,
         firstName: session.user.name?.split(" ")[0] || "Champion",
         fullName: session.user.name,
         email: session.user.email,
-        isClerk: false,
       };
     }
     return null;
-  }, [clerkUser, session]);
+  }, [session]);
 
-  const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+  const isLoaded = sessionStatus !== "loading";
 
   const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,17 +107,17 @@ export default function RegistrationsPage() {
   const [selectedQr, setSelectedQr] = useState<RegistrationData | null>(null);
 
   useEffect(() => {
-    if (isLoaded && user?.id) {
+    if (isLoaded && session?.user) {
       fetchRegistrations();
-    } else if (isLoaded && !user) {
+    } else if (isLoaded && !session?.user) {
       setLoading(false);
     }
-  }, [user?.id, isLoaded]);
+  }, [session, isLoaded]);
 
   async function fetchRegistrations() {
     try {
       setLoading(true);
-      const res = await fetch(`/api/registrations?clerkId=${user?.id}`);
+      const res = await fetch(`/api/registrations`);
       if (res.ok) {
         const data = await res.json();
         setRegistrations(data.registrations || []);
@@ -155,7 +144,6 @@ export default function RegistrationsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clerkId: user?.id,
           eventId: registration.eventId._id,
         }),
       });

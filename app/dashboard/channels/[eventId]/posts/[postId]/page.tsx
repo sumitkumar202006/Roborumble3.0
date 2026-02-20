@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     MessageSquare,
@@ -55,7 +55,8 @@ interface Post {
 export default function PostPage() {
     const params = useParams();
     const router = useRouter();
-    const { userId } = useAuth();
+    const { data: session } = useSession();
+    const userId = session?.user?.id;
     const { eventId, postId } = params as { eventId: string; postId: string };
 
     const [post, setPost] = useState<Post | null>(null);

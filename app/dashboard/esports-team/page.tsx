@@ -157,29 +157,20 @@ function LoadingSkeleton() {
 }
 
 export default function EsportsTeamPage() {
-    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
     const { data: session, status: sessionStatus } = useSession();
 
     const user = useMemo(() => {
-        if (clerkUser) {
-            return {
-                id: clerkUser.id,
-                firstName: clerkUser.firstName,
-                isClerk: true,
-            };
-        }
         if (session?.user) {
             return {
                 // @ts-ignore
-                id: session.user.id || session.user.email,
+                id: session.user.id,
                 firstName: session.user.name?.split(" ")[0] || "Champion",
-                isClerk: false,
             };
         }
         return null;
-    }, [clerkUser, session]);
+    }, [session]);
 
-    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+    const isLoaded = sessionStatus !== "loading";
 
     const [team, setTeam] = useState<TeamData | null>(null);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -211,9 +202,9 @@ export default function EsportsTeamPage() {
 
     // Fetch team data
     async function fetchTeamData() {
-        if (!user?.id) return;
+        if (!session?.user) return;
         try {
-            const res = await fetch(`/api/teams?clerkId=${user.id}&type=esports`);
+            const res = await fetch(`/api/teams?type=esports`);
             if (!res.ok) {
                 console.error("Teams API error:", res.status);
                 setLoading(false);
@@ -233,8 +224,8 @@ export default function EsportsTeamPage() {
             if (data.team && data.team.leaderId?._id === data.profileId) {
                 try {
                     const [invRes, reqRes] = await Promise.all([
-                        fetch(`/api/teams/invite?clerkId=${user.id}&type=esports`),
-                        fetch(`/api/teams/join?clerkId=${user.id}&type=esports`),
+                        fetch(`/api/teams/invite?type=esports`),
+                        fetch(`/api/teams/join?type=esports`),
                     ]);
                     if (invRes.ok) {
                         const invData = await invRes.json();
@@ -257,12 +248,12 @@ export default function EsportsTeamPage() {
     }
 
     useEffect(() => {
-        if (isLoaded && user?.id) {
+        if (isLoaded && session?.user) {
             fetchTeamData();
-        } else if (isLoaded && !user) {
+        } else if (isLoaded && !session?.user) {
             setLoading(false);
         }
-    }, [user?.id, isLoaded]);
+    }, [session, isLoaded]);
 
     // Fetch available teams for users without a team
     async function fetchAvailableTeams() {
@@ -293,7 +284,7 @@ export default function EsportsTeamPage() {
                 // For esports, we might not want to excludeInTeam=true if they are in a normal team
                 // But generally users can only be in ONE team of ONE type.
                 const res = await fetch(
-                    `/api/users/search?q=${encodeURIComponent(searchQuery)}&clerkId=${user?.id}&excludeInEsportsTeam=true`
+                    `/api/users/search?q=${encodeURIComponent(searchQuery)}&excludeInEsportsTeam=true`
                 );
                 const data = await res.json();
                 setSearchResults(data.users || []);
@@ -305,7 +296,7 @@ export default function EsportsTeamPage() {
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchQuery, user?.id]);
+    }, [searchQuery]);
 
     // Create team
     async function createTeam() {
@@ -319,7 +310,7 @@ export default function EsportsTeamPage() {
             const res = await fetch("/api/teams", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, teamName, isEsports: true }),
+                body: JSON.stringify({ teamName, isEsports: true }),
             });
             const data = await res.json();
 
@@ -345,7 +336,7 @@ export default function EsportsTeamPage() {
             const res = await fetch("/api/teams/invite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, inviteUserId: userId, type: "esports" }),
+                body: JSON.stringify({ inviteUserId: userId, type: "esports" }),
             });
             const data = await res.json();
 
@@ -354,7 +345,7 @@ export default function EsportsTeamPage() {
                 setSearchQuery("");
                 setSearchResults([]);
                 // Refresh pending invites
-                const invRes = await fetch(`/api/teams/invite?clerkId=${user?.id}&type=esports`);
+                const invRes = await fetch(`/api/teams/invite?type=esports`);
                 const invData = await invRes.json();
                 setPendingInvites(invData.pendingInvites || []);
             } else {
@@ -375,7 +366,7 @@ export default function EsportsTeamPage() {
             const res = await fetch("/api/teams/invite/cancel", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, userId, type: "esports" }),
+                body: JSON.stringify({ userId, type: "esports" }),
             });
             const data = await res.json();
 
@@ -420,7 +411,7 @@ export default function EsportsTeamPage() {
             const res = await fetch("/api/teams/join", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, teamId, type: "esports" }),
+                body: JSON.stringify({ teamId, type: "esports" }),
             });
             const data = await res.json();
 
@@ -446,7 +437,6 @@ export default function EsportsTeamPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    clerkId: user?.id,
                     action: accept ? "accept_invitation" : "reject_invitation",
                     teamId,
                     type: "esports",
@@ -475,7 +465,6 @@ export default function EsportsTeamPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    clerkId: user?.id,
                     action: accept ? "accept_request" : "reject_request",
                     userId,
                     type: "esports",
@@ -507,7 +496,7 @@ export default function EsportsTeamPage() {
             const res = await fetch("/api/teams/leave", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, type: "esports" }),
+                body: JSON.stringify({ type: "esports" }),
             });
             const data = await res.json();
 

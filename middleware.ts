@@ -1,55 +1,47 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
 import { NextResponse } from "next/server";
 
-const { auth: nextAuth } = NextAuth(authConfig);
+const { auth } = NextAuth(authConfig);
 
 // Define public routes that don't require authentication
-const isPublicRoute = createRouteMatcher([
+const publicRoutes = [
     "/",               // Homepage
-    "/home(.*)",       // Home page
-    "/sign-in(.*)",
-    "/sign-up(.*)",
-    "/api/webhooks(.*)",
-    "/api/auth(.*)",   // Legacy auth + NextAuth endpoints
-    "/schedule(.*)",
-    "/patrons(.*)",
-    "/gallery(.*)",
-    "/sponsors(.*)",
-    "/contacts(.*)",
-    "/events(.*)",
-    "/team(.*)",
-    "/about(.*)",
-    "/login(.*)",
-    "/register(.*)",
-    "/admin/login(.*)",
-    "/api/uploadthing(.*)", // UploadThing webhooks
-]);
+    "/home",
+    "/sign-in",
+    "/sign-up",
+    "/schedule",
+    "/patrons",
+    "/gallery",
+    "/sponsors",
+    "/contacts",
+    "/events",
+    "/team",
+    "/about",
+    "/login",
+    "/register",
+    "/admin/login",
+];
 
-export default clerkMiddleware(async (auth, req) => {
-    const url = new URL(req.url);
+export default auth((req) => {
+    const { nextUrl } = req;
+    const isLoggedIn = !!req.auth;
 
-    // 1. Check NextAuth Session
-    const session = await nextAuth();
-    if (session?.user) {
-        // User is logged in with NextAuth, skip Clerk checks
+    const isPublicRoute = publicRoutes.some(route => 
+        nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`)
+    ) || nextUrl.pathname.startsWith("/api/auth") 
+      || nextUrl.pathname.startsWith("/api/webhooks")
+      || nextUrl.pathname.startsWith("/api/uploadthing");
+
+    if (isPublicRoute) {
         return NextResponse.next();
     }
 
-    // 2. Normal Clerk Logic
-    // Always allow the root path
-    if (url.pathname === "/") {
-        return;
+    if (!isLoggedIn) {
+        return NextResponse.redirect(new URL("/login", nextUrl));
     }
 
-    // Allow public routes
-    if (isPublicRoute(req)) {
-        return;
-    }
-
-    // Protect all other routes
-    await auth.protect();
+    return NextResponse.next();
 });
 
 export const config = {

@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn as nextAuthSignIn, useSession } from "next-auth/react";
-import { useAuth, useSignUp } from "@clerk/nextjs";
-import { FaGoogle, FaEnvelope, FaLock, FaArrowRight, FaUser } from "react-icons/fa";
+import { FaGoogle, FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 export default function RegisterPage() {
@@ -13,25 +12,19 @@ export default function RegisterPage() {
   // NextAuth Session
   const { data: session, status: sessionStatus } = useSession();
   
-  // Clerk Session
-  const { isSignedIn: isClerkSignedIn, isLoaded: isClerkLoaded } = useAuth();
-  const { isLoaded: isSignUpLoaded, signUp, setActive } = useSignUp();
-
   const [showLegacy, setShowLegacy] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [code, setCode] = useState("");
-  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (sessionStatus === "authenticated" || (isClerkLoaded && isClerkSignedIn)) {
+    if (sessionStatus === "authenticated") {
       router.replace("/onboarding");
     }
-  }, [sessionStatus, isClerkLoaded, isClerkSignedIn, router]);
+  }, [sessionStatus, router]);
 
   const handleGoogleSignUp = async () => {
     await nextAuthSignIn("google", { callbackUrl: "/onboarding" });
@@ -39,56 +32,48 @@ export default function RegisterPage() {
 
   const handleLegacySignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSignUpLoaded) return;
     setIsLoading(true);
     setError("");
 
     try {
-      await signUp.create({
-        emailAddress: email,
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      // Automatically sign in after registration
+      const result = await nextAuthSignIn("credentials", {
+        email,
         password,
-        firstName,
-        lastName,
+        redirect: false,
       });
 
-      // Prepare email verification
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      setVerifying(true);
-    } catch (err: any) {
-      console.error("Sign up error", err);
-      setError(err.errors?.[0]?.message || "Registration failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isSignUpLoaded) return;
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const result = await signUp.attemptEmailAddressVerification({
-        code,
-      });
-
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/onboarding");
+      if (result?.error) {
+        router.push("/login");
       } else {
-        console.error("Verification incomplete", result);
-        setError("Verification failed. Please check the code.");
+        router.push("/onboarding");
       }
     } catch (err: any) {
-      console.error("Verification error", err);
-      setError(err.errors?.[0]?.message || "Invalid code");
+      console.error("Sign up error", err);
+      setError(err.message || "Registration failed");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (sessionStatus === "loading" || !isClerkLoaded) {
+  if (sessionStatus === "loading") {
     return (
       <div className="min-h-screen bg-[#020617] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
@@ -144,7 +129,7 @@ export default function RegisterPage() {
                 <span>Sign up with Email</span>
               </button>
             </div>
-          ) : !verifying ? (
+          ) : (
             <form onSubmit={handleLegacySignUp} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -215,7 +200,7 @@ export default function RegisterPage() {
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
                 ) : (
                     <>
-                        <span>Continue</span>
+                        <span>Create Account</span>
                         <FaArrowRight />
                     </>
                 )}
@@ -227,42 +212,6 @@ export default function RegisterPage() {
                 className="w-full text-gray-500 text-sm hover:text-gray-300 transition-colors"
               >
                 Back to Options
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerification} className="space-y-4">
-              <div className="text-center mb-6">
-                <p className="text-gray-300 text-sm">We sent a code to <span className="text-white font-medium">{email}</span></p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Verification Code</label>
-                <input
-                    type="text"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-center text-2xl tracking-widest focus:outline-none focus:border-purple-500/50 transition-colors"
-                    placeholder="000000"
-                    required
-                />
-              </div>
-
-              {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white h-12 rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                ) : (
-                    <span>Verify & Create Account</span>
-                )}
               </button>
             </form>
           )}

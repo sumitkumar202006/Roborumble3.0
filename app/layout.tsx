@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { ClerkProvider } from "@clerk/nextjs";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
@@ -34,7 +33,6 @@ export default function RootLayout({
     !isRegister;
 
   return (
-    <ClerkProvider>
       <SessionProvider>
         <html lang="en">
           <head>
@@ -57,6 +55,5 @@ export default function RootLayout({
           </body>
         </html>
       </SessionProvider>
-    </ClerkProvider>
   );
 }

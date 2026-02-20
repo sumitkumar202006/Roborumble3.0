@@ -155,29 +155,20 @@ function LoadingSkeleton() {
 }
 
 export default function TeamPage() {
-    const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
     const { data: session, status: sessionStatus } = useSession();
 
     const user = useMemo(() => {
-        if (clerkUser) {
-            return {
-                id: clerkUser.id,
-                firstName: clerkUser.firstName,
-                isClerk: true,
-            };
-        }
         if (session?.user) {
             return {
                 // @ts-ignore
-                id: session.user.id || session.user.email,
+                id: session.user.id,
                 firstName: session.user.name?.split(" ")[0] || "Champion",
-                isClerk: false,
             };
         }
         return null;
-    }, [clerkUser, session]);
+    }, [session]);
 
-    const isLoaded = isClerkLoaded && sessionStatus !== "loading";
+    const isLoaded = sessionStatus !== "loading";
 
     const [team, setTeam] = useState<TeamData | null>(null);
     const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -209,9 +200,9 @@ export default function TeamPage() {
 
     // Fetch team data
     async function fetchTeamData() {
-        if (!user?.id) return;
+        if (!session?.user) return;
         try {
-            const res = await fetch(`/api/teams?clerkId=${user.id}`);
+            const res = await fetch(`/api/teams`);
             if (!res.ok) {
                 console.error("Teams API error:", res.status);
                 setLoading(false);
@@ -231,8 +222,8 @@ export default function TeamPage() {
             if (data.team && data.team.leaderId?._id === data.profileId) {
                 try {
                     const [invRes, reqRes] = await Promise.all([
-                        fetch(`/api/teams/invite?clerkId=${user.id}`),
-                        fetch(`/api/teams/join?clerkId=${user.id}`),
+                        fetch(`/api/teams/invite`),
+                        fetch(`/api/teams/join`),
                     ]);
                     if (invRes.ok) {
                         const invData = await invRes.json();
@@ -255,12 +246,12 @@ export default function TeamPage() {
     }
 
     useEffect(() => {
-        if (isLoaded && user?.id) {
+        if (isLoaded && session?.user) {
             fetchTeamData();
-        } else if (isLoaded && !user) {
+        } else if (isLoaded && !session?.user) {
             setLoading(false);
         }
-    }, [user?.id, isLoaded]);
+    }, [session, isLoaded]);
 
     // Fetch available teams for users without a team
     async function fetchAvailableTeams() {
@@ -289,7 +280,7 @@ export default function TeamPage() {
             setSearchLoading(true);
             try {
                 const res = await fetch(
-                    `/api/users/search?q=${encodeURIComponent(searchQuery)}&clerkId=${user?.id}&excludeInTeam=true`
+                    `/api/users/search?q=${encodeURIComponent(searchQuery)}&excludeInTeam=true`
                 );
                 const data = await res.json();
                 setSearchResults(data.users || []);
@@ -301,7 +292,7 @@ export default function TeamPage() {
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchQuery, user?.id]);
+    }, [searchQuery]);
 
     // Create team
     async function createTeam() {
@@ -315,7 +306,7 @@ export default function TeamPage() {
             const res = await fetch("/api/teams", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, teamName }),
+                body: JSON.stringify({ teamName }),
             });
             const data = await res.json();
 
@@ -341,7 +332,7 @@ export default function TeamPage() {
             const res = await fetch("/api/teams/invite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, inviteUserId: userId }),
+                body: JSON.stringify({ inviteUserId: userId }),
             });
             const data = await res.json();
 
@@ -350,7 +341,7 @@ export default function TeamPage() {
                 setSearchQuery("");
                 setSearchResults([]);
                 // Refresh pending invites
-                const invRes = await fetch(`/api/teams/invite?clerkId=${user?.id}`);
+                const invRes = await fetch(`/api/teams/invite`);
                 const invData = await invRes.json();
                 setPendingInvites(invData.pendingInvites || []);
             } else {
@@ -371,7 +362,7 @@ export default function TeamPage() {
             const res = await fetch("/api/teams/invite/cancel", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, userId }),
+                body: JSON.stringify({ userId }),
             });
             const data = await res.json();
 
@@ -408,7 +399,7 @@ export default function TeamPage() {
             const res = await fetch("/api/teams/join", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id, teamId }),
+                body: JSON.stringify({ teamId }),
             });
             const data = await res.json();
 
@@ -434,7 +425,6 @@ export default function TeamPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    clerkId: user?.id,
                     action: accept ? "accept_invitation" : "reject_invitation",
                     teamId,
                 }),
@@ -462,7 +452,6 @@ export default function TeamPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    clerkId: user?.id,
                     action: accept ? "accept_request" : "reject_request",
                     userId,
                 }),
@@ -493,7 +482,7 @@ export default function TeamPage() {
             const res = await fetch("/api/teams/leave", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clerkId: user?.id }),
+                body: JSON.stringify({}),
             });
             const data = await res.json();
 
