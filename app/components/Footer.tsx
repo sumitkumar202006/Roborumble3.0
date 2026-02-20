@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Terminal, Shield, Linkedin, Instagram, Twitter } from "lucide-react";
+import { Linkedin, Instagram, Twitter, Youtube, Facebook, Globe } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -50,48 +50,60 @@ const Footer = () => {
 
           {/* Right: Socials */}
           <div className="flex flex-col items-center md:items-end gap-2">
-            <div className="flex gap-4">
+            <div className="flex gap-3 flex-wrap justify-center md:justify-end">
               <Link
-                href="https://www.youtube.com/@100xDevs"
+                href="https://youtube.com/@roborumble1?si=43olXlAlSAjSSK9K"
                 target="_blank"
-                className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-[#FF003C] hover:border-[#FF003C] transition-all"
+                rel="noopener noreferrer"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-[#FF0000] hover:border-[#FF0000] transition-all"
+                title="YouTube"
               >
-                {/* Replaced with a generic video icon if Youtube component isn't available, or use Lucide's Youtube if imported. Assuming generic social icons for now based on previous file content */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
-                  <path d="m10 15 5-3-5-3z" />
-                </svg>
+                <Youtube size={20} />
               </Link>
               <Link
                 href="https://x.com/roborumble1"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="p-2 border border-white/10 text-zinc-400 hover:text-white hover:border-[#FF003C] transition-all"
+                title="X (Twitter)"
               >
                 <Twitter size={20} />
               </Link>
               <Link
                 href="https://www.instagram.com/roborumble.3.o?igsh=YnZ0YTl6ZDZvZnFk"
                 target="_blank"
-                className="p-2 border border-white/10 text-zinc-400 hover:text-white hover:border-[#E661FF] transition-all"
+                rel="noopener noreferrer"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-[#E1306C] hover:border-[#E661FF] transition-all"
+                title="Instagram"
               >
                 <Instagram size={20} />
               </Link>
               <Link
                 href="https://www.linkedin.com/company/robo-rumble/"
                 target="_blank"
-                className="p-2 border border-white/10 text-zinc-400 hover:text-white hover:border-[#E661FF] transition-all"
+                rel="noopener noreferrer"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-[#0A66C2] hover:border-[#0A66C2] transition-all"
+                title="LinkedIn"
               >
-                <Linkedin size={18} />
+                <Linkedin size={20} />
+              </Link>
+              <Link
+                href="https://www.facebook.com/share/1AqXcFnKeK/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-[#1877F2] hover:border-[#1877F2] transition-all"
+                title="Facebook"
+              >
+                <Facebook size={20} />
+              </Link>
+              <Link
+                href="https://roborumble.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-[#00F0FF] hover:border-[#00F0FF] transition-all"
+                title="Website"
+              >
+                <Globe size={20} />
               </Link>
             </div>
             <p className="text-zinc-600 text-[10px] uppercase tracking-widest mt-2">
