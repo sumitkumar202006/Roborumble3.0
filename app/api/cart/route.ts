@@ -92,7 +92,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { eventId, teamId, selectedMembers } = await req.json();
+        const { eventId, teamId, selectedMembers, gameChoice } = await req.json();
 
         if (!eventId) {
             return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
@@ -180,6 +180,7 @@ export async function POST(req: Request) {
         cart.items.push({
             eventId: event._id,
             selectedMembers: selectedMembers?.map((id: string) => new mongoose.Types.ObjectId(id)) || [profile._id],
+            ...(gameChoice ? { gameChoice } : {}),
             addedAt: new Date(),
         });
 

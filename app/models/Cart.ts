@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 interface ICartItem {
     eventId: mongoose.Types.ObjectId;
     selectedMembers: mongoose.Types.ObjectId[];
+    gameChoice?: string; // "FreeFire" | "BGMI" for esports events
     addedAt: Date;
 }
 
@@ -25,6 +26,11 @@ const CartItemSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Profile",
     }],
+    gameChoice: {
+        type: String,
+        enum: ["FreeFire", "BGMI"],
+        default: undefined,
+    },
     addedAt: {
         type: Date,
         default: Date.now,

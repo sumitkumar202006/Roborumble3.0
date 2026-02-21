@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
@@ -115,6 +114,7 @@ const HorizontalEventCard = ({
     eventId: string,
     teamId?: string,
     selectedMembers?: string[],
+    gameChoice?: string,
   ) => void;
   teamData: any;
   esportsTeamData: any;
@@ -123,6 +123,8 @@ const HorizontalEventCard = ({
 }) => {
   const [showRosterDialog, setShowRosterDialog] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [gameChoice, setGameChoice] = useState<"" | "FreeFire" | "BGMI">("");
+  const [rosterStep, setRosterStep] = useState<"game" | "members">("game");
 
   const isRegistered = !!registration;
   const isPaid =
@@ -173,8 +175,14 @@ const HorizontalEventCard = ({
         return;
       }
 
-      // Show roster selection dialog
+      // Show roster selection dialog — reset state first
       setShowRosterDialog(true);
+      if (isEsportsEvent) {
+        setGameChoice("");
+        setRosterStep("game");
+      } else {
+        setRosterStep("members");
+      }
     } else {
       // Individual event - add to cart directly
       onAddToCart(event.eventId);
@@ -192,8 +200,15 @@ const HorizontalEventCard = ({
       alert(`Maximum ${maxTeamSize} members allowed`);
       return;
     }
-    onAddToCart(event.eventId, activeTeam?._id, selectedMembers);
+    onAddToCart(
+      event.eventId,
+      activeTeam?._id,
+      selectedMembers,
+      isEsportsEvent ? gameChoice : undefined,
+    );
     setShowRosterDialog(false);
+    setGameChoice("");
+    setRosterStep("game");
   };
 
   return (
@@ -348,94 +363,172 @@ const HorizontalEventCard = ({
               members for {event.title}
             </p>
 
-            <div className="mb-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded">
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                    Team
-                  </div>
-                  <div className="text-white font-bold font-mono">
-                    {activeTeam?.name}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                    Selected
-                  </div>
-                  <div
-                    className={`font-bold font-mono ${selectedMembers.length < minTeamSize || selectedMembers.length > maxTeamSize ? "text-red-500" : "text-[#00F0FF]"}`}
+            {/* Game selection step (esports only) */}
+            {isEsportsEvent && rosterStep === "game" && (
+              <div className="space-y-4">
+                <p className="text-zinc-300 text-sm font-mono text-center">
+                  Which game is your squad competing in?
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      setGameChoice("FreeFire");
+                      setRosterStep("members");
+                    }}
+                    className="flex flex-col items-center gap-2 p-4 border-2 border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-400 rounded-xl transition-all"
                   >
-                    {selectedMembers.length} /{" "}
-                    {minTeamSize === maxTeamSize
-                      ? minTeamSize
-                      : `${minTeamSize}-${maxTeamSize}`}
+                    <span className="text-3xl">🔥</span>
+                    <span className="text-white font-black font-mono text-sm uppercase tracking-wide">
+                      Free Fire
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setGameChoice("BGMI");
+                      setRosterStep("members");
+                    }}
+                    className="flex flex-col items-center gap-2 p-4 border-2 border-blue-500/50 bg-blue-500/10 hover:bg-blue-500/20 hover:border-blue-400 rounded-xl transition-all"
+                  >
+                    <span className="text-3xl">🎮</span>
+                    <span className="text-white font-black font-mono text-sm uppercase tracking-wide">
+                      BGMI
+                    </span>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowRosterDialog(false)}
+                  className="w-full py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            {/* Members step */}
+            {(!isEsportsEvent || rosterStep === "members") && (
+              <>
+                {/* Selected game badge for esports */}
+                {isEsportsEvent && gameChoice && (
+                  <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg">
+                    <span className="text-sm">
+                      {gameChoice === "FreeFire" ? "🔥" : "🎮"}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-zinc-300 uppercase">
+                      {gameChoice === "FreeFire" ? "Free Fire" : "BGMI"}
+                    </span>
+                    <button
+                      onClick={() => setRosterStep("game")}
+                      className="ml-auto text-[10px] text-zinc-500 hover:text-zinc-300 font-mono underline"
+                    >
+                      change
+                    </button>
+                  </div>
+                )}
+
+                <div className="mb-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-[10px] text-zinc-500 font-mono uppercase">
+                        Team
+                      </div>
+                      <div className="text-white font-bold font-mono">
+                        {activeTeam?.name}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-zinc-500 font-mono uppercase">
+                        Selected
+                      </div>
+                      <div
+                        className={`font-bold font-mono ${
+                          selectedMembers.length < minTeamSize ||
+                          selectedMembers.length > maxTeamSize
+                            ? "text-red-500"
+                            : "text-[#00F0FF]"
+                        }`}
+                      >
+                        {selectedMembers.length} /{" "}
+                        {minTeamSize === maxTeamSize
+                          ? minTeamSize
+                          : `${minTeamSize}-${maxTeamSize}`}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="max-h-64 overflow-y-auto space-y-2 mb-4">
-              {activeTeam?.members?.map((member: any) => (
-                <label
-                  key={member._id}
-                  className={`flex items-center gap-3 p-3 border rounded cursor-pointer transition-all ${
-                    selectedMembers.includes(member._id)
-                      ? "bg-[#00F0FF]/10 border-[#00F0FF]"
-                      : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-600"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={selectedMembers.includes(member._id)}
-                    onChange={() => {
-                      if (selectedMembers.includes(member._id)) {
-                        setSelectedMembers((prev) =>
-                          prev.filter((id) => id !== member._id),
-                        );
+                <div className="max-h-64 overflow-y-auto space-y-2 mb-4">
+                  {activeTeam?.members?.map((member: any) => (
+                    <label
+                      key={member._id}
+                      className={`flex items-center gap-3 p-3 border rounded cursor-pointer transition-all ${
+                        selectedMembers.includes(member._id)
+                          ? "bg-[#00F0FF]/10 border-[#00F0FF]"
+                          : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-600"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        checked={selectedMembers.includes(member._id)}
+                        onChange={() => {
+                          if (selectedMembers.includes(member._id)) {
+                            setSelectedMembers((prev) =>
+                              prev.filter((id) => id !== member._id),
+                            );
+                          } else {
+                            if (selectedMembers.length < maxTeamSize) {
+                              setSelectedMembers((prev) => [
+                                ...prev,
+                                member._id,
+                              ]);
+                            }
+                          }
+                        }}
+                      />
+                      <div
+                        className={`w-4 h-4 border flex items-center justify-center ${
+                          selectedMembers.includes(member._id)
+                            ? "border-[#00F0FF] bg-[#00F0FF]"
+                            : "border-zinc-600"
+                        }`}
+                      >
+                        {selectedMembers.includes(member._id) && (
+                          <div className="w-2 h-2 bg-black" />
+                        )}
+                      </div>
+                      <span className="text-sm font-mono text-white">
+                        {member.username || member.email}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      if (isEsportsEvent) {
+                        setRosterStep("game");
                       } else {
-                        if (selectedMembers.length < maxTeamSize) {
-                          setSelectedMembers((prev) => [...prev, member._id]);
-                        }
+                        setShowRosterDialog(false);
                       }
                     }}
-                  />
-                  <div
-                    className={`w-4 h-4 border flex items-center justify-center ${
-                      selectedMembers.includes(member._id)
-                        ? "border-[#00F0FF] bg-[#00F0FF]"
-                        : "border-zinc-600"
-                    }`}
+                    className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
                   >
-                    {selectedMembers.includes(member._id) && (
-                      <div className="w-2 h-2 bg-black" />
-                    )}
-                  </div>
-                  <span className="text-sm font-mono text-white">
-                    {member.username || member.email}
-                  </span>
-                </label>
-              ))}
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowRosterDialog(false)}
-                className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmRoster}
-                disabled={
-                  selectedMembers.length < minTeamSize ||
-                  selectedMembers.length > maxTeamSize
-                }
-                className="flex-[2] py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Confirm Squad
-              </button>
-            </div>
+                    {isEsportsEvent ? "Back" : "Cancel"}
+                  </button>
+                  <button
+                    onClick={handleConfirmRoster}
+                    disabled={
+                      selectedMembers.length < minTeamSize ||
+                      selectedMembers.length > maxTeamSize
+                    }
+                    className="flex-[2] py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Confirm Squad
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -444,133 +537,131 @@ const HorizontalEventCard = ({
 };
 
 export default function DashboardEventsPage() {
-    const { data: session, status: sessionStatus } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
 
-    const user = useMemo(() => {
-        if (session?.user) {
-            return {
-                // @ts-ignore
-                id: session.user.id,
-                firstName: session.user.name?.split(" ")[0] || "Champion",
-            };
-        }
-        return null;
-    }, [session]);
-
-    const isLoaded = sessionStatus !== "loading";
-
-    const [events, setEvents] = useState<EventData[]>([]);
-    const [registeredEvents, setRegisteredEvents] = useState<
-        RegistrationStatus[]
-    >([]);
-    const [teamData, setTeamData] = useState<any>(null);
-    const [esportsTeamData, setEsportsTeamData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [addingToCart, setAddingToCart] = useState<string | null>(null);
-    const [message, setMessage] = useState({ type: "", text: "" });
-
-    // Cart state
-    const [cartItems, setCartItems] = useState<string[]>([]);
-    const [cartCount, setCartCount] = useState(0);
-    const [cartOpen, setCartOpen] = useState(false);
-    const [activeFilter, setActiveFilter] = useState("Upcoming");
-
-    async function fetchEvents() {
-        try {
-            const res = await fetch("/api/events");
-            if (res.ok) {
-                const data = await res.json();
-                setEvents(data.events || []);
-            }
-        } catch (e) {
-            console.error(e);
-        }
+  const user = useMemo(() => {
+    if (session?.user) {
+      return {
+        // @ts-ignore
+        id: session.user.id,
+        firstName: session.user.name?.split(" ")[0] || "Champion",
+      };
     }
+    return null;
+  }, [session]);
 
-    async function fetchRegistrationStatus() {
-        if (!session?.user) return;
-        try {
-            const res = await fetch("/api/profile/status");
-            if (res.ok) {
-                const data = await res.json();
+  const isLoaded = sessionStatus !== "loading";
 
-                let statuses: RegistrationStatus[] = [];
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [registeredEvents, setRegisteredEvents] = useState<
+    RegistrationStatus[]
+  >([]);
+  const [teamData, setTeamData] = useState<any>(null);
+  const [esportsTeamData, setEsportsTeamData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-                if (data.registrations) {
-                    statuses = data.registrations.map((r: any) => ({
-                        eventId: r.eventId,
-                        status: r.status,
-                    }));
-                } else {
-                    const userEvents = data.registeredEvents || [];
-                    const paidEvents = data.paidEvents || [];
+  // Cart state
+  const [cartItems, setCartItems] = useState<string[]>([]);
+  const [cartCount, setCartCount] = useState(0);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("Upcoming");
 
-                    statuses = userEvents.map((eventId: string) => ({
-                        eventId,
-                        status: paidEvents.includes(eventId) ? "paid" : "registered",
-                    }));
-                }
-                setRegisteredEvents(statuses);
-            }
-        } catch (e) {
-            console.error(e);
-        } finally {
-            // Slight delay for smooth transition
-            setTimeout(() => setLoading(false), 500);
-        }
+  async function fetchEvents() {
+    try {
+      const res = await fetch("/api/events");
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data.events || []);
+      }
+    } catch (e) {
+      console.error(e);
     }
+  }
 
-    async function fetchTeamData() {
-        if (!session?.user) return;
-        try {
-            // Fetch normal team
-            const teamRes = await fetch(`/api/teams`);
-            if (teamRes.ok) {
-                const tData = await teamRes.json();
-                setTeamData(tData);
-            }
+  async function fetchRegistrationStatus() {
+    if (!session?.user) return;
+    try {
+      const res = await fetch("/api/profile/status");
+      if (res.ok) {
+        const data = await res.json();
 
-            // Fetch esports team
-            const esportsRes = await fetch(
-                `/api/teams?type=esports`,
-            );
-            if (esportsRes.ok) {
-                const eData = await esportsRes.json();
-                setEsportsTeamData(eData);
-            }
-        } catch (e) {
-            console.error("Failed to fetch team data", e);
+        let statuses: RegistrationStatus[] = [];
+
+        if (data.registrations) {
+          statuses = data.registrations.map((r: any) => ({
+            eventId: r.eventId,
+            status: r.status,
+          }));
+        } else {
+          const userEvents = data.registeredEvents || [];
+          const paidEvents = data.paidEvents || [];
+
+          statuses = userEvents.map((eventId: string) => ({
+            eventId,
+            status: paidEvents.includes(eventId) ? "paid" : "registered",
+          }));
         }
+        setRegisteredEvents(statuses);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      // Slight delay for smooth transition
+      setTimeout(() => setLoading(false), 500);
     }
+  }
 
-    async function fetchCart() {
-        if (!session?.user) return;
-        try {
-            const res = await fetch("/api/cart");
-            if (res.ok) {
-                const data = await res.json();
-                const eventIds =
-                    data.items?.map(
-                        (item: any) => item.eventId?.eventId || item.eventId,
-                    ) || [];
-                setCartItems(eventIds);
-                setCartCount(data.itemCount || 0);
-            }
-        } catch (e) {
-            console.error("Failed to fetch cart", e);
-        }
+  async function fetchTeamData() {
+    if (!session?.user) return;
+    try {
+      // Fetch normal team
+      const teamRes = await fetch(`/api/teams`);
+      if (teamRes.ok) {
+        const tData = await teamRes.json();
+        setTeamData(tData);
+      }
+
+      // Fetch esports team
+      const esportsRes = await fetch(`/api/teams?type=esports`);
+      if (esportsRes.ok) {
+        const eData = await esportsRes.json();
+        setEsportsTeamData(eData);
+      }
+    } catch (e) {
+      console.error("Failed to fetch team data", e);
     }
+  }
 
-    useEffect(() => {
-        fetchEvents();
-        if (isLoaded && session?.user) {
-            fetchRegistrationStatus();
-            fetchTeamData();
-            fetchCart();
-        } else if (isLoaded && !session?.user) {
-            setLoading(false);
-        }
-    }, [session, isLoaded]);
+  async function fetchCart() {
+    if (!session?.user) return;
+    try {
+      const res = await fetch("/api/cart");
+      if (res.ok) {
+        const data = await res.json();
+        const eventIds =
+          data.items?.map(
+            (item: any) => item.eventId?.eventId || item.eventId,
+          ) || [];
+        setCartItems(eventIds);
+        setCartCount(data.itemCount || 0);
+      }
+    } catch (e) {
+      console.error("Failed to fetch cart", e);
+    }
+  }
+
+  useEffect(() => {
+    fetchEvents();
+    if (isLoaded && session?.user) {
+      fetchRegistrationStatus();
+      fetchTeamData();
+      fetchCart();
+    } else if (isLoaded && !session?.user) {
+      setLoading(false);
+    }
+  }, [session, isLoaded]);
 
   function getRegistrationStatus(
     eventId: string,
@@ -582,6 +673,7 @@ export default function DashboardEventsPage() {
     eventId: string,
     teamId?: string,
     selectedMembers?: string[],
+    gameChoice?: string,
   ) {
     if (!user?.id) return;
     setAddingToCart(eventId);
@@ -592,6 +684,9 @@ export default function DashboardEventsPage() {
       if (teamId && selectedMembers) {
         payload.teamId = teamId;
         payload.selectedMembers = selectedMembers;
+      }
+      if (gameChoice) {
+        payload.gameChoice = gameChoice;
       }
 
       const res = await fetch("/api/cart", {
