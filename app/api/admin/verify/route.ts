@@ -6,27 +6,14 @@ import Team from "@/app/models/Team";
 import Event from "@/app/models/Event";
 import Profile from "@/app/models/Profile";
 
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-import AuthUser from "@/app/models/AuthUser";
+
+import { verifyAdminRequest } from "@/lib/adminAuth";
 
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
-
-        if (!token) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
-
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
-            return NextResponse.json({ message: "Forbidden" }, { status: 403 });
         }
 
         await connectToDB();

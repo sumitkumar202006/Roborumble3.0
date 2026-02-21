@@ -3,12 +3,33 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Linkedin, Instagram, Twitter, Youtube, Facebook, Globe } from "lucide-react";
+import { Linkedin, Instagram, Twitter, Youtube, Facebook, Globe, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   return (
     <footer className="relative bg-black text-white bg-grid-white/[0.05] overflow-hidden font-mono mt-20">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00F0FF]/50 to-transparent" />
+      {/* WhatsApp Community Banner */}
+      <div className="border-b border-white/5 bg-[#00a76722]">
+        <div className="container mx-auto px-6 py-4">
+          <a
+            href="https://chat.whatsapp.com/E9LJgOdncow6ReE1b7y6Ew"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-3 group"
+          >
+            <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center shrink-0 shadow-md shadow-green-500/30">
+              <MessageCircle size={16} className="text-white fill-white" />
+            </div>
+            <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">
+              Join our{" "}
+              <span className="text-[#25D366] font-bold">WhatsApp Community</span>
+              {" "}for event updates &amp; announcements →
+            </span>
+          </a>
+        </div>
+      </div>
+
       <div className="container mx-auto px-6 pt-16 pb-32">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0">
           {/* Left: Logo */}
@@ -104,6 +125,15 @@ const Footer = () => {
                 title="Website"
               >
                 <Globe size={20} />
+              </Link>
+              <Link
+                href="https://chat.whatsapp.com/E9LJgOdncow6ReE1b7y6Ew"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-white/10 text-zinc-400 hover:text-[#25D366] hover:border-[#25D366] transition-all"
+                title="WhatsApp Community"
+              >
+                <MessageCircle size={20} />
               </Link>
             </div>
             <p className="text-zinc-600 text-[10px] uppercase tracking-widest mt-2">

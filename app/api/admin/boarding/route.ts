@@ -1,28 +1,15 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Profile from "@/app/models/Profile";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { verifyAdminRequest } from "@/lib/adminAuth";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
-
-        if (!token) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-        }
-
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
-            return NextResponse.json({ error: "FORBIDDEN: ADMIN_ACCESS_ONLY" }, { status: 403 });
         }
 
         await connectDB();

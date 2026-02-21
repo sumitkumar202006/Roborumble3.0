@@ -10,8 +10,7 @@ import Team from "@/app/models/Team";
 
 
 // GET - List all payment submissions
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { verifyAdminRequest } from "@/lib/adminAuth";
 
 interface PopulatedMember {
     _id: string;
@@ -54,22 +53,9 @@ interface EnrichedSubmission {
 // GET - List all payment submissions
 export async function GET(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
-
-        if (!token) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         const { searchParams } = new URL(req.url);
@@ -160,24 +146,12 @@ export async function GET(req: Request) {
 // POST - Verify or reject a payment
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token");
-
-        if (!token) {
+        const admin = await verifyAdminRequest();
+        if (!admin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify Token
-        const decoded = jwt.verify(
-            token.value,
-            process.env.JWT_SECRET || "default_secret"
-        ) as { userId: string, role: string };
-
-        const clerkId = decoded.userId;
-
-        if (!["ADMIN", "SUPERADMIN"].includes(decoded.role?.toUpperCase())) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
+        const clerkId = admin.email; // use email as identifier for verifiedBy
 
         const { submissionId, action, rejectionReason } = await req.json();
 
