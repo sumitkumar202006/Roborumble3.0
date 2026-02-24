@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
@@ -54,6 +55,7 @@ export default function RootLayout({
               <CustomCursor />
             </AuthProvider>
             <Analytics />
+            <SpeedInsights />
           </body>
         </html>
       </SessionProvider>
