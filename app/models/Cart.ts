@@ -4,6 +4,10 @@ interface ICartItem {
     eventId: mongoose.Types.ObjectId;
     selectedMembers: mongoose.Types.ObjectId[];
     gameChoice?: string; // "FreeFire" | "BGMI" for esports events
+    coordinator?: {
+        name: string;
+        phone: string;
+    };
     addedAt: Date;
 }
 
@@ -30,6 +34,10 @@ const CartItemSchema = new Schema({
         type: String,
         enum: ["FreeFire", "BGMI"],
         default: undefined,
+    },
+    coordinator: {
+        name: { type: String },
+        phone: { type: String },
     },
     addedAt: {
         type: Date,
