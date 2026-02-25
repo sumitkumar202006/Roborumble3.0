@@ -32,7 +32,9 @@ export default auth((req) => {
         nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`)
     ) || nextUrl.pathname.startsWith("/api/auth") 
       || nextUrl.pathname.startsWith("/api/webhooks")
-      || nextUrl.pathname.startsWith("/api/uploadthing");
+      || nextUrl.pathname.startsWith("/api/uploadthing")
+      || nextUrl.pathname === "/sitemap.xml"
+      || nextUrl.pathname === "/robots.txt";
 
     if (isPublicRoute) {
         return NextResponse.next();
