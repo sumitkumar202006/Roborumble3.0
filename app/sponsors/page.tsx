@@ -272,7 +272,10 @@ export default function SponsorsPage() {
               Connect with 1000+ engineers. Showcase your tactical advantage at
               the region&apos;s premier tech fest. Awaiting connection...
             </p>
-            <button
+            <a
+              href="mailto:roborumble@csjmu.ac.in"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-12 py-4 bg-[#FF003C] text-black font-black font-mono tracking-widest hover:bg-white transition-all uppercase text-sm"
               style={{
                 clipPath:
@@ -280,7 +283,7 @@ export default function SponsorsPage() {
               }}
             >
               Become_A_Partner
-            </button>
+            </a>
           </div>
         </div>
 
