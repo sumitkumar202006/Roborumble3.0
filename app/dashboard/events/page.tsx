@@ -115,6 +115,7 @@ const HorizontalEventCard = ({
     teamId?: string,
     selectedMembers?: string[],
     gameChoice?: string,
+    coordinator?: { name: string; phone: string },
   ) => void;
   teamData: any;
   esportsTeamData: any;
@@ -124,7 +125,11 @@ const HorizontalEventCard = ({
   const [showRosterDialog, setShowRosterDialog] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [gameChoice, setGameChoice] = useState<"" | "FreeFire" | "BGMI">("");
-  const [rosterStep, setRosterStep] = useState<"game" | "members">("game");
+  const [rosterStep, setRosterStep] = useState<"game" | "members" | "coordinator">("game");
+  const [coordinatorChoice, setCoordinatorChoice] = useState<"" | "yes" | "no">("");
+  const [coordinatorName, setCoordinatorName] = useState("");
+  const [coordinatorPhone, setCoordinatorPhone] = useState("");
+  const [coordinatorPhoneError, setCoordinatorPhoneError] = useState("");
 
   const isRegistered = !!registration;
   const isPaid =
@@ -177,6 +182,10 @@ const HorizontalEventCard = ({
 
       // Show roster selection dialog — reset state first
       setShowRosterDialog(true);
+      setCoordinatorChoice("");
+      setCoordinatorName("");
+      setCoordinatorPhone("");
+      setCoordinatorPhoneError("");
       if (isEsportsEvent) {
         setGameChoice("");
         setRosterStep("game");
@@ -189,7 +198,7 @@ const HorizontalEventCard = ({
     }
   };
 
-  const handleConfirmRoster = () => {
+  const handleMembersConfirm = () => {
     if (selectedMembers.length < minTeamSize) {
       alert(
         `Please select at least ${minTeamSize} member${minTeamSize > 1 ? "s" : ""}`,
@@ -200,15 +209,41 @@ const HorizontalEventCard = ({
       alert(`Maximum ${maxTeamSize} members allowed`);
       return;
     }
+    // Proceed to coordinator step
+    setCoordinatorChoice("");
+    setCoordinatorName("");
+    setCoordinatorPhone("");
+    setCoordinatorPhoneError("");
+    setRosterStep("coordinator");
+  };
+
+  const handleConfirmRoster = (withCoordinator: boolean) => {
+    let coordinator: { name: string; phone: string } | undefined;
+    if (withCoordinator) {
+      if (!coordinatorName.trim()) {
+        setCoordinatorPhoneError("Please enter the coordinator's name.");
+        return;
+      }
+      if (!/^\d{10}$/.test(coordinatorPhone.trim())) {
+        setCoordinatorPhoneError("Phone number must be exactly 10 digits.");
+        return;
+      }
+      coordinator = { name: coordinatorName.trim(), phone: coordinatorPhone.trim() };
+    }
     onAddToCart(
       event.eventId,
       activeTeam?._id,
       selectedMembers,
       isEsportsEvent ? gameChoice : undefined,
+      coordinator,
     );
     setShowRosterDialog(false);
     setGameChoice("");
     setRosterStep("game");
+    setCoordinatorChoice("");
+    setCoordinatorName("");
+    setCoordinatorPhone("");
+    setCoordinatorPhoneError("");
   };
 
   return (
@@ -517,16 +552,105 @@ const HorizontalEventCard = ({
                     {isEsportsEvent ? "Back" : "Cancel"}
                   </button>
                   <button
-                    onClick={handleConfirmRoster}
+                    onClick={handleMembersConfirm}
                     disabled={
                       selectedMembers.length < minTeamSize ||
                       selectedMembers.length > maxTeamSize
                     }
                     className="flex-[2] py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Confirm Squad
+                    Next →
                   </button>
                 </div>
+
+                {/* Coordinator Step */}
+                {rosterStep === "coordinator" && (
+                  <div className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-[#111] border border-[#E661FF] rounded-xl max-w-md w-full p-6 shadow-[0_0_50px_rgba(230,97,255,0.3)]">
+                      <h3 className="text-xl font-black text-white font-mono mb-2 uppercase">
+                        Coordinator
+                      </h3>
+                      <p className="text-zinc-400 text-xs font-mono mb-5">
+                        Do you have a coordinator accompanying your team?
+                      </p>
+
+                      {coordinatorChoice === "" && (
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <button
+                            onClick={() => setCoordinatorChoice("yes")}
+                            className="flex flex-col items-center gap-2 p-4 border-2 border-[#E661FF]/50 bg-[#E661FF]/10 hover:bg-[#E661FF]/20 hover:border-[#E661FF] rounded-xl transition-all"
+                          >
+                            <span className="text-3xl">👨‍🏫</span>
+                            <span className="text-white font-black font-mono text-sm uppercase tracking-wide">Yes</span>
+                          </button>
+                          <button
+                            onClick={() => handleConfirmRoster(false)}
+                            className="flex flex-col items-center gap-2 p-4 border-2 border-zinc-700/50 bg-zinc-800/30 hover:bg-zinc-800/60 hover:border-zinc-500 rounded-xl transition-all"
+                          >
+                            <span className="text-3xl">🚫</span>
+                            <span className="text-white font-black font-mono text-sm uppercase tracking-wide">No</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {coordinatorChoice === "yes" && (
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-[#E661FF]/10 border border-[#E661FF]/30 rounded-lg">
+                            <span className="text-sm">👨‍🏫</span>
+                            <span className="text-xs font-mono text-[#E661FF] uppercase font-bold">Coordinator Details (1 only)</span>
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Coordinator Name</label>
+                            <input
+                              type="text"
+                              value={coordinatorName}
+                              onChange={(e) => { setCoordinatorName(e.target.value); setCoordinatorPhoneError(""); }}
+                              placeholder="Full name"
+                              className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#E661FF] transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Phone Number</label>
+                            <input
+                              type="tel"
+                              value={coordinatorPhone}
+                              onChange={(e) => { setCoordinatorPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setCoordinatorPhoneError(""); }}
+                              placeholder="10-digit mobile number"
+                              className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#E661FF] transition-colors"
+                            />
+                          </div>
+                          {coordinatorPhoneError && (
+                            <p className="text-red-400 text-xs font-mono">{coordinatorPhoneError}</p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            if (coordinatorChoice === "yes") {
+                              setCoordinatorChoice("");
+                              setCoordinatorPhoneError("");
+                            } else {
+                              setRosterStep("members");
+                            }
+                          }}
+                          className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
+                        >
+                          Back
+                        </button>
+                        {coordinatorChoice === "yes" && (
+                          <button
+                            onClick={() => handleConfirmRoster(true)}
+                            className="flex-[2] py-2 bg-[#E661FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded"
+                          >
+                            Confirm & Add to Cart
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -674,6 +798,7 @@ export default function DashboardEventsPage() {
     teamId?: string,
     selectedMembers?: string[],
     gameChoice?: string,
+    coordinator?: { name: string; phone: string },
   ) {
     if (!user?.id) return;
     setAddingToCart(eventId);
@@ -687,6 +812,9 @@ export default function DashboardEventsPage() {
       }
       if (gameChoice) {
         payload.gameChoice = gameChoice;
+      }
+      if (coordinator?.name && coordinator?.phone) {
+        payload.coordinator = coordinator;
       }
 
       const res = await fetch("/api/cart", {
