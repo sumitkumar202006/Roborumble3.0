@@ -457,7 +457,7 @@ export default function TeamSection() {
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center w-full mb-8">
-          <div className="relative w-64 h-64 mb-6 group">
+          <div className="relative w-full max-w-[280px] aspect-[3/4] mb-6 group">
             <div className="absolute -top-3 -left-3 w-8 h-8 border-t-2 border-l-2 border-[#00F0FF] rounded-tl-sm shadow-[0_0_8px_#00F0FF]"></div>
             <div className="absolute -top-3 -right-3 w-8 h-8 border-t-2 border-r-2 border-[#00F0FF] rounded-tr-sm shadow-[0_0_8px_#00F0FF]"></div>
             <div className="absolute -bottom-3 -left-3 w-8 h-8 border-b-2 border-l-2 border-[#00F0FF] rounded-bl-sm shadow-[0_0_8px_#00F0FF]"></div>
@@ -507,8 +507,8 @@ export default function TeamSection() {
           >
             <FaChevronLeft size={20} />
           </button>
-          <div className="bg-[#0b120d]/80 backdrop-blur-md border border-[#00F0FF] rounded-xl p-2 shadow-[0_0_20px_rgba(0,240,255,0.2)] w-28 h-28 flex flex-col items-center justify-center">
-            <div className="w-16 h-16 rounded-lg overflow-hidden border border-[#E661FF] mb-1">
+          <div className="bg-[#0b120d]/80 backdrop-blur-md border border-[#00F0FF] rounded-xl p-2 shadow-[0_0_20px_rgba(0,240,255,0.2)] w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border border-[#E661FF] mb-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 key={selectedMember.name}
@@ -517,7 +517,7 @@ export default function TeamSection() {
                 className="w-full h-full object-cover object-top animate-fade"
               />
             </div>
-            <p className="text-[9px] text-white uppercase tracking-widest font-bold text-center">
+            <p className="text-[8px] sm:text-[9px] text-white uppercase tracking-widest font-bold text-center">
               {selectedMember.name.split(" ")[0]}
             </p>
           </div>
@@ -562,7 +562,7 @@ export default function TeamSection() {
                 key={selectedMember.name}
                 src={selectedMember.img}
                 alt={selectedMember.name}
-                className="w-full h-full object-cover animate-fade relative z-0"
+                className="w-full h-full object-cover object-top animate-fade relative z-0"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
             </div>
@@ -620,7 +620,7 @@ export default function TeamSection() {
                   <img
                     src={member.img}
                     alt={member.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                   <div className="absolute bottom-0 w-full p-2 text-center z-10">
