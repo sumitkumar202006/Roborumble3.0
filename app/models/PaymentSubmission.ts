@@ -3,6 +3,10 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 interface IPaymentEvent {
     eventId: mongoose.Types.ObjectId;
     selectedMembers: mongoose.Types.ObjectId[];
+    coordinator?: {
+        name: string;
+        phone: string;
+    };
 }
 
 export interface IPaymentSubmission extends Document {
@@ -36,6 +40,10 @@ const PaymentSubmissionSchema = new Schema<IPaymentSubmission>(
             {
                 eventId: { type: Schema.Types.ObjectId, ref: "Event", required: true },
                 selectedMembers: [{ type: Schema.Types.ObjectId, ref: "Profile" }],
+                coordinator: {
+                    name: { type: String },
+                    phone: { type: String },
+                },
             },
         ],
         status: {

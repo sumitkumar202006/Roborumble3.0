@@ -29,6 +29,10 @@ interface PaymentEvent {
     category: string;
   };
   selectedMembers: Member[];
+  coordinator?: {
+    name: string;
+    phone: string;
+  };
 }
 
 interface PaymentSubmission {
@@ -414,6 +418,16 @@ export default function AdminPaymentsPage() {
                                   </span>
                                 )}
                               </div>
+
+                              {/* Coordinator info */}
+                              {e.coordinator?.name && (
+                                <div className="mt-2 flex items-center gap-2 px-2 py-1.5 bg-[#E661FF]/10 border border-[#E661FF]/30 rounded">
+                                  <span className="text-[10px] text-[#E661FF] font-bold uppercase tracking-wide">Coordinator:</span>
+                                  <span className="text-[10px] text-white font-mono">{e.coordinator.name}</span>
+                                  <span className="text-[10px] text-zinc-400 font-mono">•</span>
+                                  <span className="text-[10px] text-[#E661FF] font-mono">{e.coordinator.phone}</span>
+                                </div>
+                              )}
                             </div>
                           );
                         })}

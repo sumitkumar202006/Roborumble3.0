@@ -79,6 +79,9 @@ export async function POST(req: Request) {
         const events = cart.items.map((item: any) => ({
             eventId: item.eventId._id,
             selectedMembers: item.selectedMembers,
+            ...(item.coordinator?.name && item.coordinator?.phone
+                ? { coordinator: { name: item.coordinator.name, phone: item.coordinator.phone } }
+                : {}),
         }));
 
         // Determine status based on amount
