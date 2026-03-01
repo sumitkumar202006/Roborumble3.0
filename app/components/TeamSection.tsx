@@ -211,16 +211,6 @@ const teamData = {
         { icon: HiOutlineMail, link: "#" },
       ],
     },
-    {
-      name: "Prachi Singh",
-      role: "Defence Event Coordinator",
-      img: "/prachi.jpg",
-      socials: [
-        { icon: FaInstagram, link: "#" },
-        { icon: FaLinkedinIn, link: "#" },
-        { icon: HiOutlineMail, link: "#" },
-      ],
-    },
   ],
 
   tech: [
