@@ -30,79 +30,121 @@ export default function SchedulePage() {
   const scheduleData: DayBlock[] = [
     {
       id: 1,
-      date: "Unknown",
-      month: "",
-      dayName: "Unknown",
+      date: "16",
+      month: "Mar",
+      dayName: "Day 1",
       events: [
         {
           time: "10:00 AM",
-          title: "Inauguration Ceremony",
-          venue: "Innovation Cell CSJMU",
-          type: "General",
+          title: "Defence Expo & Showcase Exhibition",
+          venue: "Senate Ground",
+          type: "Exhibition",
         },
         {
-          time: "11:00 AM",
-          title: "Line Following Bot",
-          venue: "Innovation Cell CSJMU",
+          time: "10:00 AM",
+          title: "Robo Race",
+          venue: "Innovation Cell",
           type: "Competition",
         },
         {
-          time: "03:00 PM",
-          title: "Showcase & Exhibition",
-          venue: "Innovation Cell CSJMU",
-          type: "Exhibition",
+          time: "10:00 AM",
+          title: "Line Following Bot",
+          venue: "Innovation Cell",
+          type: "Competition",
         },
+        {
+          time: "10:00 AM",
+          title: "Pick and Place (Round 1)",
+          venue: "Innovation Cell",
+          type: "Competition",
+        },
+        {
+          time: "01:00 PM",
+          title: "Inauguration",
+          venue: "Auditorium",
+          type: "General",
+        },
+        {
+          time: "02:00 PM",
+          title: "Defence Talk",
+          venue: "Auditorium",
+          type: "Seminar",
+        }
       ],
     },
     {
       id: 2,
-      date: "Unknown",
-      month: "",
-      dayName: "Unknown",
+      date: "17",
+      month: "Mar",
+      dayName: "Day 2",
       events: [
         {
           time: "10:00 AM",
-          title: "Robo Race",
-          venue: "Innovation Cell CSJMU",
+          title: "Robo War",
+          venue: "OAT UIET",
           type: "Competition",
         },
         {
-          time: "12:00 PM",
-          title: "Robo Wars",
-          venue: "UIET CSJMU",
-          type: "Competition",
-        },
-        {
-          time: "03:00 PM",
+          time: "10:00 AM",
           title: "Robo Soccer",
-          venue: "UIET CSJMU",
+          venue: "OAT UIET",
           type: "Competition",
+        },
+        {
+          time: "10:00 AM",
+          title: "RC Flying",
+          venue: "Helipad",
+          type: "Competition",
+        },
+        {
+          time: "10:00 AM",
+          title: "Pick and Place (Round 2)",
+          venue: "Innovation Cell",
+          type: "Competition",
+        },
+        {
+          time: "10:00 AM",
+          title: "Esports",
+          venue: "Innovation Cell",
+          type: "Competition",
+        },
+        {
+          time: "04:30 PM",
+          title: "Silent DJ",
+          venue: "OAT",
+          type: "General",
         },
       ],
     },
     {
       id: 3,
-      date: "Unknown",
-      month: "",
-      dayName: "Unknown",
+      date: "18",
+      month: "Mar",
+      dayName: "Day 3",
       events: [
         {
           time: "10:00 AM",
-          title: "Esports Finals",
-          venue: "UIET CSJMU",
+          title: "Robo War Finals",
+          venue: "OAT",
           type: "Competition",
         },
         {
-          time: "01:00 PM",
-          title: "Defence Talk",
-          venue: "UIET CSJMU",
-          type: "Seminar",
+          time: "10:00 AM",
+          title: "Robo Soccer Finals",
+          venue: "OAT",
+          type: "Competition",
         },
         {
-          time: "03:00 PM",
-          title: "Defence Expo",
-          venue: "UIET CSJMU",
-          type: "Exhibition",
+          time: "10:00 AM",
+          title: "Esports Finals",
+          venue: "Innovation Cell",
+          type: "Competition",
+        },
+        {
+          time: "04:30 PM",
+          title: "Band Show",
+          venue: "Helipad",
+          type: "Performance",
         },
       ],
     },
@@ -195,18 +237,6 @@ export default function SchedulePage() {
         <div className="w-full max-w-5xl">
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#00FF9E] to-transparent mb-12"></div>
 
-          {/* COMING SOON OVERLAY */}
-          <div className="flex flex-col items-center justify-center py-12 md:py-20 px-4 border border-[#00FF9E]/20 bg-black/40 backdrop-blur-sm rounded-xl text-center">
-               <Clock className="text-[#00FF9E] mb-6 animate-pulse w-12 h-12 md:w-16 md:h-16" />
-               <h2 className="text-2xl sm:text-3xl md:text-5xl font-black font_['Orbitron'] text-white tracking-widest uppercase mb-4 break-words w-full">
-                   TIMELINE<span className="hidden md:inline">_</span><br className="md:hidden" />LOCKED
-               </h2>
-               <p className="text-[#00FF9E] font-mono tracking-[0.2em] md:tracking-[0.3em] uppercase text-xs sm:text-sm md:text-base animate-pulse">
-                   // DECLASSIFICATION_PENDING...
-               </p>
-          </div>
-
-          {/* 
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -255,7 +285,6 @@ export default function SchedulePage() {
               ))}
             </motion.div>
           </AnimatePresence>
-          */}
         </div>
 
         {/* Footer Data */}
