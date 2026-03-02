@@ -151,12 +151,13 @@ export const events = [
     title: "E-SPORTS",
     category: "Gaming",
     icon: Gamepad2,
-    desc: "Competitive digital arena. Squad Mode (4 players). Mobile only.",
+    desc: "Competitive digital arena featuring BGMI and Free Fire. Squad Mode (4 players). Mobile only.",
     teamSize: "4 Members (Squad)",
-    prize: "₹20,000 Prize Pool",
+    prize: "₹30,000 Prize Pool (₹15,000 FREE FIRE / ₹15,000 BGMI)",
     cost: 250,
     brochureLink: "/event_specific_brochures/E-Sports.pdf",
     rules: [
+      "Games: BGMI and Free Fire (₹15,000 Prize Pool each).",
       "Mobile phones only. No tablets/triggers/emulators.",
       "Top 5 must submit POV + Handcam footage.",
       "Zero tolerance for hacking/teaming."

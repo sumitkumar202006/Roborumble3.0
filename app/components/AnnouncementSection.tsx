@@ -86,8 +86,8 @@ export default function AnnouncementSection() {
             <div className="text-center border border-[#00F0FF]/20 p-8 rounded-lg bg-black/40 backdrop-blur-sm">
               <div className="flex justify-center w-full mb-4">
                 <SlotText
-                  text="COMING_SOON_"
-                  className="text-xl md:text-3xl text-[#FF003C]"
+                  text="16 - 18 MARCH 2026"
+                  className="text-lg md:text-3xl text-[#FF003C] whitespace-nowrap"
                 />
               </div>
               <p className="text-zinc-400 font-mono">

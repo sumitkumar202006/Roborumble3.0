@@ -211,6 +211,16 @@ const teamData = {
         { icon: HiOutlineMail, link: "#" },
       ],
     },
+    {
+      name: "Prachi Singh",
+      role: "Defence Event Coordinator",
+      img: "/prachi.jpg",
+      socials: [
+        { icon: FaInstagram, link: "#" },
+        { icon: FaLinkedinIn, link: "#" },
+        { icon: HiOutlineMail, link: "#" },
+      ],
+    },
   ],
 
   tech: [
@@ -467,7 +477,7 @@ export default function TeamSection() {
             <h2 className="text-xl font-bold uppercase tracking-wider text-white drop-shadow-md animate-fade">
               {selectedMember.name}
             </h2>
-            <p className="text-[#E661FF] text-xs font-bold tracking-[0.25em] uppercase animate-fade">
+            <p className="text-[#E661FF] text-xs font-bold tracking-[0.25em] uppercase animate-fade whitespace-nowrap">
               {selectedMember.role}
             </p>
           </div>
@@ -562,7 +572,7 @@ export default function TeamSection() {
             <h1 className="text-5xl font-black uppercase tracking-wider text-white animate-fade">
               {selectedMember.name}
             </h1>
-            <p className="text-[#E661FF] text-xl tracking-[0.3em] font-bold uppercase animate-fade">
+            <p className="text-[#E661FF] text-xl tracking-[0.3em] font-bold uppercase animate-fade whitespace-nowrap">
               // {selectedMember.role}
             </p>
             <div className="flex gap-4 pt-4 animate-fade">

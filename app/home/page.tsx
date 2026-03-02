@@ -732,9 +732,7 @@ export default function Home() {
 
               {/* Description */}
               <p className="text-zinc-500 leading-relaxed max-w-lg">
-                Like warriors of steel and silicon, Robo Rumble 3.0 unfolds as a
-                convergence of engineering brilliance and competitive spirit.
-                Every bot becomes a testament to human ingenuity.
+                 Robo Rumble 3.0 is here to turn raw code into arena-shaking action. Witness the ultimate showdown where brilliant engineering meets fierce competition
               </p>
 
               {/* Stats */}

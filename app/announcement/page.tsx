@@ -42,7 +42,7 @@ export default function AnnouncementPage() {
                         <div className="h-[2px] w-12 md:w-20 bg-[#00F0FF]" />
                         <span className="text-[#00F0FF] font-mono text-xs md:text-sm font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase">SYSTEM_BROADCAST</span>
                     </div>
-                    <h1 className="text-3xl md:text-5xl lg:text-7xl font-black font-mono tracking-tighter uppercase leading-[0.85] mb-8 break-words">
+                    <h1 className="text-3xl md:text-5xl lg:text-7xl font-black font-mono tracking-tighter uppercase leading-[0.85] mb-8 wrap-break-word">
                         <div className="relative inline-block glitch-container">
                             <span className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red" style={{ transform: 'translate(-0.02em, 0.02em)' }}>
                                 ANNOUNCEMENTS
@@ -78,9 +78,9 @@ export default function AnnouncementPage() {
                         ) : (
                             <>
                                 <div className="flex justify-center w-full mt-4">
-                                    <SlotText text="COMING_SOON_" className="text-2xl md:text-4xl lg:text-6xl text-[#FF003C]" />
+                                    <SlotText text="16 - 18 MARCH 2026" className="text-xl md:text-4xl lg:text-6xl text-[#FF003C] whitespace-nowrap" />
                                 </div>
-                                <div className="border-l-2 border-[#00F0FF] pl-6 py-4 bg-gradient-to-r from-[#00F0FF]/10 to-transparent text-left">
+                                <div className="border-l-2 border-[#00F0FF] pl-6 py-4 bg-linear-to-r from-[#00F0FF]/10 to-transparent text-left">
                                     <p className="text-zinc-400 text-lg leading-relaxed font-mono">
                                         &gt; INITIALIZING_DATA_STREAM...
                                     </p>
