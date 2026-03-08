@@ -60,6 +60,8 @@ export async function GET(req: Request) {
 
         const { searchParams } = new URL(req.url);
         const status = searchParams.get("status"); // pending, verified, rejected, or all
+        const eventIdFilter = searchParams.get("eventId");
+        const gameChoiceFilter = searchParams.get("gameChoice");
 
         await connectDB();
 
@@ -68,6 +70,14 @@ export async function GET(req: Request) {
         };
         if (status && status !== "all") {
             filter.status = status;
+        }
+
+        if (eventIdFilter) {
+            filter["events.eventId"] = eventIdFilter;
+        }
+
+        if (gameChoiceFilter) {
+            filter["events.gameChoice"] = gameChoiceFilter;
         }
 
         const submissions = await PaymentSubmission.find(filter)
@@ -125,16 +135,17 @@ export async function GET(req: Request) {
         );
 
         const stats = {
-            pending: await PaymentSubmission.countDocuments({ status: "pending", screenshotUrl: { $ne: "FREE_EVENT" } }),
-            verified: await PaymentSubmission.countDocuments({ status: "verified", screenshotUrl: { $ne: "FREE_EVENT" } }),
-            rejected: await PaymentSubmission.countDocuments({ status: "rejected", screenshotUrl: { $ne: "FREE_EVENT" } }),
+            pending: await PaymentSubmission.countDocuments({ screenshotUrl: { $ne: "FREE_EVENT" }, ...filter, status: "pending" }),
+            verified: await PaymentSubmission.countDocuments({ screenshotUrl: { $ne: "FREE_EVENT" }, ...filter, status: "verified" }),
+            rejected: await PaymentSubmission.countDocuments({ screenshotUrl: { $ne: "FREE_EVENT" }, ...filter, status: "rejected" }),
+            filteredTotal: await PaymentSubmission.countDocuments(filter),
             totalRevenue: (await PaymentSubmission.aggregate([
-                { 
-                    $match: { 
+                {
+                    $match: {
                         status: "verified",
                         screenshotUrl: { $ne: "FREE_EVENT" },
                         verifiedAt: { $gte: new Date("2026-02-15T06:50:00.000Z") }
-                    } 
+                    }
                 },
                 { $group: { _id: null, total: { $sum: "$totalAmount" } } }
             ]))[0]?.total || 0,

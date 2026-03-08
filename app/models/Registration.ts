@@ -40,6 +40,7 @@ export interface IRegistration extends Document {
     selectedMembers: mongoose.Types.ObjectId[]; // The squad for this event
     checkedIn: boolean;
     checkedInAt?: Date;
+    gameChoice?: "BGMI" | "FreeFire"; // Added for e-sports
     _denormalized?: DenormalizedData; // Fast-read cache
 }
 
@@ -110,6 +111,13 @@ const RegistrationSchema = new Schema<IRegistration>(
             leaderName: String,
             leaderEmail: String,
             memberCount: Number,
+        },
+
+        // For E-sports
+        gameChoice: {
+            type: String,
+            enum: ["BGMI", "FreeFire"],
+            required: false,
         },
     },
     { timestamps: true }

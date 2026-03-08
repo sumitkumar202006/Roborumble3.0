@@ -82,6 +82,7 @@ export async function POST(req: Request) {
             ...(item.coordinator?.name && item.coordinator?.phone
                 ? { coordinator: { name: item.coordinator.name, phone: item.coordinator.phone } }
                 : {}),
+            ...(item.gameChoice ? { gameChoice: item.gameChoice } : {}),
         }));
 
         // Determine status based on amount
@@ -127,6 +128,7 @@ export async function POST(req: Request) {
                         eventId: event._id,
                         teamId: cart.teamId,
                         amountExpected: event.fees,
+                        gameChoice: item.gameChoice,
                     },
                 },
                 { upsert: true, new: true }

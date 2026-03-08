@@ -33,6 +33,7 @@ interface PaymentEvent {
     name: string;
     phone: string;
   };
+  gameChoice?: string;
 }
 
 interface PaymentSubmission {
@@ -58,6 +59,7 @@ interface Stats {
   verified: number;
   rejected: number;
   totalRevenue: number;
+  filteredTotal?: number;
 }
 
 export default function AdminPaymentsPage() {
@@ -71,7 +73,9 @@ export default function AdminPaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<
     "all" | "pending" | "verified" | "rejected"
-  >("pending");
+  >("all");
+  const [eventIdFilter, setEventIdFilter] = useState<string>("all");
+  const [gameChoiceFilter, setGameChoiceFilter] = useState<string>("all");
   const [processing, setProcessing] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -84,7 +88,11 @@ export default function AdminPaymentsPage() {
   const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/payments?status=${filter}`);
+      let url = `/api/admin/payments?status=${filter}`;
+      if (eventIdFilter !== "all") url += `&eventId=${eventIdFilter}`;
+      if (gameChoiceFilter !== "all") url += `&gameChoice=${gameChoiceFilter}`;
+      
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setSubmissions(data.submissions || []);
@@ -94,6 +102,7 @@ export default function AdminPaymentsPage() {
             verified: 0,
             rejected: 0,
             totalRevenue: 0,
+            filteredTotal: 0
           },
         );
       }
@@ -102,7 +111,7 @@ export default function AdminPaymentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, eventIdFilter, gameChoiceFilter]);
 
   useEffect(() => {
     fetchSubmissions();
@@ -233,20 +242,70 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {(["pending", "verified", "rejected", "all"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-colors whitespace-nowrap ${
-                filter === f
-                  ? "bg-[#00F0FF] text-black"
-                  : "bg-zinc-800 text-zinc-400 hover:text-white"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+        <div className="space-y-4 mb-8">
+          <div className="flex flex-wrap gap-4 items-end">
+            {/* Status Filter */}
+            <div>
+              <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">Status</label>
+              <div className="flex gap-2">
+                {(["all", "pending", "verified", "rejected"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-colors whitespace-nowrap ${
+                      filter === f
+                        ? "bg-[#00F0FF] text-black"
+                        : "bg-zinc-800 text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Event Filter */}
+            <div>
+              <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">Event</label>
+              <select
+                value={eventIdFilter}
+                onChange={(e) => {
+                  setEventIdFilter(e.target.value);
+                  setGameChoiceFilter("all");
+                }}
+                className="bg-zinc-800 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase border-none focus:ring-1 focus:ring-[#00F0FF] outline-none min-w-[150px]"
+              >
+                <option value="all">All Events</option>
+                <option value="67b3699b0f69a137822c9c81">E-SPORTS</option>
+                <option value="67b3699b0f69a137822c9c64">ROBO-SOCCER</option>
+                <option value="67b3699b0f69a137822c9c67">ROBO-WAR</option>
+                <option value="67b3699b0f69a137822c9c72">AEROMODELLING</option>
+                {/* Note: In production these IDs should be fetched from the API */}
+              </select>
+            </div>
+
+            {/* Game Choice Filter (Only for E-sports) */}
+            {(eventIdFilter === "all" || eventIdFilter === "67b3699b0f69a137822c9c81") && (
+              <div>
+                <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">Game Choice</label>
+                <select
+                  value={gameChoiceFilter}
+                  onChange={(e) => setGameChoiceFilter(e.target.value)}
+                  className="bg-zinc-800 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase border-none focus:ring-1 focus:ring-[#00F0FF] outline-none min-w-[150px]"
+                >
+                  <option value="all">All Games</option>
+                  <option value="BGMI">BGMI</option>
+                  <option value="FreeFire">FreeFire</option>
+                </select>
+              </div>
+            )}
+
+            {/* Registration Count */}
+            <div className="ml-auto bg-[#00F0FF]/10 border border-[#00F0FF]/30 px-4 py-2 rounded-lg">
+              <span className="text-[10px] text-[#00F0FF] uppercase font-bold block">Total Teams</span>
+              <span className="text-xl font-black text-white">{stats.filteredTotal || 0}</span>
+            </div>
+          </div>
         </div>
 
         {/* Submissions List */}
@@ -384,9 +443,16 @@ export default function AdminPaymentsPage() {
                               className="bg-zinc-900/50 border border-white/5 rounded-lg p-3"
                             >
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-white font-bold text-xs">
-                                  {title}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-white font-bold text-xs">
+                                    {title}
+                                  </span>
+                                  {e.gameChoice && (
+                                    <span className="px-1.5 py-0.5 bg-[#00F0FF]/20 text-[#00F0FF] rounded text-[10px] font-black uppercase">
+                                      {e.gameChoice}
+                                    </span>
+                                  )}
+                                </div>
                                 <span className="text-zinc-500 text-[10px]">
                                   ₹{fees}
                                 </span>
