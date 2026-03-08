@@ -41,6 +41,7 @@ export interface IRegistration extends Document {
     checkedIn: boolean;
     checkedInAt?: Date;
     gameChoice?: "BGMI" | "FreeFire"; // Added for e-sports
+    paymentSubmissionId?: mongoose.Types.ObjectId; // Link to the manual payment submission
     _denormalized?: DenormalizedData; // Fast-read cache
 }
 
@@ -117,6 +118,11 @@ const RegistrationSchema = new Schema<IRegistration>(
         gameChoice: {
             type: String,
             enum: ["BGMI", "FreeFire"],
+            required: false,
+        },
+        paymentSubmissionId: {
+            type: Schema.Types.ObjectId,
+            ref: "PaymentSubmission",
             required: false,
         },
     },
