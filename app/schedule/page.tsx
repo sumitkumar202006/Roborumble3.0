@@ -275,14 +275,14 @@ export default function SchedulePage() {
                       </h3>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 md:gap-6 text-xs md:text-sm font-mono md:min-w-[340px] md:justify-end">
-                      <div className="flex items-center gap-3 bg-white/5 px-4 py-2 border border-white/5 rounded min-w-[130px] justify-center">
-                        <Clock size={16} className="text-[#00F0FF]" />
-                        <span className="text-zinc-300">{event.time}</span>
+                    <div className="flex flex-row gap-3 md:gap-6 text-xs md:text-sm font-mono md:min-w-[340px] md:justify-end">
+                      <div className="flex items-center gap-2 md:gap-3 bg-white/5 px-3 md:px-4 py-2 border border-white/5 rounded md:min-w-[130px] justify-center flex-1 md:flex-none">
+                        <Clock size={14} className="text-[#00F0FF] shrink-0" />
+                        <span className="text-zinc-300 whitespace-nowrap">{event.time}</span>
                       </div>
-                      <div className="flex items-center gap-3 bg-white/5 px-4 py-2 border border-white/5 rounded min-w-[170px] justify-center">
-                        <MapPin size={16} className="text-[#FF003C]" />
-                        <span className="text-zinc-300">{event.venue}</span>
+                      <div className="flex items-center gap-2 md:gap-3 bg-white/5 px-3 md:px-4 py-2 border border-white/5 rounded md:min-w-[170px] justify-center flex-1 md:flex-none">
+                        <MapPin size={14} className="text-[#FF003C] shrink-0" />
+                        <span className="text-zinc-300 whitespace-nowrap">{event.venue}</span>
                       </div>
                     </div>
                   </div>
