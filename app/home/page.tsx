@@ -522,63 +522,60 @@ export default function Home() {
       {/* Background Matrix Effect */}
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-32">
+      <section className="relative min-h-screen flex items-center justify-center pt-40 md:pt-56 lg:pt-32">
+        {/* Absolute Positioned Logos - Top Corners */}
+        {/* Left: CSJM + NAAC */}
+        <div className="absolute top-[120px] md:top-36 lg:top-36 left-2 md:left-4 lg:left-8 z-20 flex flex-row items-center gap-1 md:gap-3 px-2">
+          <div className="relative w-[40px] h-[40px] md:w-[80px] md:h-[80px] lg:w-[110px] lg:h-[110px] rounded-full overflow-hidden flex items-center justify-center">
+            <Image
+              src="/uni-logo-1.png"
+              alt="CSJMU University Logo"
+              fill
+              className="object-contain drop-shadow-[0_0_15px_rgba(0,240,255,0.3)] filter brightness-110 contrast-125"
+            />
+          </div>
+          <div className="relative w-[32px] h-[32px] md:w-[60px] md:h-[60px] lg:w-[80px] lg:h-[80px] rounded-full overflow-hidden flex items-center justify-center">
+            <Image
+              src="/naac-5.png"
+              alt="NAAC A++ Accreditation"
+              fill
+              className="object-contain drop-shadow-[0_0_1px_rgba(255,0,60,0.3)] filter brightness-110 contrast-125"
+            />
+          </div>
+        </div>
+
+        {/* Right: CSJMIF */}
+        <div className="absolute top-[120px] md:top-36 lg:top-36 right-2 md:right-4 lg:right-8 z-20 px-2">
+          <div className="relative w-[40px] h-[40px] md:w-[80px] md:h-[80px] lg:w-[110px] lg:h-[110px] rounded-full overflow-hidden flex items-center justify-center p-[4px] md:p-[8px] lg:p-[10px]">
+            <Image
+              src="/csjmif.png"
+              alt="CSJMIF Logo"
+              fill
+              className="object-contain drop-shadow-[0_0_15px_rgba(230,97,255,0.3)] filter brightness-110 contrast-125 scale-[0.71]"
+            />
+          </div>
+        </div>
+
         <div className="container mx-auto px-4 md:px-6 z-10 text-center">
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="h-[2px] w-12 bg-[#FF003C]" />
-            <span className="text-[#FF003C] font-mono text-sm font-bold tracking-[0.4em] uppercase">
+          {/* Build Compete Dominate - centered heading */}
+          <div className="flex items-center justify-center gap-4 mb-4 md:mb-6">
+            <div className="hidden md:block h-[2px] w-8 md:w-12 bg-[#FF003C]" />
+            <span className="text-[#FF003C] font-mono text-xs md:text-sm font-bold tracking-[0.3em] md:tracking-[0.4em] uppercase">
               Build Compete Dominate
             </span>
-            <div className="h-[2px] w-12 bg-[#FF003C]" />
+            <div className="hidden md:block h-[2px] w-8 md:w-12 bg-[#FF003C]" />
           </div>
 
-          {/* Official Logos & Welcome Text */}
-          <div className="flex flex-col items-center gap-6 mb-8 animate-fade-in-up">
-            <h2 className="text-xl md:text-2xl font-mono uppercase tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF] font-bold drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
+          {/* Welcome Text */}
+          <div className="flex flex-col items-center mb-6 md:mb-10 animate-fade-in-up">
+            <h2 className="text-lg md:text-3xl font-mono uppercase tracking-[0.2em] md:tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF] font-bold drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
               UIET Welcomes You
             </h2>
-
-            <div className="flex flex-col items-center gap-4">
-              {/* Row 1: University Logo + CSJMIF Logo */}
-              <div className="flex flex-row items-center justify-center gap-2 md:gap-8">
-                {/* University Logo */}
-                <div className="relative w-[140px] h-[140px] md:w-[200px] md:h-[200px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
-                  <Image
-                    src="/uni-logo-1.png"
-                    alt="CSJMU University Logo"
-                    fill
-                    className="object-contain drop-shadow-[0_0_15px_rgba(0,240,255,0.3)] filter brightness-110 contrast-125"
-                  />
-                  <div className="absolute inset-0 bg-[#00F0FF]/5 blur-2xl -z-10 rounded-full" />
-                </div>
-
-                {/* CSJMIF Logo */}
-                <div className="relative w-[95px] h-[95px] md:w-[140px] md:h-[140px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-4">
-                  <Image
-                    src="/csjmif.png"
-                    alt="CSJMIF Logo"
-                    fill
-                    className="object-contain drop-shadow-[0_0_15px_rgba(230,97,255,0.3)] filter brightness-110 contrast-125"
-                  />
-                  <div className="absolute inset-0 bg-[#E661FF]/5 blur-2xl -z-10 rounded-full" />
-                </div>
-              </div>
-
-              {/* Row 2: NAAC Grade Logo (smaller) */}
-              <div className="relative w-[100px] h-[100px] md:w-[140px] md:h-[140px] hover:scale-105 transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center p-3">
-                <Image
-                  src="/naac-5.png"
-                  alt="NAAC A++ Accreditation"
-                  fill
-                  className="object-contain drop-shadow-[0_0_1px_rgba(255,0,60,0.3)] filter brightness-110 contrast-125"
-                />
-                <div className="absolute inset-0 bg-[#FF003C]/5 blur-2xl -z-10 rounded-full" />
-              </div>
-            </div>
           </div>
 
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black font-mono tracking-tighter uppercase leading-[0.85] mb-8 flex flex-col items-center">
-            <div className="flex items-end gap-4">
+          {/* Center: ROBO RUMBLE 3.0 Title */}
+          <h1 className="text-5xl md:text-8xl lg:text-9xl font-black font-mono tracking-tighter uppercase leading-[0.85] mb-6 md:mb-8 flex flex-col items-center">
+            <div className="flex items-end gap-2 md:gap-4">
               <div className="relative inline-block glitch-container">
                 <span
                   className="absolute top-0 left-0 text-[#FF003C] mix-blend-screen opacity-70 glitch-layer-red"
@@ -594,7 +591,7 @@ export default function Home() {
                 </span>
                 <span className="relative text-white">ROBO</span>
               </div>
-              <span className="text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono">
+              <span className="text-[5rem] md:text-[10rem] lg:text-[12rem] leading-none align-baseline text-[#00F0FF] font-mono">
                 3.0
               </span>
             </div>
@@ -732,7 +729,7 @@ export default function Home() {
 
               {/* Description */}
               <p className="text-zinc-500 leading-relaxed max-w-lg">
-                 Robo Rumble 3.0 is here to turn raw code into arena-shaking action. Witness the ultimate showdown where brilliant engineering meets fierce competition
+                Robo Rumble 3.0 is here to turn raw code into arena-shaking action. Witness the ultimate showdown where brilliant engineering meets fierce competition
               </p>
 
               {/* Stats */}
@@ -933,84 +930,86 @@ export default function Home() {
       </section>
 
       {/* Sponsor Modal */}
-      {selectedSponsor && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
-          <div
-            className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto"
-            onClick={() => setSelectedSponsor(null)}
-          />
+      {
+        selectedSponsor && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+            <div
+              className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto"
+              onClick={() => setSelectedSponsor(null)}
+            />
 
-          <div className="relative w-full max-w-2xl bg-[#050505] border border-[#00F0FF] p-1 shadow-[0_0_80px_rgba(0,240,255,0.3)] pointer-events-auto animate-glitch-entry">
-            {/* Top Bar */}
-            <div className="bg-[#00F0FF] text-black px-6 py-2 flex justify-between items-center font-mono text-[11px] font-black uppercase tracking-widest">
-              <div className="flex gap-4">
-                <span className="animate-pulse">● PARTNER_INTEL</span>
-                <span>{selectedSponsor.category}</span>
-              </div>
-              <button
-                onClick={() => setSelectedSponsor(null)}
-                className="hover:bg-black hover:text-[#00F0FF] px-4 py-1 transition-all border border-black"
-              >
-                [ CLOSE ]
-              </button>
-            </div>
-
-            <div className="p-8 max-h-[70vh] overflow-y-auto">
-              <div className="grid md:grid-cols-[200px_1fr] gap-8 items-start">
-                {/* Logo */}
-                <div className="relative w-full aspect-square bg-white/5 border border-white/10 p-4">
-                  <Image
-                    src={selectedSponsor.image}
-                    alt={selectedSponsor.name}
-                    fill
-                    className="object-contain p-2"
-                  />
+            <div className="relative w-full max-w-2xl bg-[#050505] border border-[#00F0FF] p-1 shadow-[0_0_80px_rgba(0,240,255,0.3)] pointer-events-auto animate-glitch-entry">
+              {/* Top Bar */}
+              <div className="bg-[#00F0FF] text-black px-6 py-2 flex justify-between items-center font-mono text-[11px] font-black uppercase tracking-widest">
+                <div className="flex gap-4">
+                  <span className="animate-pulse">● PARTNER_INTEL</span>
+                  <span>{selectedSponsor.category}</span>
                 </div>
+                <button
+                  onClick={() => setSelectedSponsor(null)}
+                  className="hover:bg-black hover:text-[#00F0FF] px-4 py-1 transition-all border border-black"
+                >
+                  [ CLOSE ]
+                </button>
+              </div>
 
-                {/* Content */}
-                <div className="space-y-4">
-                  <div className="border-b border-zinc-900 pb-4">
-                    <h3 className="text-3xl font-black text-white font-mono uppercase tracking-tighter mb-2">
-                      {selectedSponsor.name}
-                    </h3>
-                    <span className="text-[#00F0FF] text-sm font-bold uppercase">
-                      {selectedSponsor.contribution}
-                    </span>
+              <div className="p-8 max-h-[70vh] overflow-y-auto">
+                <div className="grid md:grid-cols-[200px_1fr] gap-8 items-start">
+                  {/* Logo */}
+                  <div className="relative w-full aspect-square bg-white/5 border border-white/10 p-4">
+                    <Image
+                      src={selectedSponsor.image}
+                      alt={selectedSponsor.name}
+                      fill
+                      className="object-contain p-2"
+                    />
                   </div>
 
+                  {/* Content */}
                   <div className="space-y-4">
-                    <div>
-                      <h4 className="text-[#FF003C] text-xs font-mono font-bold uppercase tracking-wider mb-2">
-                        // About
-                      </h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed">
-                        {selectedSponsor.about}
-                      </p>
+                    <div className="border-b border-zinc-900 pb-4">
+                      <h3 className="text-3xl font-black text-white font-mono uppercase tracking-tighter mb-2">
+                        {selectedSponsor.name}
+                      </h3>
+                      <span className="text-[#00F0FF] text-sm font-bold uppercase">
+                        {selectedSponsor.contribution}
+                      </span>
                     </div>
 
-                    <div>
-                      <h4 className="text-[#E661FF] text-xs font-mono font-bold uppercase tracking-wider mb-2">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-[#FF003C] text-xs font-mono font-bold uppercase tracking-wider mb-2">
+                        // About
+                        </h4>
+                        <p className="text-zinc-400 text-sm leading-relaxed">
+                          {selectedSponsor.about}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="text-[#E661FF] text-xs font-mono font-bold uppercase tracking-wider mb-2">
                         // Operational Role
-                      </h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed">
-                        {selectedSponsor.operationalRole}
-                      </p>
+                        </h4>
+                        <p className="text-zinc-400 text-sm leading-relaxed">
+                          {selectedSponsor.operationalRole}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
-              <span>
-                CONN_ID: 0x
-                {selectedSponsor.name.toUpperCase().replace(/\s/g, "")}
-              </span>
-              <span>RR_PARTNER_VERIFIED</span>
+              <div className="p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
+                <span>
+                  CONN_ID: 0x
+                  {selectedSponsor.name.toUpperCase().replace(/\s/g, "")}
+                </span>
+                <span>RR_PARTNER_VERIFIED</span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Advisors & Leadership Section */}
       <section className="py-24 relative z-10 border-y border-white/5">
@@ -1200,351 +1199,355 @@ export default function Home() {
       </section>
 
       {/* Stats Modal */}
-      {selectedStat && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setSelectedStat(null)}
-        >
+      {
+        selectedStat && (
           <div
-            className="relative w-full max-w-lg bg-black border border-[#00F0FF]/30 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setSelectedStat(null)}
           >
-            {/* Corner Tech Brackets */}
-            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#00F0FF]" />
-            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#00F0FF]" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#FF003C]" />
-            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#FF003C]" />
-
-            {/* Close Button */}
-            <button
-              onClick={() => setSelectedStat(null)}
-              className="absolute top-4 right-4 text-zinc-500 hover:text-[#FF003C] transition-colors font-mono text-sm"
+            <div
+              className="relative w-full max-w-lg bg-black border border-[#00F0FF]/30 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              [X]
-            </button>
+              {/* Corner Tech Brackets */}
+              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#00F0FF]" />
+              <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#00F0FF]" />
+              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#FF003C]" />
+              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#FF003C]" />
 
-            {/* Header */}
-            <div className="p-6 border-b border-white/10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-2 h-2 bg-[#00F0FF] animate-pulse" />
-                <span className="text-[#00F0FF] font-mono text-[10px] uppercase tracking-widest">
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedStat(null)}
+                className="absolute top-4 right-4 text-zinc-500 hover:text-[#FF003C] transition-colors font-mono text-sm"
+              >
+                [X]
+              </button>
+
+              {/* Header */}
+              <div className="p-6 border-b border-white/10">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-2 h-2 bg-[#00F0FF] animate-pulse" />
+                  <span className="text-[#00F0FF] font-mono text-[10px] uppercase tracking-widest">
                   // DATA_STREAM_ACTIVE
-                </span>
-              </div>
-              <h3 className="text-4xl font-black text-white font-mono tracking-tight">
-                {selectedStat.title}
-              </h3>
-              <p className="text-[#FF003C] font-mono text-xs uppercase tracking-widest mt-1">
+                  </span>
+                </div>
+                <h3 className="text-4xl font-black text-white font-mono tracking-tight">
+                  {selectedStat.title}
+                </h3>
+                <p className="text-[#FF003C] font-mono text-xs uppercase tracking-widest mt-1">
                 // {selectedStat.subtitle}
-              </p>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 space-y-4">
-              <h4 className="text-xl font-bold text-white">
-                {selectedStat.details.headline}
-              </h4>
-              <p className="text-zinc-400 font-mono text-sm leading-relaxed">
-                {selectedStat.details.description}
-              </p>
-
-              {/* Events List or Prize Breakdown */}
-              {"events" in selectedStat.details && (
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {(selectedStat.details as any).events.map(
-                    (event: string, i: number) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 p-2 bg-[#00F0FF]/5 border border-[#00F0FF]/20 rounded"
-                      >
-                        <div className="w-1.5 h-1.5 bg-[#00F0FF]" />
-                        <span className="text-white font-mono text-xs">
-                          {event}
-                        </span>
-                      </div>
-                    ),
-                  )}
-                </div>
-              )}
-
-              {"breakdown" in selectedStat.details && (
-                <div className="space-y-2 mt-4">
-                  {(selectedStat.details as any).breakdown.map(
-                    (item: string, i: number) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-3 p-3 bg-[#E661FF]/5 border border-[#E661FF]/20 rounded"
-                      >
-                        <div className="w-6 h-6 flex items-center justify-center bg-[#E661FF]/20 rounded">
-                          <Trophy size={14} className="text-[#E661FF]" />
-                        </div>
-                        <span className="text-white font-mono text-xs">
-                          {item}
-                        </span>
-                      </div>
-                    ),
-                  )}
-                </div>
-              )}
-
-              {/* Note */}
-              <div className="mt-4 p-3 bg-[#FF003C]/10 border border-[#FF003C]/20 rounded">
-                <p className="text-[#FF003C] font-mono text-xs">
-                  &gt;_ {selectedStat.details.note}
                 </p>
               </div>
-            </div>
 
-            {/* Scan Line Effect */}
-            <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF]/50 to-transparent animate-scan" />
+              {/* Content */}
+              <div className="p-6 space-y-4">
+                <h4 className="text-xl font-bold text-white">
+                  {selectedStat.details.headline}
+                </h4>
+                <p className="text-zinc-400 font-mono text-sm leading-relaxed">
+                  {selectedStat.details.description}
+                </p>
+
+                {/* Events List or Prize Breakdown */}
+                {"events" in selectedStat.details && (
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    {(selectedStat.details as any).events.map(
+                      (event: string, i: number) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-2 p-2 bg-[#00F0FF]/5 border border-[#00F0FF]/20 rounded"
+                        >
+                          <div className="w-1.5 h-1.5 bg-[#00F0FF]" />
+                          <span className="text-white font-mono text-xs">
+                            {event}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+
+                {"breakdown" in selectedStat.details && (
+                  <div className="space-y-2 mt-4">
+                    {(selectedStat.details as any).breakdown.map(
+                      (item: string, i: number) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 p-3 bg-[#E661FF]/5 border border-[#E661FF]/20 rounded"
+                        >
+                          <div className="w-6 h-6 flex items-center justify-center bg-[#E661FF]/20 rounded">
+                            <Trophy size={14} className="text-[#E661FF]" />
+                          </div>
+                          <span className="text-white font-mono text-xs">
+                            {item}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+
+                {/* Note */}
+                <div className="mt-4 p-3 bg-[#FF003C]/10 border border-[#FF003C]/20 rounded">
+                  <p className="text-[#FF003C] font-mono text-xs">
+                    &gt;_ {selectedStat.details.note}
+                  </p>
+                </div>
+              </div>
+
+              {/* Scan Line Effect */}
+              <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF]/50 to-transparent animate-scan" />
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Mentor Modal */}
-      {selectedMentor && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
-          <div
-            className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto"
-            onClick={() => setSelectedMentor(null)}
-          />
+      {
+        selectedMentor && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+            <div
+              className="absolute inset-0 bg-black/95 backdrop-blur-xl pointer-events-auto"
+              onClick={() => setSelectedMentor(null)}
+            />
 
-          {(() => {
-            const getMentorTheme = (role: string) => {
-              if (role === "Chief Patron")
+            {(() => {
+              const getMentorTheme = (role: string) => {
+                if (role === "Chief Patron")
+                  return {
+                    main: "#FF003C",
+                    shadow: "rgba(255,0,60,0.4)",
+                    bg: "rgba(255,0,60,0.05)",
+                  };
+                if (role === "Faculty Coordinator")
+                  return {
+                    main: "#E661FF",
+                    shadow: "rgba(230,97,255,0.4)",
+                    bg: "rgba(230,97,255,0.05)",
+                  };
                 return {
-                  main: "#FF003C",
-                  shadow: "rgba(255,0,60,0.4)",
-                  bg: "rgba(255,0,60,0.05)",
-                };
-              if (role === "Faculty Coordinator")
-                return {
-                  main: "#E661FF",
-                  shadow: "rgba(230,97,255,0.4)",
-                  bg: "rgba(230,97,255,0.05)",
-                };
-              return {
-                main: "#00F0FF",
-                shadow: "rgba(0,240,255,0.4)",
-                bg: "rgba(0,240,255,0.05)",
-              }; // Patron & default
-            };
+                  main: "#00F0FF",
+                  shadow: "rgba(0,240,255,0.4)",
+                  bg: "rgba(0,240,255,0.05)",
+                }; // Patron & default
+              };
 
-            const theme = getMentorTheme(selectedMentor.role);
+              const theme = getMentorTheme(selectedMentor.role);
 
-            return (
-              <div
-                className="relative w-full max-w-4xl bg-[#050b14] border p-1 pointer-events-auto overflow-hidden animate-glitch-entry"
-                style={{
-                  borderColor: theme.main,
-                  boxShadow: `0 0 50px ${theme.shadow}`,
-                }}
-              >
-                {/* Top Bar */}
+              return (
                 <div
-                  className="text-black px-3 md:px-6 py-2 flex justify-between items-center font-mono text-[9px] md:text-[11px] font-black uppercase tracking-widest leading-none"
-                  style={{ backgroundColor: theme.main }}
+                  className="relative w-full max-w-4xl bg-[#050b14] border p-1 pointer-events-auto overflow-hidden animate-glitch-entry"
+                  style={{
+                    borderColor: theme.main,
+                    boxShadow: `0 0 50px ${theme.shadow}`,
+                  }}
                 >
-                  <div className="flex gap-2 md:gap-4 items-center">
-                    <span className="animate-pulse">● PROFILE_ACTIVE</span>
-                    <span className="hidden md:inline">ID_VERIFIED</span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedMentor(null)}
-                    className="hidden md:block hover:bg-black px-2 md:px-4 py-1 transition-all border border-black font-bold text-[8px] md:text-[11px]"
-                    style={{ color: "black" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = theme.main)
-                    }
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "black")}
-                  >
-                    [ CLOSE ]
-                  </button>
-                </div>
-
-                <div className="p-4 md:p-8 lg:p-12 max-h-[80vh] md:max-h-[70vh] overflow-y-auto custom-scrollbar">
-                  <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 md:gap-12 items-center">
-                    {/* Left Column - Image with Ring */}
-                    <div className="flex flex-col items-center">
-                      <div className="relative w-40 h-40 md:w-64 md:h-64 mb-4 md:mb-6">
-                        {/* Tech Ring SVG */}
-                        <svg
-                          className="absolute inset-0 w-full h-full animate-spin-slow"
-                          style={{ color: theme.main }}
-                          viewBox="0 0 100 100"
-                        >
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="48"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1"
-                            strokeDasharray="40 20 40 20"
-                            opacity="0.5"
-                          />
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="44"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeDasharray="100 200"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-
-                        {/* Glowing static ring */}
-                        <div
-                          className="absolute inset-2 rounded-full border-2"
-                          style={{
-                            borderColor: theme.main,
-                            boxShadow: `0 0 30px ${theme.shadow}`,
-                          }}
-                        />
-
-                        {/* Image */}
-                        <div
-                          className="absolute inset-4 rounded-full overflow-hidden border-2 bg-black"
-                          style={{
-                            borderColor: `${theme.main}40`, // Adding alpha
-                          }}
-                        >
-                          <Image
-                            src={selectedMentor.image}
-                            alt={selectedMentor.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      </div>
-
-                      <div
-                        className="font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold text-center"
-                        style={{ color: theme.main }}
-                      >
-                          //{" "}
-                        {selectedMentor.role === "Chief Patron"
-                          ? "CHIEF_PATRON"
-                          : selectedMentor.role
-                            .toUpperCase()
-                            .replace(/\s+/g, "_")}
-                      </div>
-                    </div>
-
-                    {/* Right Column - Content */}
-                    <div className="space-y-4 md:space-y-6 text-center md:text-left">
-                      <div className="space-y-2">
-                        <h3 className="text-2xl md:text-4xl lg:text-5xl font-black text-white font-mono uppercase tracking-tighter leading-none">
-                          {selectedMentor.name}
-                        </h3>
-                        <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-                          <div
-                            className="h-[2px] w-8"
-                            style={{ backgroundColor: theme.main }}
-                          />
-                          <h4
-                            className="text-xs md:text-base font-bold uppercase tracking-wide font-mono"
-                            style={{ color: theme.main }}
-                          >
-                            {selectedMentor.dept}
-                          </h4>
-                        </div>
-                      </div>
-
-                      <div
-                        className="h-[1px] w-full"
-                        style={{
-                          background: `linear-gradient(to right, ${theme.main}80, transparent)`,
-                        }}
-                      />
-
-                      {/* Bio with border-left */}
-                      {selectedMentor.bio && (
-                        <div
-                          className="pl-4 md:pl-6 border-l-2 py-2 md:py-3 pr-2 md:pr-3 text-left"
-                          style={{
-                            borderColor: theme.main,
-                            backgroundColor: theme.bg,
-                          }}
-                        >
-                          <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-mono">
-                            {selectedMentor.bio}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Specs in Grid Boxes */}
-                      {selectedMentor.specs && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 mt-4 md:mt-8">
-                          {selectedMentor.specs.map((spec, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center gap-3 p-2 md:p-4 bg-zinc-950 border transition-all text-left"
-                              style={{
-                                borderColor: `${theme.main}33`, // roughly 20% opacity
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = theme.main;
-                                e.currentTarget.style.backgroundColor = `${theme.main}1A`; // roughly 10%
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = `${theme.main}33`;
-                                e.currentTarget.style.backgroundColor =
-                                  "rgba(9, 9, 11, 1)"; // zinc-950
-                              }}
-                            >
-                              <span
-                                className="font-bold text-xs md:text-sm"
-                                style={{ color: theme.main }}
-                              >
-                                &gt;
-                              </span>
-                              <span className="text-zinc-300 font-mono text-[9px] md:text-xs uppercase tracking-wide">
-                                {spec}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Mobile Close Button */}
+                  {/* Top Bar */}
                   <div
-                    className="md:hidden border-t p-4 mt-6"
-                    style={{ borderColor: `${theme.main}4D` }}
+                    className="text-black px-3 md:px-6 py-2 flex justify-between items-center font-mono text-[9px] md:text-[11px] font-black uppercase tracking-widest leading-none"
+                    style={{ backgroundColor: theme.main }}
                   >
+                    <div className="flex gap-2 md:gap-4 items-center">
+                      <span className="animate-pulse">● PROFILE_ACTIVE</span>
+                      <span className="hidden md:inline">ID_VERIFIED</span>
+                    </div>
                     <button
                       onClick={() => setSelectedMentor(null)}
-                      className="w-full text-black py-3 font-black font-mono text-xs uppercase tracking-widest transition-all"
-                      style={{ backgroundColor: theme.main }}
+                      className="hidden md:block hover:bg-black px-2 md:px-4 py-1 transition-all border border-black font-bold text-[8px] md:text-[11px]"
+                      style={{ color: "black" }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.opacity = "0.8")
+                        (e.currentTarget.style.color = theme.main)
                       }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.opacity = "1")
-                      }
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "black")}
                     >
                       [ CLOSE ]
                     </button>
                   </div>
-                </div>
 
-                {/* Bottom status bar */}
-                <div className="absolute bottom-0 w-full p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
-                  <span>
-                    EST_CONN: 0x
-                    {selectedMentor.name.split(" ")[0].toUpperCase()}
-                  </span>
-                  <span>ROBO_RUMBLE_v3.0_SECURE</span>
+                  <div className="p-4 md:p-8 lg:p-12 max-h-[80vh] md:max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 md:gap-12 items-center">
+                      {/* Left Column - Image with Ring */}
+                      <div className="flex flex-col items-center">
+                        <div className="relative w-40 h-40 md:w-64 md:h-64 mb-4 md:mb-6">
+                          {/* Tech Ring SVG */}
+                          <svg
+                            className="absolute inset-0 w-full h-full animate-spin-slow"
+                            style={{ color: theme.main }}
+                            viewBox="0 0 100 100"
+                          >
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="48"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              strokeDasharray="40 20 40 20"
+                              opacity="0.5"
+                            />
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="44"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeDasharray="100 200"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+
+                          {/* Glowing static ring */}
+                          <div
+                            className="absolute inset-2 rounded-full border-2"
+                            style={{
+                              borderColor: theme.main,
+                              boxShadow: `0 0 30px ${theme.shadow}`,
+                            }}
+                          />
+
+                          {/* Image */}
+                          <div
+                            className="absolute inset-4 rounded-full overflow-hidden border-2 bg-black"
+                            style={{
+                              borderColor: `${theme.main}40`, // Adding alpha
+                            }}
+                          >
+                            <Image
+                              src={selectedMentor.image}
+                              alt={selectedMentor.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+
+                        <div
+                          className="font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold text-center"
+                          style={{ color: theme.main }}
+                        >
+                          //{" "}
+                          {selectedMentor.role === "Chief Patron"
+                            ? "CHIEF_PATRON"
+                            : selectedMentor.role
+                              .toUpperCase()
+                              .replace(/\s+/g, "_")}
+                        </div>
+                      </div>
+
+                      {/* Right Column - Content */}
+                      <div className="space-y-4 md:space-y-6 text-center md:text-left">
+                        <div className="space-y-2">
+                          <h3 className="text-2xl md:text-4xl lg:text-5xl font-black text-white font-mono uppercase tracking-tighter leading-none">
+                            {selectedMentor.name}
+                          </h3>
+                          <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
+                            <div
+                              className="h-[2px] w-8"
+                              style={{ backgroundColor: theme.main }}
+                            />
+                            <h4
+                              className="text-xs md:text-base font-bold uppercase tracking-wide font-mono"
+                              style={{ color: theme.main }}
+                            >
+                              {selectedMentor.dept}
+                            </h4>
+                          </div>
+                        </div>
+
+                        <div
+                          className="h-[1px] w-full"
+                          style={{
+                            background: `linear-gradient(to right, ${theme.main}80, transparent)`,
+                          }}
+                        />
+
+                        {/* Bio with border-left */}
+                        {selectedMentor.bio && (
+                          <div
+                            className="pl-4 md:pl-6 border-l-2 py-2 md:py-3 pr-2 md:pr-3 text-left"
+                            style={{
+                              borderColor: theme.main,
+                              backgroundColor: theme.bg,
+                            }}
+                          >
+                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-mono">
+                              {selectedMentor.bio}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Specs in Grid Boxes */}
+                        {selectedMentor.specs && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 mt-4 md:mt-8">
+                            {selectedMentor.specs.map((spec, i) => (
+                              <div
+                                key={i}
+                                className="flex items-center gap-3 p-2 md:p-4 bg-zinc-950 border transition-all text-left"
+                                style={{
+                                  borderColor: `${theme.main}33`, // roughly 20% opacity
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.borderColor = theme.main;
+                                  e.currentTarget.style.backgroundColor = `${theme.main}1A`; // roughly 10%
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.borderColor = `${theme.main}33`;
+                                  e.currentTarget.style.backgroundColor =
+                                    "rgba(9, 9, 11, 1)"; // zinc-950
+                                }}
+                              >
+                                <span
+                                  className="font-bold text-xs md:text-sm"
+                                  style={{ color: theme.main }}
+                                >
+                                  &gt;
+                                </span>
+                                <span className="text-zinc-300 font-mono text-[9px] md:text-xs uppercase tracking-wide">
+                                  {spec}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Mobile Close Button */}
+                    <div
+                      className="md:hidden border-t p-4 mt-6"
+                      style={{ borderColor: `${theme.main}4D` }}
+                    >
+                      <button
+                        onClick={() => setSelectedMentor(null)}
+                        className="w-full text-black py-3 font-black font-mono text-xs uppercase tracking-widest transition-all"
+                        style={{ backgroundColor: theme.main }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.opacity = "0.8")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.opacity = "1")
+                        }
+                      >
+                        [ CLOSE ]
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bottom status bar */}
+                  <div className="absolute bottom-0 w-full p-2 text-[7px] text-zinc-800 font-mono flex justify-between bg-zinc-950/50">
+                    <span>
+                      EST_CONN: 0x
+                      {selectedMentor.name.split(" ")[0].toUpperCase()}
+                    </span>
+                    <span>ROBO_RUMBLE_v3.0_SECURE</span>
+                  </div>
                 </div>
-              </div>
-            );
-          })()}
-        </div>
-      )}
+              );
+            })()}
+          </div>
+        )
+      }
 
       <Footer />
 
@@ -1741,6 +1744,6 @@ export default function Home() {
           animation: glitch-entry 0.4s ease-out forwards;
         }
       `}</style>
-    </main>
+    </main >
   );
 }
