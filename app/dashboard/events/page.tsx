@@ -24,10 +24,12 @@ import {
   Plus,
   AlertTriangle,
   XCircle,
+  Music,
 } from "lucide-react";
 import { BiFootball } from "react-icons/bi";
 import { useAudio } from "@/app/hooks/useAudio";
 import CartSidebar from "@/app/components/CartSidebar";
+import { events as staticEvents } from "@/app/data/events";
 
 declare global {
   interface Window {
@@ -51,6 +53,10 @@ interface EventData {
   date?: string; // Adding date field for UI
   minTeamSize?: number;
   maxTeamSize?: number;
+  isOffline?: boolean;
+  requiresUniversityId?: boolean;
+  ticketTypes?: { [key: string]: number };
+  phasedCap?: number;
 }
 
 interface RegistrationStatus {
@@ -78,6 +84,7 @@ const getEventIcon = (category: string, eventId: string) => {
   if (category === "Innovation") return Users;
   if (category === "Seminar") return Mic;
   if (category === "Exhibition") return Rocket;
+  if (category === "Entertainment") return Music;
   return Trophy;
 };
 
@@ -116,6 +123,10 @@ const HorizontalEventCard = ({
     selectedMembers?: string[],
     gameChoice?: string,
     coordinator?: { name: string; phone: string },
+    universityId?: string,
+    ticketType?: string,
+    partnerName?: string,
+    partnerId?: string,
   ) => void;
   teamData: any;
   esportsTeamData: any;
@@ -125,11 +136,19 @@ const HorizontalEventCard = ({
   const [showRosterDialog, setShowRosterDialog] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [gameChoice, setGameChoice] = useState<"" | "FreeFire" | "BGMI">("");
-  const [rosterStep, setRosterStep] = useState<"game" | "members" | "coordinator">("game");
-  const [coordinatorChoice, setCoordinatorChoice] = useState<"" | "yes" | "no">("");
+  const [rosterStep, setRosterStep] = useState<
+    "game" | "members" | "coordinator" | "ticket" | "id" | "partner"
+  >("members");
+  const [coordinatorChoice, setCoordinatorChoice] = useState<"" | "yes" | "no">(
+    "",
+  );
   const [coordinatorName, setCoordinatorName] = useState("");
   const [coordinatorPhone, setCoordinatorPhone] = useState("");
   const [coordinatorPhoneError, setCoordinatorPhoneError] = useState("");
+  const [universityId, setUniversityId] = useState("");
+  const [ticketType, setTicketType] = useState<string>("");
+  const [partnerName, setPartnerName] = useState("");
+  const [partnerId, setPartnerId] = useState("");
 
   const isRegistered = !!registration;
   const isPaid =
@@ -162,6 +181,23 @@ const HorizontalEventCard = ({
   }, [activeProfileId]);
 
   const handleRegisterClick = () => {
+    // Check if extra info is needed (ID or Ticket Type) even for individual events
+    if (event.ticketTypes || event.requiresUniversityId) {
+      setShowRosterDialog(true);
+      setCoordinatorChoice("");
+      setCoordinatorName("");
+      setCoordinatorPhone("");
+      setCoordinatorPhoneError("");
+      setSelectedMembers(activeProfileId ? [activeProfileId] : []);
+
+      if (event.ticketTypes) {
+        setRosterStep("ticket" as any);
+      } else {
+        setRosterStep("id" as any);
+      }
+      return;
+    }
+
     if (isTeamEvent && !activeTeam) {
       alert(
         `This event requires a team. Please create a ${isEsportsEvent ? "Esports " : ""}team in the '${isEsportsEvent ? "Esports Team" : "My Team"}' tab first.`,
@@ -210,11 +246,18 @@ const HorizontalEventCard = ({
       return;
     }
     // Proceed to coordinator step
-    setCoordinatorChoice("");
-    setCoordinatorName("");
-    setCoordinatorPhone("");
-    setCoordinatorPhoneError("");
-    setRosterStep("coordinator");
+    if (event.requiresUniversityId && !universityId) {
+      setRosterStep("id" as any);
+    } else if (event.category === "Entertainment") {
+      // Skip coordinator for entertainment events
+      handleConfirmRoster(false);
+    } else {
+      setCoordinatorChoice("");
+      setCoordinatorName("");
+      setCoordinatorPhone("");
+      setCoordinatorPhoneError("");
+      setRosterStep("coordinator");
+    }
   };
 
   const handleConfirmRoster = (withCoordinator: boolean) => {
@@ -228,7 +271,10 @@ const HorizontalEventCard = ({
         setCoordinatorPhoneError("Phone number must be exactly 10 digits.");
         return;
       }
-      coordinator = { name: coordinatorName.trim(), phone: coordinatorPhone.trim() };
+      coordinator = {
+        name: coordinatorName.trim(),
+        phone: coordinatorPhone.trim(),
+      };
     }
     onAddToCart(
       event.eventId,
@@ -236,6 +282,10 @@ const HorizontalEventCard = ({
       selectedMembers,
       isEsportsEvent ? gameChoice : undefined,
       coordinator,
+      universityId,
+      ticketType,
+      partnerName,
+      partnerId,
     );
     setShowRosterDialog(false);
     setGameChoice("");
@@ -244,6 +294,24 @@ const HorizontalEventCard = ({
     setCoordinatorName("");
     setCoordinatorPhone("");
     setCoordinatorPhoneError("");
+    setUniversityId("");
+    setTicketType("");
+    setPartnerName("");
+    setPartnerId("");
+  };
+
+  const getSeatsLeftDisplay = () => {
+    if (event.eventId === "silent-dj" && event.phasedCap) {
+      const registrations = event.currentRegistrations || 0;
+      const currentPhase = Math.floor(registrations / event.phasedCap);
+      const seatsInCurrentPhase =
+        event.phasedCap - (registrations % event.phasedCap);
+      return `${seatsInCurrentPhase} seats left in this phase`;
+    }
+    if (event.maxRegistrations) {
+      return `${event.maxRegistrations - event.currentRegistrations} seats left`;
+    }
+    return null;
   };
 
   return (
@@ -319,9 +387,10 @@ const HorizontalEventCard = ({
                 </div>
               </div>
               <span className="text-zinc-500 text-xs font-mono">
-                {event.currentRegistrations > 0
-                  ? `${event.currentRegistrations} going`
-                  : "Be the first"}
+                {getSeatsLeftDisplay() ||
+                  (event.currentRegistrations > 0
+                    ? `${event.currentRegistrations} going`
+                    : "Be the first")}
               </span>
 
               <div className="h-1 w-1 bg-zinc-700 rounded-full" />
@@ -336,10 +405,18 @@ const HorizontalEventCard = ({
           <div className="flex md:flex-col items-center md:justify-center gap-4 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6 shrink-0 min-w-[140px]">
             <div className="text-center">
               <p className="text-zinc-500 text-[10px] uppercase font-mono mb-1">
-                Entry Fee
+                {event.ticketTypes ? "Select" : "Entry Fee"}
               </p>
               <p className="text-xl font-black text-white">
-                {event.fees === 0 ? "FREE" : `₹${event.fees}`}
+                {event.ticketTypes ? (
+                  <span className="text-xs uppercase text-[#E661FF]">
+                    Ticket Type
+                  </span>
+                ) : event.fees === 0 ? (
+                  "FREE"
+                ) : (
+                  `₹${event.fees}`
+                )}
               </p>
             </div>
 
@@ -371,6 +448,15 @@ const HorizontalEventCard = ({
               >
                 <Loader2 size={14} className="animate-spin" /> Adding...
               </button>
+            ) : event.isOffline ? (
+              <div className="text-center w-full">
+                <p className="text-[#E661FF] font-black font-mono text-[10px] uppercase mb-1">
+                  On-Desk Only
+                </p>
+                <div className="px-4 py-2 bg-zinc-800/50 border border-zinc-700 text-zinc-400 font-bold font-mono text-[10px] rounded-lg uppercase">
+                  Register at Desk
+                </div>
+              </div>
             ) : (
               <button
                 onClick={handleRegisterClick}
@@ -388,15 +474,23 @@ const HorizontalEventCard = ({
         <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#111] border border-[#00F0FF] rounded-xl max-w-md w-full p-6 shadow-[0_0_50px_rgba(0,240,255,0.3)]">
             <h3 className="text-xl font-black text-white font-mono mb-2 uppercase">
-              Select Squad Members
+              {rosterStep === "ticket"
+                ? "Choose Ticket Type"
+                : rosterStep === "id"
+                  ? "University Verification"
+                  : rosterStep === "partner"
+                    ? "Partner Details"
+                    : "Select Squad Members"}
             </h3>
-            <p className="text-zinc-400 text-xs font-mono mb-4">
-              Choose{" "}
-              {minTeamSize === maxTeamSize
-                ? minTeamSize
-                : `${minTeamSize}-${maxTeamSize}`}{" "}
-              members for {event.title}
-            </p>
+            {rosterStep === "members" && (
+              <p className="text-zinc-400 text-xs font-mono mb-4">
+                Choose{" "}
+                {minTeamSize === maxTeamSize
+                  ? minTeamSize
+                  : `${minTeamSize}-${maxTeamSize}`}{" "}
+                members for {event.title}
+              </p>
+            )}
 
             {/* Game selection step (esports only) */}
             {isEsportsEvent && rosterStep === "game" && (
@@ -439,220 +533,342 @@ const HorizontalEventCard = ({
               </div>
             )}
 
-            {/* Members step */}
-            {(!isEsportsEvent || rosterStep === "members") && (
-              <>
-                {/* Selected game badge for esports */}
-                {isEsportsEvent && gameChoice && (
-                  <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg">
-                    <span className="text-sm">
-                      {gameChoice === "FreeFire" ? "🔥" : "🎮"}
-                    </span>
-                    <span className="text-xs font-mono font-bold text-zinc-300 uppercase">
-                      {gameChoice === "FreeFire" ? "Free Fire" : "BGMI"}
-                    </span>
-                    <button
-                      onClick={() => setRosterStep("game")}
-                      className="ml-auto text-[10px] text-zinc-500 hover:text-zinc-300 font-mono underline"
-                    >
-                      change
-                    </button>
-                  </div>
-                )}
-
-                <div className="mb-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                        Team
-                      </div>
-                      <div className="text-white font-bold font-mono">
-                        {activeTeam?.name}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-[10px] text-zinc-500 font-mono uppercase">
-                        Selected
-                      </div>
-                      <div
-                        className={`font-bold font-mono ${
-                          selectedMembers.length < minTeamSize ||
-                          selectedMembers.length > maxTeamSize
-                            ? "text-red-500"
-                            : "text-[#00F0FF]"
-                        }`}
-                      >
-                        {selectedMembers.length} /{" "}
-                        {minTeamSize === maxTeamSize
-                          ? minTeamSize
-                          : `${minTeamSize}-${maxTeamSize}`}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="max-h-64 overflow-y-auto space-y-2 mb-4">
-                  {activeTeam?.members?.map((member: any) => (
-                    <label
-                      key={member._id}
-                      className={`flex items-center gap-3 p-3 border rounded cursor-pointer transition-all ${
-                        selectedMembers.includes(member._id)
-                          ? "bg-[#00F0FF]/10 border-[#00F0FF]"
-                          : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-600"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        className="hidden"
-                        checked={selectedMembers.includes(member._id)}
-                        onChange={() => {
-                          if (selectedMembers.includes(member._id)) {
-                            setSelectedMembers((prev) =>
-                              prev.filter((id) => id !== member._id),
-                            );
+            {/* Ticket type step (Band Show) */}
+            {(rosterStep as any) === "ticket" && (
+              <div className="space-y-4">
+                <p className="text-zinc-300 text-sm font-mono text-center">
+                  Select entry type:
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.entries(event.ticketTypes || {}).map(
+                    ([type, price]) => (
+                      <button
+                        key={type}
+                        onClick={() => {
+                          setTicketType(type);
+                          if (event.requiresUniversityId) {
+                            setRosterStep("id" as any);
                           } else {
-                            if (selectedMembers.length < maxTeamSize) {
-                              setSelectedMembers((prev) => [
-                                ...prev,
-                                member._id,
-                              ]);
-                            }
+                            setRosterStep("members");
                           }
                         }}
-                      />
-                      <div
-                        className={`w-4 h-4 border flex items-center justify-center ${
-                          selectedMembers.includes(member._id)
-                            ? "border-[#00F0FF] bg-[#00F0FF]"
-                            : "border-zinc-600"
+                        className={`flex flex-col items-center gap-2 p-4 border-2 rounded-xl transition-all ${
+                          ticketType === type
+                            ? "border-[#00F0FF] bg-[#00F0FF]/10"
+                            : "border-zinc-700/50 bg-zinc-800/30 hover:border-zinc-500"
                         }`}
                       >
-                        {selectedMembers.includes(member._id) && (
-                          <div className="w-2 h-2 bg-black" />
-                        )}
-                      </div>
-                      <span className="text-sm font-mono text-white">
-                        {member.username || member.email}
-                      </span>
-                    </label>
-                  ))}
+                        <span className="text-white font-black font-mono text-sm uppercase tracking-wide">
+                          {type}
+                        </span>
+                        <span className="text-[#00F0FF] font-mono text-xs">
+                          ₹{price}
+                        </span>
+                      </button>
+                    ),
+                  )}
                 </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      if (isEsportsEvent) {
-                        setRosterStep("game");
-                      } else {
-                        setShowRosterDialog(false);
-                      }
-                    }}
-                    className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
-                  >
-                    {isEsportsEvent ? "Back" : "Cancel"}
-                  </button>
-                  <button
-                    onClick={handleMembersConfirm}
-                    disabled={
-                      selectedMembers.length < minTeamSize ||
-                      selectedMembers.length > maxTeamSize
-                    }
-                    className="flex-[2] py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next →
-                  </button>
-                </div>
-              </>
+              </div>
             )}
 
-            {/* Coordinator Step */}
-                {rosterStep === "coordinator" && (
-                  <div className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-[#111] border border-[#E661FF] rounded-xl max-w-md w-full p-6 shadow-[0_0_50px_rgba(230,97,255,0.3)]">
-                      <h3 className="text-xl font-black text-white font-mono mb-2 uppercase">
-                        Coordinator
-                      </h3>
-                      <p className="text-zinc-400 text-xs font-mono mb-5">
-                        Do you have a coordinator accompanying your team?
-                      </p>
+            {/* University ID step */}
+            {(rosterStep as any) === "id" && (
+              <div className="space-y-4">
+                <p className="text-zinc-300 text-sm font-mono text-center">
+                  Enter your University ID / Roll No:
+                </p>
+                <input
+                  type="text"
+                  value={universityId}
+                  onChange={(e) => setUniversityId(e.target.value)}
+                  placeholder="Roll Number"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00F0FF] transition-colors"
+                />
+                <button
+                  onClick={() => {
+                    if (ticketType === "couple") {
+                      setRosterStep("partner" as any);
+                    } else {
+                      setRosterStep("members");
+                    }
+                  }}
+                  disabled={!universityId.trim()}
+                  className="w-full py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50"
+                >
+                  Continue
+                </button>
+              </div>
+            )}
 
-                      {coordinatorChoice === "" && (
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          <button
-                            onClick={() => setCoordinatorChoice("yes")}
-                            className="flex flex-col items-center gap-2 p-4 border-2 border-[#E661FF]/50 bg-[#E661FF]/10 hover:bg-[#E661FF]/20 hover:border-[#E661FF] rounded-xl transition-all"
-                          >
-                            <span className="text-3xl">👨‍🏫</span>
-                            <span className="text-white font-black font-mono text-sm uppercase tracking-wide">Yes</span>
-                          </button>
-                          <button
-                            onClick={() => handleConfirmRoster(false)}
-                            className="flex flex-col items-center gap-2 p-4 border-2 border-zinc-700/50 bg-zinc-800/30 hover:bg-zinc-800/60 hover:border-zinc-500 rounded-xl transition-all"
-                          >
-                            <span className="text-3xl">🚫</span>
-                            <span className="text-white font-black font-mono text-sm uppercase tracking-wide">No</span>
-                          </button>
+            {/* Partner Info step */}
+            {(rosterStep as any) === "partner" && (
+              <div className="space-y-4">
+                <p className="text-zinc-300 text-sm font-mono text-center">
+                  Enter your partner's details:
+                </p>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={partnerName}
+                    onChange={(e) => setPartnerName(e.target.value)}
+                    placeholder="Partner's Full Name"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00F0FF] transition-colors"
+                  />
+                  <input
+                    type="text"
+                    value={partnerId}
+                    onChange={(e) => setPartnerId(e.target.value)}
+                    placeholder="Partner's Roll Number / ID"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00F0FF] transition-colors"
+                  />
+                </div>
+                <button
+                  onClick={() => setRosterStep("members")}
+                  disabled={!partnerName.trim() || !partnerId.trim()}
+                  className="w-full py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50"
+                >
+                  Continue
+                </button>
+              </div>
+            )}
+
+            {/* Members step */}
+            {(!isEsportsEvent || rosterStep === "members") &&
+              rosterStep !== ("game" as any) &&
+              rosterStep !== ("ticket" as any) &&
+              rosterStep !== ("id" as any) && (
+                <>
+                  {/* Selected game badge for esports */}
+                  {isEsportsEvent && gameChoice && (
+                    <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg">
+                      <span className="text-sm">
+                        {gameChoice === "FreeFire" ? "🔥" : "🎮"}
+                      </span>
+                      <span className="text-xs font-mono font-bold text-zinc-300 uppercase">
+                        {gameChoice === "FreeFire" ? "Free Fire" : "BGMI"}
+                      </span>
+                      <button
+                        onClick={() => setRosterStep("game")}
+                        className="ml-auto text-[10px] text-zinc-500 hover:text-zinc-300 font-mono underline"
+                      >
+                        change
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="mb-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="text-[10px] text-zinc-500 font-mono uppercase">
+                          Team
                         </div>
-                      )}
-
-                      {coordinatorChoice === "yes" && (
-                        <div className="space-y-3 mb-4">
-                          <div className="flex items-center gap-2 px-3 py-2 bg-[#E661FF]/10 border border-[#E661FF]/30 rounded-lg">
-                            <span className="text-sm">👨‍🏫</span>
-                            <span className="text-xs font-mono text-[#E661FF] uppercase font-bold">Coordinator Details (1 only)</span>
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Coordinator Name</label>
-                            <input
-                              type="text"
-                              value={coordinatorName}
-                              onChange={(e) => { setCoordinatorName(e.target.value); setCoordinatorPhoneError(""); }}
-                              placeholder="Full name"
-                              className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#E661FF] transition-colors"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Phone Number</label>
-                            <input
-                              type="tel"
-                              value={coordinatorPhone}
-                              onChange={(e) => { setCoordinatorPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setCoordinatorPhoneError(""); }}
-                              placeholder="10-digit mobile number"
-                              className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#E661FF] transition-colors"
-                            />
-                          </div>
-                          {coordinatorPhoneError && (
-                            <p className="text-red-400 text-xs font-mono">{coordinatorPhoneError}</p>
-                          )}
+                        <div className="text-white font-bold font-mono">
+                          {activeTeam?.name}
                         </div>
-                      )}
-
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            if (coordinatorChoice === "yes") {
-                              setCoordinatorChoice("");
-                              setCoordinatorPhoneError("");
-                            } else {
-                              setRosterStep("members");
-                            }
-                          }}
-                          className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[10px] text-zinc-500 font-mono uppercase">
+                          Selected
+                        </div>
+                        <div
+                          className={`font-bold font-mono ${
+                            selectedMembers.length < minTeamSize ||
+                            selectedMembers.length > maxTeamSize
+                              ? "text-red-500"
+                              : "text-[#00F0FF]"
+                          }`}
                         >
-                          Back
-                        </button>
-                        {coordinatorChoice === "yes" && (
-                          <button
-                            onClick={() => handleConfirmRoster(true)}
-                            className="flex-[2] py-2 bg-[#E661FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded"
-                          >
-                            Confirm & Add to Cart
-                          </button>
-                        )}
+                          {selectedMembers.length} /{" "}
+                          {minTeamSize === maxTeamSize
+                            ? minTeamSize
+                            : `${minTeamSize}-${maxTeamSize}`}
+                        </div>
                       </div>
                     </div>
                   </div>
-                )}
+
+                  <div className="max-h-64 overflow-y-auto space-y-2 mb-4">
+                    {activeTeam?.members?.map((member: any) => (
+                      <label
+                        key={member._id}
+                        className={`flex items-center gap-3 p-3 border rounded cursor-pointer transition-all ${
+                          selectedMembers.includes(member._id)
+                            ? "bg-[#00F0FF]/10 border-[#00F0FF]"
+                            : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-600"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={selectedMembers.includes(member._id)}
+                          onChange={() => {
+                            if (selectedMembers.includes(member._id)) {
+                              setSelectedMembers((prev) =>
+                                prev.filter((id) => id !== member._id),
+                              );
+                            } else {
+                              if (selectedMembers.length < maxTeamSize) {
+                                setSelectedMembers((prev) => [
+                                  ...prev,
+                                  member._id,
+                                ]);
+                              }
+                            }
+                          }}
+                        />
+                        <div
+                          className={`w-4 h-4 border flex items-center justify-center ${
+                            selectedMembers.includes(member._id)
+                              ? "border-[#00F0FF] bg-[#00F0FF]"
+                              : "border-zinc-600"
+                          }`}
+                        >
+                          {selectedMembers.includes(member._id) && (
+                            <div className="w-2 h-2 bg-black" />
+                          )}
+                        </div>
+                        <span className="text-sm font-mono text-white">
+                          {member.username || member.email}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (isEsportsEvent) {
+                          setRosterStep("game");
+                        } else {
+                          setShowRosterDialog(false);
+                        }
+                      }}
+                      className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
+                    >
+                      {isEsportsEvent ? "Back" : "Cancel"}
+                    </button>
+                    <button
+                      onClick={handleMembersConfirm}
+                      disabled={
+                        selectedMembers.length < minTeamSize ||
+                        selectedMembers.length > maxTeamSize
+                      }
+                      className="flex-[2] py-2 bg-[#00F0FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </>
+              )}
+
+            {/* Coordinator Step */}
+            {rosterStep === "coordinator" && (
+              <div className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="bg-[#111] border border-[#E661FF] rounded-xl max-w-md w-full p-6 shadow-[0_0_50px_rgba(230,97,255,0.3)]">
+                  <h3 className="text-xl font-black text-white font-mono mb-2 uppercase">
+                    Coordinator
+                  </h3>
+                  <p className="text-zinc-400 text-xs font-mono mb-5">
+                    Do you have a coordinator accompanying your team?
+                  </p>
+
+                  {coordinatorChoice === "" && (
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <button
+                        onClick={() => setCoordinatorChoice("yes")}
+                        className="flex flex-col items-center gap-2 p-4 border-2 border-[#E661FF]/50 bg-[#E661FF]/10 hover:bg-[#E661FF]/20 hover:border-[#E661FF] rounded-xl transition-all"
+                      >
+                        <span className="text-3xl">👨‍🏫</span>
+                        <span className="text-white font-black font-mono text-sm uppercase tracking-wide">
+                          Yes
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => handleConfirmRoster(false)}
+                        className="flex flex-col items-center gap-2 p-4 border-2 border-zinc-700/50 bg-zinc-800/30 hover:bg-zinc-800/60 hover:border-zinc-500 rounded-xl transition-all"
+                      >
+                        <span className="text-3xl">🚫</span>
+                        <span className="text-white font-black font-mono text-sm uppercase tracking-wide">
+                          No
+                        </span>
+                      </button>
+                    </div>
+                  )}
+
+                  {coordinatorChoice === "yes" && (
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center gap-2 px-3 py-2 bg-[#E661FF]/10 border border-[#E661FF]/30 rounded-lg">
+                        <span className="text-sm">👨‍🏫</span>
+                        <span className="text-xs font-mono text-[#E661FF] uppercase font-bold">
+                          Coordinator Details (1 only)
+                        </span>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 font-mono uppercase block mb-1">
+                          Coordinator Name
+                        </label>
+                        <input
+                          type="text"
+                          value={coordinatorName}
+                          onChange={(e) => {
+                            setCoordinatorName(e.target.value);
+                            setCoordinatorPhoneError("");
+                          }}
+                          placeholder="Full name"
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#E661FF] transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 font-mono uppercase block mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={coordinatorPhone}
+                          onChange={(e) => {
+                            setCoordinatorPhone(
+                              e.target.value.replace(/\D/g, "").slice(0, 10),
+                            );
+                            setCoordinatorPhoneError("");
+                          }}
+                          placeholder="10-digit mobile number"
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#E661FF] transition-colors"
+                        />
+                      </div>
+                      {coordinatorPhoneError && (
+                        <p className="text-red-400 text-xs font-mono">
+                          {coordinatorPhoneError}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (coordinatorChoice === "yes") {
+                          setCoordinatorChoice("");
+                          setCoordinatorPhoneError("");
+                        } else {
+                          setRosterStep("members");
+                        }
+                      }}
+                      className="flex-1 py-2 bg-zinc-800 text-white font-mono font-bold uppercase text-xs hover:bg-zinc-700 transition-all rounded"
+                    >
+                      Back
+                    </button>
+                    {coordinatorChoice === "yes" && (
+                      <button
+                        onClick={() => handleConfirmRoster(true)}
+                        className="flex-[2] py-2 bg-[#E661FF] text-black font-mono font-black uppercase text-xs hover:bg-white transition-all rounded"
+                      >
+                        Confirm & Add to Cart
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -697,11 +913,43 @@ export default function DashboardEventsPage() {
       const res = await fetch("/api/events");
       if (res.ok) {
         const data = await res.json();
-        const allEvents = data.events || [];
-        setEvents(allEvents.filter((e: any) => e.eventId !== "dance-performance"));
+        const apiEvents = data.events || [];
+        const mergedEvents = [...staticEvents].map((se: any) => {
+          const apiEvent = apiEvents.find((ae: any) => ae.eventId === se.id);
+          return {
+            ...se,
+            _id: apiEvent?._id || se.id,
+            eventId: se.id,
+            description: se.desc || se.description,
+            fees: se.cost ?? se.fees,
+            rules: se.rules || [],
+            currentRegistrations: apiEvent?.currentRegistrations || 0,
+          } as EventData;
+        });
+
+        setEvents(
+          mergedEvents.filter((e: any) => e.eventId !== "dance-performance"),
+        );
       }
     } catch (e) {
       console.error(e);
+      // Fallback to static events if API fails
+      setEvents(
+        staticEvents
+          .map(
+            (se: any) =>
+              ({
+                ...se,
+                _id: se.id,
+                eventId: se.id,
+                description: se.desc || se.description,
+                fees: se.cost ?? se.fees,
+                rules: se.rules || [],
+                currentRegistrations: 0,
+              }) as EventData,
+          )
+          .filter((e: any) => e.eventId !== "dance-performance"),
+      );
     }
   }
 
@@ -800,6 +1048,10 @@ export default function DashboardEventsPage() {
     selectedMembers?: string[],
     gameChoice?: string,
     coordinator?: { name: string; phone: string },
+    universityId?: string,
+    ticketType?: string,
+    partnerName?: string,
+    partnerId?: string,
   ) {
     if (!user?.id) return;
     setAddingToCart(eventId);
@@ -816,6 +1068,18 @@ export default function DashboardEventsPage() {
       }
       if (coordinator?.name && coordinator?.phone) {
         payload.coordinator = coordinator;
+      }
+      if (universityId) {
+        payload.universityId = universityId;
+      }
+      if (ticketType) {
+        payload.ticketType = ticketType;
+      }
+      if (partnerName) {
+        payload.partnerName = partnerName;
+      }
+      if (partnerId) {
+        payload.partnerId = partnerId;
       }
 
       const res = await fetch("/api/cart", {

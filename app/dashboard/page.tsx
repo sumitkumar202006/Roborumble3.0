@@ -342,7 +342,7 @@ export default function DashboardPage() {
             <motion.div
               className="absolute -inset-px rounded-2xl border border-green-400/0 group-hover:border-green-400/40 transition-colors duration-300"
             />
-
+            
             {/* WhatsApp icon */}
             <div className="relative shrink-0">
               <motion.div
@@ -359,7 +359,7 @@ export default function DashboardPage() {
               <p className="text-white font-bold text-base leading-tight">
                 Join the Robo Rumble WhatsApp Community
               </p>
-              <p className="text-green-400/80 text-sm mt-0.5">
+              <p className="text-green-400/80 text-sm mt-0.5" >
                 Stay updated on event schedules, announcements &amp; results
               </p>
             </div>
@@ -367,6 +367,54 @@ export default function DashboardPage() {
             {/* Arrow */}
             <motion.div
               className="relative shrink-0 text-green-400"
+              initial={{ x: 0 }}
+              whileHover={{ x: 4 }}
+            >
+              <ArrowRight size={20} />
+            </motion.div>
+          </motion.a>
+
+          {/* Google Form Banner */}
+          <motion.a
+            href="https://forms.gle/C1KQV4PNRtgWnwLB6"
+            target="_blank"
+            rel="noopener noreferrer"
+            variants={itemVariants}
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.99 }}
+            className="relative flex items-center gap-4 p-4 md:p-5 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-900/20 via-blue-900/10 to-purple-900/20 overflow-hidden cursor-pointer group"
+          >
+            {/* Animated shimmer */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/5 to-transparent"
+              animate={{ x: ["-100%", "100%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            />
+            
+            {/* Form icon */}
+            <div className="relative shrink-0">
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+              >
+                <FileText size={24} className="text-white" />
+              </motion.div>
+            </div>
+
+            {/* Text */}
+            <div className="relative flex-1 min-w-0">
+              <p className="text-white font-bold text-base leading-tight">
+                Prefer Offline? Register via Google Form
+              </p>
+              <p className="text-purple-400/80 text-sm mt-0.5">
+                Register for events directly through our official Google Form
+              </p>
+            </div>
+
+            {/* Arrow */}
+            <motion.div
+              className="relative shrink-0 text-purple-400"
               initial={{ x: 0 }}
               whileHover={{ x: 4 }}
             >

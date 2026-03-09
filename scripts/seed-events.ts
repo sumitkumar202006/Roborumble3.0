@@ -8,7 +8,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env.local" });
 
 // Event data matching the static events
 const eventsData = [
@@ -155,6 +155,68 @@ const eventsData = [
         minTeamSize: 1,
         maxTeamSize: 5,
     },
+    {
+        eventId: "gokart",
+        title: "Gokart",
+        category: "Entertainment",
+        description: "Speed through the track in our thrilling Gokart competition. Experience the rush of adrenaline!",
+        teamSize: "Individual",
+        prize: "N/A",
+        rules: ["Safety gear mandatory.", "Registration on-desk only."],
+        image: "/gokart.jpeg",
+        fees: 0,
+        minTeamSize: 1,
+        maxTeamSize: 1,
+    },
+    {
+        eventId: "paintball",
+        title: "Paintball",
+        category: "Entertainment",
+        description: "Strategize and eliminate the opposing team in a high-intensity paintball battle.",
+        teamSize: "Individual",
+        prize: "N/A",
+        rules: ["Protective gear mandatory.", "Registration on-desk only."],
+        image: "/paintball.jpeg",
+        fees: 0,
+        minTeamSize: 1,
+        maxTeamSize: 1,
+    },
+    {
+        eventId: "silent-dj",
+        title: "Silent DJ",
+        category: "Entertainment",
+        description: "Dance to your own beat! Put on your headphones and choose your music in this unique DJ experience.",
+        teamSize: "Individual",
+        prize: "N/A",
+        rules: ["Compulsory to carry your University ID to enter.", "Capped to 150 registrations only."],
+        image: "/silent-dj.jpeg",
+        fees: 180,
+        minTeamSize: 1,
+        maxTeamSize: 1,
+        maxRegistrations: 150,
+        requiresUniversityId: true,
+        phasedCap: 75,
+        basePrice: 180,
+        discountedPrice: 150,
+    },
+    {
+        eventId: "band-show",
+        title: "Band Show",
+        category: "Entertainment",
+        description: "A spectacular musical night featuring live band performances. Don't miss out!",
+        teamSize: "Individual/Couple",
+        prize: "N/A",
+        rules: ["Compulsory to carry your University ID to enter."],
+        image: "/band-show.jpeg",
+        fees: 249,
+        minTeamSize: 1,
+        maxTeamSize: 2,
+        requiresUniversityId: true,
+        ticketTypes: {
+            "Single": 249,
+            "Couple": 399
+        }
+    },
 ];
 
 // Define Event schema inline for the script
@@ -174,6 +236,11 @@ const EventSchema = new mongoose.Schema({
     maxRegistrations: Number,
     currentRegistrations: { type: Number, default: 0 },
     registrationDeadline: Date,
+    requiresUniversityId: { type: Boolean, default: false },
+    phasedCap: Number,
+    ticketTypes: { type: Map, of: Number },
+    basePrice: Number,
+    discountedPrice: Number,
     isLive: { type: Boolean, default: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
 }, { timestamps: true });

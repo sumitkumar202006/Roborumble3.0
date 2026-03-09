@@ -21,7 +21,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { eventId, teamId, selectedMembers } = await req.json();
+        const { eventId, teamId, selectedMembers, universityId, ticketType } = await req.json();
 
         if (!eventId) {
             return NextResponse.json({ error: "Event ID required" }, { status: 400 });
@@ -84,7 +84,9 @@ export async function POST(req: Request) {
                 selectedMembers,
                 paymentStatus: event.fees === 0 ? "paid" : "initiated",
                 amountExpected: event.fees,
-                currency: "INR"
+                currency: "INR",
+                universityId,
+                ticketType
             });
 
             // Lock team for paid events (prevent disband/leave after registration)
@@ -140,7 +142,9 @@ export async function POST(req: Request) {
             selectedMembers: [profileId], // Individual participant
             paymentStatus: event.fees === 0 ? "paid" : "initiated",
             amountExpected: event.fees,
-            currency: "INR"
+            currency: "INR",
+            universityId,
+            ticketType
         });
 
         // Add event to registered events. Use profileId instead of clerkId for robustness

@@ -19,6 +19,8 @@ interface CheckoutEvent {
   title: string;
   fees: number;
   memberCount: number;
+  ticketType?: string;
+  partnerName?: string;
 }
 
 interface CheckoutData {
@@ -214,11 +216,23 @@ export default function CheckoutModal({
                       </h3>
                       <div className="space-y-2">
                         {checkoutData.events.map((event, i) => (
-                          <div key={i} className="flex justify-between text-sm">
-                            <span className="text-zinc-300">{event.title}</span>
-                            <span className="text-white font-mono">
-                              {event.fees === 0 ? "FREE" : `₹${event.fees}`}
-                            </span>
+                          <div key={i} className="flex flex-col border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-zinc-300">
+                                {event.title}
+                                {event.ticketType === "couple" && (
+                                  <span className="text-[10px] text-[#E661FF] ml-2 font-black uppercase">Couple</span>
+                                )}
+                              </span>
+                              <span className="text-white font-mono">
+                                {event.fees === 0 ? "FREE" : `₹${event.fees}`}
+                              </span>
+                            </div>
+                            {event.partnerName && (
+                              <div className="text-[10px] text-zinc-500 font-mono italic">
+                                Partner: {event.partnerName}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

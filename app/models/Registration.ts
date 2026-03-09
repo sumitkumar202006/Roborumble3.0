@@ -41,6 +41,10 @@ export interface IRegistration extends Document {
     checkedIn: boolean;
     checkedInAt?: Date;
     gameChoice?: "BGMI" | "FreeFire"; // Added for e-sports
+    universityId?: string; // Added for Silent DJ and Band Show
+    ticketType?: "single" | "couple"; // Added for Band Show
+    partnerName?: string;
+    partnerId?: string;
     paymentSubmissionId?: mongoose.Types.ObjectId; // Link to the manual payment submission
     _denormalized?: DenormalizedData; // Fast-read cache
 }
@@ -120,6 +124,17 @@ const RegistrationSchema = new Schema<IRegistration>(
             enum: ["BGMI", "FreeFire"],
             required: false,
         },
+        universityId: {
+            type: String,
+            required: false,
+        },
+        ticketType: {
+            type: String,
+            enum: ["single", "couple"],
+            required: false,
+        },
+        partnerName: String,
+        partnerId: String,
         paymentSubmissionId: {
             type: Schema.Types.ObjectId,
             ref: "PaymentSubmission",

@@ -7,6 +7,7 @@ import Event from "@/app/models/Event";
 import Profile from "@/app/models/Profile";
 import Registration from "@/app/models/Registration";
 import PaymentSubmission from "@/app/models/PaymentSubmission";
+import Team from "@/app/models/Team";
 
 // UPI Configuration
 const UPI_ID = "cseuietcsjmue857@axl";
@@ -49,13 +50,39 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
         }
 
-        // Calculate total amount
-        const totalAmount = cart.items.reduce((total: number, item: any) => {
-            return total + (item.eventId?.fees || 0);
-        }, 0);
+        // Calculate total amount with dynamic pricing
+        const totalAmount = await (async () => {
+            const teams = await Team.find({ members: profile._id });
+            const teamIds = teams.map(t => t._id);
+
+            const userRegistrations = await Registration.find({
+                $or: [
+                    { teamId: { $in: teamIds } },
+                    { selectedMembers: profile._id }
+                ],
+                paymentStatus: { $in: ["paid", "manual_verified"] }
+            });
+            const hasExistingPaidEvent = userRegistrations.length > 0;
+
+            let total = 0;
+
+            for (const item of cart.items) {
+                const event = item.eventId as any;
+                if (event.eventId === "silent-dj") {
+                    total += hasExistingPaidEvent ? 150 : 180;
+                } else if (event.eventId === "band-show") {
+                    total += item.ticketType === "couple" ? 399 : 249;
+                } else {
+                    total += event.fees || 0;
+                }
+            }
+            return { totalAmount: total, hasExistingPaidEvent };
+        })();
+
+        const { totalAmount: totalAmountValue, hasExistingPaidEvent: hasExistingPaidEventValue } = totalAmount;
 
         // Validation: Require proof only if amount > 0
-        if (totalAmount > 0) {
+        if (totalAmountValue > 0) {
             if (!transactionId || !screenshotUrl) {
                 return NextResponse.json(
                     { error: "Transaction ID and screenshot are required for paid events" },
@@ -79,6 +106,10 @@ export async function POST(req: Request) {
         const events = cart.items.map((item: any) => ({
             eventId: item.eventId._id,
             selectedMembers: item.selectedMembers,
+            universityId: item.universityId,
+            ticketType: item.ticketType,
+            partnerName: item.partnerName,
+            partnerId: item.partnerId,
             ...(item.coordinator?.name && item.coordinator?.phone
                 ? { coordinator: { name: item.coordinator.name, phone: item.coordinator.phone } }
                 : {}),
@@ -86,7 +117,7 @@ export async function POST(req: Request) {
         }));
 
         // Determine status based on amount
-        const isFree = totalAmount === 0;
+        const isFree = totalAmountValue === 0;
         const submissionStatus = isFree ? "verified" : "pending";
         const registrationStatus = isFree ? "paid" : "verification_pending";
 
@@ -97,7 +128,7 @@ export async function POST(req: Request) {
             teamId: cart.teamId,
             transactionId: isFree ? `FREE_${Date.now()}` : transactionId.trim(),
             screenshotUrl: isFree ? "FREE_EVENT" : screenshotUrl,
-            totalAmount,
+            totalAmount: totalAmountValue,
             events,
             status: submissionStatus,
             verifiedBy: isFree ? "SYSTEM" : undefined,
@@ -122,12 +153,20 @@ export async function POST(req: Request) {
                     $set: {
                         paymentStatus: registrationStatus,
                         paymentSubmissionId: submission._id,
-                        selectedMembers: item.selectedMembers, // Update members in case of change
+                        selectedMembers: item.selectedMembers,
+                        universityId: item.universityId,
+                        ticketType: item.ticketType,
+                        partnerName: item.partnerName,
+                        partnerId: item.partnerId,
                     },
                     $setOnInsert: {
                         eventId: event._id,
                         teamId: cart.teamId,
-                        amountExpected: event.fees,
+                        amountExpected: event.eventId === "silent-dj"
+                            ? (hasExistingPaidEventValue ? 150 : 180)
+                            : (event.eventId === "band-show"
+                                ? (item.ticketType === "couple" ? 399 : 249)
+                                : event.fees),
                         gameChoice: item.gameChoice,
                     },
                 },
@@ -195,26 +234,67 @@ export async function GET() {
             return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
         }
 
-        // Calculate total
-        const totalAmount = cart.items.reduce((total: number, item: any) => {
-            return total + (item.eventId?.fees || 0);
-        }, 0);
+        // Calculate total amount with dynamic pricing
+        const totalAmount = await (async () => {
+            const teams = await Team.find({ members: profile._id });
+            const teamIds = teams.map(t => t._id);
 
-        const events = cart.items.map((item: any) => ({
-            title: item.eventId?.title || "Unknown Event",
-            fees: item.eventId?.fees || 0,
-            memberCount: item.selectedMembers?.length || 1,
-        }));
+            const userRegistrations = await Registration.find({
+                $or: [
+                    { teamId: { $in: teamIds } },
+                    { selectedMembers: profile._id }
+                ],
+                paymentStatus: { $in: ["paid", "manual_verified"] }
+            });
+            const hasExistingPaidEvent = userRegistrations.length > 0;
 
-        // Generate UPI deep link for QR
-        const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent("RoboRumble Event Registration")}`;
+            let total = 0;
+
+            for (const item of cart.items) {
+                const event = item.eventId as any;
+                if (event.eventId === "silent-dj") {
+                    total += hasExistingPaidEvent ? 150 : 180;
+                } else if (event.eventId === "band-show") {
+                    total += item.ticketType === "couple" ? 399 : 249;
+                } else {
+                    total += event.fees || 0;
+                }
+            }
+            return { totalAmount: total, hasExistingPaidEvent };
+        })();
+
+        const { totalAmount: totalAmountValue, hasExistingPaidEvent: hasExistingPaidEventValue } = totalAmount;
+
+        const events = cart.items.map((item: any) => {
+            const event = item.eventId as any;
+            let finalFee = event.fees || 0;
+
+            // Repeat dynamic pricing logic for individual item display
+            if (event.eventId === "silent-dj") {
+                finalFee = hasExistingPaidEventValue ? 150 : 180;
+            } else if (event.eventId === "band-show") {
+                finalFee = item.ticketType === "couple" ? 399 : 249;
+            }
+
+            return {
+                title: event?.title || "Unknown Event",
+                fees: finalFee,
+                memberCount: item.selectedMembers?.length || 1,
+                universityId: item.universityId,
+                ticketType: item.ticketType,
+                partnerName: item.partnerName,
+                partnerId: item.partnerId,
+            };
+        });
+
+        // Generate UPI deep link for QR is handled in return
 
         return NextResponse.json({
             events,
-            totalAmount,
+            totalAmount: totalAmountValue,
             upiId: UPI_ID,
             upiName: UPI_NAME,
-            upiLink,
+            upiLink: `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${totalAmountValue}&cu=INR&tn=${encodeURIComponent("RoboRumble Event Registration")}`,
             itemCount: cart.items.length,
         });
     } catch (error) {

@@ -25,6 +25,11 @@ export interface IEvent extends Document {
     maxRegistrations?: number;
     currentRegistrations: number;
     registrationDeadline?: Date;
+    requiresUniversityId?: boolean;
+    phasedCap?: number;
+    ticketTypes?: { [key: string]: number };
+    basePrice?: number;
+    discountedPrice?: number;
 
     // Status
     isLive: boolean;
@@ -65,6 +70,11 @@ const EventSchema = new Schema<IEvent>(
         maxRegistrations: Number,
         currentRegistrations: { type: Number, default: 0 },
         registrationDeadline: Date,
+        requiresUniversityId: { type: Boolean, default: false },
+        phasedCap: Number,
+        ticketTypes: { type: Map, of: Number },
+        basePrice: Number,
+        discountedPrice: Number,
 
         // Status
         isLive: { type: Boolean, default: true },

@@ -56,17 +56,43 @@ export async function GET() {
             });
         }
 
-        // Calculate total amount
-        const totalAmount = cart.items.reduce((total, item) => {
-            const event = item.eventId as any;
-            return total + (event?.fees || 0);
-        }, 0);
+        // Calculate total amount with dynamic pricing
+        const teams = await Team.find({ members: profile._id });
+        const teamIds = teams.map(t => t._id);
 
-        return NextResponse.json({
-            items: cart.items.map((item: any) => ({
+        const userRegistrations = await Registration.find({
+            $or: [
+                { teamId: { $in: teamIds } },
+                { selectedMembers: profile._id }
+            ],
+            paymentStatus: { $in: ["paid", "manual_verified"] }
+        });
+        const hasExistingPaidEvent = userRegistrations.length > 0;
+
+        let totalAmount = 0;
+        const itemsWithPrices = cart.items.map((item: any) => {
+            const event = item.eventId as any;
+            let price = event?.fees || 0;
+
+            if (event?.eventId === "silent-dj") {
+                price = hasExistingPaidEvent ? 150 : 180;
+            } else if (event?.eventId === "band-show") {
+                price = item.ticketType === "couple" ? 399 : 249;
+            }
+
+            totalAmount += price;
+            return {
                 ...item.toObject(),
+                price,
+                universityId: item.universityId,
+                ticketType: item.ticketType,
+                partnerName: item.partnerName,
+                partnerId: item.partnerId,
                 quantity: 1
-            })),
+            };
+        });
+        return NextResponse.json({
+            items: itemsWithPrices,
             teamId: cart.teamId,
             itemCount: cart.items.length,
             totalAmount,
@@ -92,7 +118,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { eventId, teamId, selectedMembers, gameChoice, coordinator } = await req.json();
+        const { eventId, teamId, selectedMembers, gameChoice, coordinator, universityId, ticketType, partnerName, partnerId } = await req.json();
 
         if (!eventId) {
             return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
@@ -180,6 +206,10 @@ export async function POST(req: Request) {
         cart.items.push({
             eventId: event._id,
             selectedMembers: selectedMembers?.map((id: string) => new mongoose.Types.ObjectId(id)) || [profile._id],
+            universityId,
+            ticketType,
+            partnerName,
+            partnerId,
             ...(gameChoice ? { gameChoice } : {}),
             ...(coordinator?.name && coordinator?.phone ? { coordinator } : {}),
             addedAt: new Date(),

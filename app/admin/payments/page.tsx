@@ -34,6 +34,10 @@ interface PaymentEvent {
     phone: string;
   };
   gameChoice?: string;
+  universityId?: string;
+  ticketType?: string;
+  partnerName?: string;
+  partnerId?: string;
 }
 
 interface PaymentSubmission {
@@ -91,7 +95,7 @@ export default function AdminPaymentsPage() {
       let url = `/api/admin/payments?status=${filter}`;
       if (eventIdFilter !== "all") url += `&eventId=${eventIdFilter}`;
       if (gameChoiceFilter !== "all") url += `&gameChoice=${gameChoiceFilter}`;
-      
+
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
@@ -102,7 +106,7 @@ export default function AdminPaymentsPage() {
             verified: 0,
             rejected: 0,
             totalRevenue: 0,
-            filteredTotal: 0
+            filteredTotal: 0,
           },
         );
       }
@@ -246,64 +250,52 @@ export default function AdminPaymentsPage() {
           <div className="flex flex-wrap gap-4 items-end">
             {/* Status Filter */}
             <div>
-              <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">Status</label>
+              <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">
+                Status
+              </label>
               <div className="flex gap-2">
-                {(["all", "pending", "verified", "rejected"] as const).map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFilter(f)}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-colors whitespace-nowrap ${
-                      filter === f
-                        ? "bg-[#00F0FF] text-black"
-                        : "bg-zinc-800 text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
+                {(["all", "pending", "verified", "rejected"] as const).map(
+                  (f) => (
+                    <button
+                      key={f}
+                      onClick={() => setFilter(f)}
+                      className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-colors whitespace-nowrap ${
+                        filter === f
+                          ? "bg-[#00F0FF] text-black"
+                          : "bg-zinc-800 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ),
+                )}
               </div>
             </div>
 
-            {/* Event Filter */}
+            {/* Game Choice Filter */}
             <div>
-              <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">Event</label>
+              <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">
+                Game Choice
+              </label>
               <select
-                value={eventIdFilter}
-                onChange={(e) => {
-                  setEventIdFilter(e.target.value);
-                  setGameChoiceFilter("all");
-                }}
+                value={gameChoiceFilter}
+                onChange={(e) => setGameChoiceFilter(e.target.value)}
                 className="bg-zinc-800 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase border-none focus:ring-1 focus:ring-[#00F0FF] outline-none min-w-[150px]"
               >
-                <option value="all">All Events</option>
-                <option value="67b3699b0f69a137822c9c81">E-SPORTS</option>
-                <option value="67b3699b0f69a137822c9c64">ROBO-SOCCER</option>
-                <option value="67b3699b0f69a137822c9c67">ROBO-WAR</option>
-                <option value="67b3699b0f69a137822c9c72">AEROMODELLING</option>
-                {/* Note: In production these IDs should be fetched from the API */}
+                <option value="all">All Games</option>
+                <option value="BGMI">BGMI</option>
+                <option value="FreeFire">FreeFire</option>
               </select>
             </div>
 
-            {/* Game Choice Filter (Only for E-sports) */}
-            {(eventIdFilter === "all" || eventIdFilter === "67b3699b0f69a137822c9c81") && (
-              <div>
-                <label className="text-[10px] text-zinc-500 uppercase font-bold mb-1.5 block">Game Choice</label>
-                <select
-                  value={gameChoiceFilter}
-                  onChange={(e) => setGameChoiceFilter(e.target.value)}
-                  className="bg-zinc-800 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase border-none focus:ring-1 focus:ring-[#00F0FF] outline-none min-w-[150px]"
-                >
-                  <option value="all">All Games</option>
-                  <option value="BGMI">BGMI</option>
-                  <option value="FreeFire">FreeFire</option>
-                </select>
-              </div>
-            )}
-
             {/* Registration Count */}
             <div className="ml-auto bg-[#00F0FF]/10 border border-[#00F0FF]/30 px-4 py-2 rounded-lg">
-              <span className="text-[10px] text-[#00F0FF] uppercase font-bold block">Total Teams</span>
-              <span className="text-xl font-black text-white">{stats.filteredTotal || 0}</span>
+              <span className="text-[10px] text-[#00F0FF] uppercase font-bold block">
+                Total Teams
+              </span>
+              <span className="text-xl font-black text-white">
+                {stats.filteredTotal || 0}
+              </span>
             </div>
           </div>
         </div>
@@ -452,6 +444,16 @@ export default function AdminPaymentsPage() {
                                       {e.gameChoice}
                                     </span>
                                   )}
+                                  {e.ticketType === "couple" && (
+                                    <span className="px-1.5 py-0.5 bg-[#E661FF]/20 text-[#E661FF] rounded text-[10px] font-black uppercase">
+                                      Couple
+                                    </span>
+                                  )}
+                                  {e.universityId && (
+                                    <span className="text-zinc-500 text-[10px] font-mono">
+                                      ID: {e.universityId}
+                                    </span>
+                                  )}
                                 </div>
                                 <span className="text-zinc-500 text-[10px]">
                                   ₹{fees}
@@ -485,13 +487,39 @@ export default function AdminPaymentsPage() {
                                 )}
                               </div>
 
+                              {/* Partner info */}
+                              {e.partnerName && (
+                                <div className="mt-2 flex items-center gap-2 px-2 py-1.5 bg-zinc-800 border border-zinc-700 rounded">
+                                  <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide">
+                                    Partner:
+                                  </span>
+                                  <span className="text-[10px] text-white font-mono">
+                                    {e.partnerName}
+                                  </span>
+                                  <span className="text-[10px] text-zinc-600 font-mono">
+                                    •
+                                  </span>
+                                  <span className="text-[10px] text-zinc-400 font-mono">
+                                    {e.partnerId}
+                                  </span>
+                                </div>
+                              )}
+
                               {/* Coordinator info */}
                               {e.coordinator?.name && (
                                 <div className="mt-2 flex items-center gap-2 px-2 py-1.5 bg-[#E661FF]/10 border border-[#E661FF]/30 rounded">
-                                  <span className="text-[10px] text-[#E661FF] font-bold uppercase tracking-wide">Coordinator:</span>
-                                  <span className="text-[10px] text-white font-mono">{e.coordinator.name}</span>
-                                  <span className="text-[10px] text-zinc-400 font-mono">•</span>
-                                  <span className="text-[10px] text-[#E661FF] font-mono">{e.coordinator.phone}</span>
+                                  <span className="text-[10px] text-[#E661FF] font-bold uppercase tracking-wide">
+                                    Coordinator:
+                                  </span>
+                                  <span className="text-[10px] text-white font-mono">
+                                    {e.coordinator.name}
+                                  </span>
+                                  <span className="text-[10px] text-zinc-400 font-mono">
+                                    •
+                                  </span>
+                                  <span className="text-[10px] text-[#E661FF] font-mono">
+                                    {e.coordinator.phone}
+                                  </span>
                                 </div>
                               )}
                             </div>

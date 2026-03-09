@@ -1,4 +1,4 @@
-import { Shield, Zap, Users, Bot, Magnet, Mic, Rocket, Gamepad2, Cpu, Crosshair, Music } from "lucide-react";
+import { Shield, Zap, Users, Bot, Magnet, Mic, Rocket, Gamepad2, Cpu, Crosshair, Music, Target } from "lucide-react";
 import { BiFootball } from "react-icons/bi";
 
 export const events = [
@@ -224,5 +224,66 @@ export const events = [
     image: "/defence-expo.jpeg"
   },
 
-
+  {
+    id: "gokart",
+    title: "Gokart",
+    category: "Entertainment",
+    icon: Gamepad2,
+    desc: "Speed through the track in our thrilling Gokart competition. Experience the rush of adrenaline!",
+    teamSize: "Individual",
+    prize: "N/A",
+    cost: 0,
+    isOffline: true,
+    image: "/gokart.jpeg"
+  },
+  {
+    id: "paintball",
+    title: "Paintball",
+    category: "Entertainment",
+    icon: Target,
+    desc: "Strategize and eliminate the opposing team in a high-intensity paintball battle.",
+    teamSize: "Individual",
+    prize: "N/A",
+    cost: 0,
+    isOffline: true,
+    image: "/paintball.jpeg"
+  },
+  {
+    id: "silent-dj",
+    title: "Silent DJ",
+    category: "Entertainment",
+    icon: Music,
+    desc: "Dance to your own beat! Put on your headphones and choose your music in this unique DJ experience.",
+    teamSize: "Individual",
+    prize: "N/A",
+    cost: 180,
+    basePrice: 180,
+    discountedPrice: 150,
+    maxRegistrations: 150,
+    phasedCap: 75,
+    requiresUniversityId: true,
+    rules: [
+      "Compulsory to carry your University ID to enter.",
+      "Capped to 150 registrations only."
+    ],
+    image: "/silent-dj.jpeg"
+  },
+  {
+    id: "band-show",
+    title: "Band Show",
+    category: "Entertainment",
+    icon: Music,
+    desc: "A spectacular musical night featuring live band performances. Don't miss out!",
+    teamSize: "Individual/Couple",
+    prize: "N/A",
+    ticketTypes: {
+      single: 249,
+      couple: 399
+    },
+    requiresUniversityId: true,
+    rules: [
+      "Compulsory to carry your University ID to enter."
+    ],
+    image: "/band-show.jpeg"
+  }
 ];

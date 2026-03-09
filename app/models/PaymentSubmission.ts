@@ -8,6 +8,10 @@ interface IPaymentEvent {
         phone: string;
     };
     gameChoice?: string;
+    universityId?: string;
+    ticketType?: string;
+    partnerName?: string;
+    partnerId?: string;
 }
 
 export interface IPaymentSubmission extends Document {
@@ -46,6 +50,10 @@ const PaymentSubmissionSchema = new Schema<IPaymentSubmission>(
                     phone: { type: String },
                 },
                 gameChoice: { type: String },
+                universityId: { type: String },
+                ticketType: { type: String },
+                partnerName: { type: String },
+                partnerId: { type: String },
             },
         ],
         status: {
