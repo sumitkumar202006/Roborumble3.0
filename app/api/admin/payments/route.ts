@@ -72,12 +72,16 @@ export async function GET(req: Request) {
             filter.status = status;
         }
 
-        if (eventIdFilter) {
-            filter["events.eventId"] = eventIdFilter;
+        const elementFilter: Record<string, any> = {};
+        if (eventIdFilter && eventIdFilter !== "all") {
+            elementFilter.eventId = new mongoose.Types.ObjectId(eventIdFilter);
+        }
+        if (gameChoiceFilter && gameChoiceFilter !== "all") {
+            elementFilter.gameChoice = gameChoiceFilter;
         }
 
-        if (gameChoiceFilter) {
-            filter["events.gameChoice"] = gameChoiceFilter;
+        if (Object.keys(elementFilter).length > 0) {
+            filter.events = { $elemMatch: elementFilter };
         }
 
         const submissions = await PaymentSubmission.find(filter)
