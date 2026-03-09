@@ -36,7 +36,7 @@ export default function SchedulePage() {
       events: [
         {
           time: "10:00 AM",
-          title: "Defence Expo & Showcase Exhibition",
+          title: "Defence Expo",
           venue: "Senate Ground",
           type: "Exhibition",
         },
@@ -49,22 +49,28 @@ export default function SchedulePage() {
 
         {
           time: "10:00 AM",
-          title: "Pick and Place (Round 1)",
+          title: "Pick and Drop (Round 1)",
           venue: "Innovation Cell",
           type: "Competition",
         },
         {
           time: "01:00 PM",
           title: "Inauguration",
-          venue: "L1",
+          venue: "L1 (UIET)",
           type: "General",
         },
         {
           time: "02:00 PM",
           title: "Defence Talk",
-          venue: "L1",
+          venue: "L1 (UIET)",
           type: "Seminar",
-        }
+        },
+        {
+          time: "03:00 PM",
+          title: "Showcase and Exhibition",
+          venue: "Senate Ground",
+          type: "Exhibition",
+        },
       ],
     },
     {
@@ -76,13 +82,13 @@ export default function SchedulePage() {
         {
           time: "10:00 AM",
           title: "Robo War",
-          venue: "OAT UIET",
+          venue: "OAT-UIET",
           type: "Competition",
         },
         {
           time: "10:00 AM",
           title: "Robo Soccer",
-          venue: "OAT UIET",
+          venue: "OAT-UIET",
           type: "Competition",
         },
         {
@@ -99,14 +105,14 @@ export default function SchedulePage() {
         },
         {
           time: "10:00 AM",
-          title: "Esports",
+          title: "E-Sports",
           venue: "Innovation Cell",
           type: "Competition",
         },
         {
-          time: "04:30 PM",
+          time: "04:00 PM",
           title: "Silent DJ",
-          venue: "OAT",
+          venue: "OAT-UIET",
           type: "General",
         },
       ],
@@ -125,24 +131,24 @@ export default function SchedulePage() {
         },
         {
           time: "10:00 AM",
-          title: "Robo War Finals",
-          venue: "OAT",
+          title: "Robo War(Finals)",
+          venue: "OAT-UIET",
           type: "Competition",
         },
         {
           time: "10:00 AM",
-          title: "Robo Soccer Finals",
-          venue: "OAT",
+          title: "Robo Soccer(Finals)",
+          venue: "OAT-UIET",
           type: "Competition",
         },
         {
           time: "10:00 AM",
-          title: "Esports Finals",
+          title: "Esports(Finals)",
           venue: "Innovation Cell",
           type: "Competition",
         },
         {
-          time: "04:30 PM",
+          time: "04:00 PM",
           title: "Band Show",
           venue: "Helipad",
           type: "Performance",
@@ -253,8 +259,8 @@ export default function SchedulePage() {
                   className="relative group p-6 md:p-8 bg-zinc-950/70 border-l-4 border-zinc-800 hover:border-[#00F0FF] transition-all duration-300 backdrop-blur-md overflow-hidden"
                   onMouseEnter={() => playHoverSound()}
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                    <div className="space-y-2">
+                  <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] md:items-center gap-6 relative z-10">
+                    <div className="space-y-2 min-w-0">
                       <div className="flex items-center gap-3">
                         <Activity
                           size={14}
@@ -269,14 +275,14 @@ export default function SchedulePage() {
                       </h3>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 md:gap-8 text-xs md:text-sm font-mono">
-                      <div className="flex items-center gap-3 bg-white/5 px-4 py-2 border border-white/5 rounded">
-                        <Clock size={16} className="text-[#00F0FF]" />
-                        <span className="text-zinc-300">{event.time}</span>
+                    <div className="flex flex-row gap-3 md:gap-6 text-xs md:text-sm font-mono md:min-w-[340px] md:justify-end">
+                      <div className="flex items-center gap-2 md:gap-3 bg-white/5 px-3 md:px-4 py-2 border border-white/5 rounded md:min-w-[130px] justify-center flex-1 md:flex-none">
+                        <Clock size={14} className="text-[#00F0FF] shrink-0" />
+                        <span className="text-zinc-300 whitespace-nowrap">{event.time}</span>
                       </div>
-                      <div className="flex items-center gap-3 bg-white/5 px-4 py-2 border border-white/5 rounded">
-                        <MapPin size={16} className="text-[#FF003C]" />
-                        <span className="text-zinc-300">{event.venue}</span>
+                      <div className="flex items-center gap-2 md:gap-3 bg-white/5 px-3 md:px-4 py-2 border border-white/5 rounded md:min-w-[170px] justify-center flex-1 md:flex-none">
+                        <MapPin size={14} className="text-[#FF003C] shrink-0" />
+                        <span className="text-zinc-300 whitespace-nowrap">{event.venue}</span>
                       </div>
                     </div>
                   </div>
