@@ -1108,6 +1108,9 @@ export default function Home() {
                 "/flowing_time/IMG-20250217-WA0001.jpg",
                 "/flowing_time/IMG-20250219-WA0159.jpg",
                 "/flowing_time/IMG-20250219-WA0217.jpg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.27 PM.jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM (1).jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM.jpeg",
               ].map((img, i) => (
                 <div
                   key={`r1a-${i}`}
@@ -1130,6 +1133,9 @@ export default function Home() {
                 "/flowing_time/IMG-20250217-WA0001.jpg",
                 "/flowing_time/IMG-20250219-WA0159.jpg",
                 "/flowing_time/IMG-20250219-WA0217.jpg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.27 PM.jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM (1).jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM.jpeg",
               ].map((img, i) => (
                 <div
                   key={`r1b-${i}`}
@@ -1151,6 +1157,9 @@ export default function Home() {
           <div className="relative w-full">
             <div className="flex gap-6 animate-gallery-scroll-right">
               {[
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM.jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM (1).jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.27 PM.jpeg",
                 "/flowing_time/IMG-20250219-WA0217.jpg",
                 "/flowing_time/IMG-20250219-WA0159.jpg",
                 "/flowing_time/IMG-20250217-WA0001.jpg",
@@ -1173,6 +1182,9 @@ export default function Home() {
               ))}
               {/* Duplicate for seamless loop */}
               {[
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM.jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.28 PM (1).jpeg",
+                "/gallery/WhatsApp Image 2026-03-10 at 12.45.27 PM.jpeg",
                 "/flowing_time/IMG-20250219-WA0217.jpg",
                 "/flowing_time/IMG-20250219-WA0159.jpg",
                 "/flowing_time/IMG-20250217-WA0001.jpg",

@@ -63,7 +63,7 @@ const teamData = {
     {
       name: "Shivansh Singh",
       role: "Logistic Head",
-      img: "/shivansh.jpeg",
+      img: "/shivansh1.jpeg",
       socials: [
         {
           icon: FaInstagram,
@@ -75,7 +75,7 @@ const teamData = {
     },
     {
       name: "Nikhil Kanaujiya ",
-      role: "PR & Media Head",
+      role: "Event Manager",
       img: "/Nikhil.jpeg",
       socials: [
         {
