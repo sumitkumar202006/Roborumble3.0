@@ -138,6 +138,16 @@ const CardBackground = ({
       </div>
     );
   }
+  // Entertainment: Party vibes
+  if (category === "Entertainment") {
+    return (
+      <div className="absolute inset-0 z-0 opacity-30 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B00]/10 via-[#E661FF]/10 to-[#00F0FF]/10 animate-pulse"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(#FF6B00_1px,transparent_1px)] bg-[size:24px_24px] opacity-20"></div>
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FF6B00]/15 to-transparent"></div>
+      </div>
+    );
+  }
 
   // Default
   return <div className="absolute inset-0 z-0 bg-zinc-900/50"></div>;
@@ -626,8 +636,33 @@ export default function EventsPage() {
             {events
               .filter(
                 (e: any) =>
-                  !["Robotics", "Aerial", "Gaming"].includes(e.category),
+                  !["Robotics", "Aerial", "Gaming", "Entertainment"].includes(e.category),
               )
+              .map((event: any) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  isActive={activeEventId === event.id}
+                  isLoading={loadingEventId === event.id}
+                  onOpen={() => handleOpenEvent(event.id)}
+                  onClose={handleCloseEvent}
+                />
+              ))}
+          </div>
+        </div>
+
+        {/* Entertainment Section */}
+        <div className="mb-16">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-2 h-8 bg-[#FF6B00]" />
+            <h2 className="text-2xl md:text-4xl max-[400]:text-xl font-black font-mono uppercase tracking-widest text-white">
+              ENTERTAINMENT
+            </h2>
+            <div className="h-[1px] flex-grow bg-gradient-to-r from-[#FF6B00]/50 to-transparent" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {events
+              .filter((e: any) => e.category === "Entertainment")
               .map((event: any) => (
                 <EventCard
                   key={event.id}

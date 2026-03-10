@@ -234,6 +234,11 @@ export const events = [
     prize: "N/A",
     cost: 0,
     isOffline: true,
+    rules: [
+      "On-spot registration only.",
+      "Safety gear must be worn at all times.",
+      "Follow track marshals' instructions."
+    ],
     image: "/gokart.jpeg"
   },
   {
@@ -246,6 +251,11 @@ export const events = [
     prize: "N/A",
     cost: 0,
     isOffline: true,
+    rules: [
+      "On-spot registration only.",
+      "Safety equipment provided must be worn.",
+      "No headshots or point-blank shots allowed."
+    ],
     image: "/paintball.jpeg"
   },
   {
