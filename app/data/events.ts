@@ -253,7 +253,7 @@ export const events = [
     title: "Silent DJ",
     category: "Entertainment",
     icon: Music,
-    desc: "Dance to your own beat! Put on your headphones and choose your music in this unique DJ experience.",
+    desc: "Dance to your own beat! Put on your headphones and choose your music in this unique DJ experience. (On Desk Registration Only)",
     teamSize: "Individual",
     prize: "N/A",
     cost: 180,
@@ -262,9 +262,11 @@ export const events = [
     maxRegistrations: 150,
     phasedCap: 75,
     requiresUniversityId: true,
+    isOffline: true,
     rules: [
       "Compulsory to carry your University ID to enter.",
-      "Capped to 150 registrations only."
+      "Capped to 150 registrations only.",
+      "On Desk Registration Only."
     ],
     image: "/silent-dj.jpeg"
   },

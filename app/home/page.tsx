@@ -12,6 +12,7 @@ import {
   Users,
   Terminal,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import Footer from "../components/Footer";
 import Countdown from "../components/countdown";
@@ -521,6 +522,28 @@ export default function Home() {
 
       {/* Background Matrix Effect */}
 
+      {/* Registrations Live Marquee */}
+      <div className="absolute top-24 left-0 w-full bg-[#FF003C] z-30 overflow-hidden py-2 shadow-[0_0_20px_#FF003C] mt-2 rotate-1 border-y border-black">
+        <Link href="/dashboard/events">
+          <motion.div
+            className="flex whitespace-nowrap gap-8 cursor-pointer"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          >
+            {Array(20)
+              .fill("★ REGISTRATIONS LIVE! CLICK TO REGISTER ★ ")
+              .map((text, i) => (
+                <span
+                  key={i}
+                  className="text-black font-black italic tracking-widest text-sm md:text-base font-['Orbitron'] hover:text-white transition-colors"
+                >
+                  {text}
+                </span>
+              ))}
+          </motion.div>
+        </Link>
+      </div>
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center pt-40 md:pt-56 lg:pt-32">
         {/* Absolute Positioned Logos - Top Corners */}
@@ -681,6 +704,69 @@ export default function Home() {
               Deployment Countdown
             </p>
             <Countdown targetDate="2026-03-16T09:00:00" />
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Events Section */}
+      <section className="py-20 relative z-10 border-t border-white/5 bg-black/50">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex flex-col items-center mb-16">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black font-mono tracking-tighter uppercase mb-4 text-center">
+              <span className="text-white">FEATURED </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#E661FF]">
+                EVENTS
+              </span>
+            </h2>
+            <div className="h-[2px] w-24 bg-[#FF003C]" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {events.slice(0, 3).map((event) => (
+              <div key={event.id} className="group relative bg-[#050505] border border-white/10 p-6 hover:border-[#00F0FF]/50 transition-all duration-500 flex flex-col h-full hover:-translate-y-2">
+                {/* Corner brackets */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#00F0FF] transition-all group-hover:w-6 group-hover:h-6" />
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#00F0FF] transition-all group-hover:w-6 group-hover:h-6" />
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#FF003C] transition-all group-hover:w-6 group-hover:h-6" />
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#FF003C] transition-all group-hover:w-6 group-hover:h-6" />
+
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded bg-[#00F0FF]/10 flex items-center justify-center text-[#00F0FF] group-hover:scale-110 transition-transform">
+                    <event.icon size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold font-mono text-white uppercase tracking-tight group-hover:text-[#00F0FF] transition-colors">{event.title}</h3>
+                    <span className="text-xs text-zinc-500 font-mono tracking-wider">{event.category}</span>
+                  </div>
+                </div>
+
+                <div className="relative w-full aspect-video mb-6 overflow-hidden border border-white/5 bg-zinc-900">
+                  <Image src={event.image || "/placeholder.jpg"} alt={event.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+                </div>
+
+                <p className="text-zinc-400 text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
+                  {event.desc}
+                </p>
+
+                <div className="flex items-center justify-between mt-auto">
+                  <span className="text-[#E661FF] font-mono font-bold text-lg">₹{event.cost}</span>
+                  <Link href="/dashboard/events">
+                    <button className="px-5 py-2.5 bg-[#FF003C] text-black font-black uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2" style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}>
+                       GO TO CART <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-16 text-center">
+            <Link href="/dashboard/events">
+              <button className="px-8 py-4 border border-[#00F0FF] text-[#00F0FF] font-mono text-sm tracking-widest hover:bg-[#00F0FF]/10 transition-all uppercase" style={{ clipPath: "polygon(0 0, 90% 0, 100% 30%, 100% 100%, 10% 100%, 0 70%)" }}>
+                VIEW ALL EVENTS & REGISTER
+              </button>
+            </Link>
           </div>
         </div>
       </section>
