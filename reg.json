@@ -1,0 +1,21 @@
+{
+  "_id": "69ae7334d6653982fd2eadec",
+  "teamId": "69ae4d3f85ba3435903844b8",
+  "eventId": "6988a2e6977e7a56b44b8d81",
+  "__v": 0,
+  "amountExpected": 250,
+  "checkedIn": false,
+  "createdAt": "2026-03-09T07:13:56.912Z",
+  "currency": "INR",
+  "gameChoice": "FreeFire",
+  "paymentAttempts": [],
+  "paymentStatus": "manual_verified",
+  "selectedMembers": [
+    "69abbb2d209f2956eab66a14",
+    "69abbbf90b6240ab8ba2bf6f",
+    "69abc0208cda935092083ffe",
+    "69ad0866a148d9f662658e97"
+  ],
+  "updatedAt": "2026-03-09T08:14:53.871Z",
+  "amountPaid": 250
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -516,8 +516,66 @@ export default function Home() {
   // Mentor modal state
   const [selectedMentor, setSelectedMentor] = useState<TeamMember | null>(null);
 
+  // Popup state
+  const [showPopup, setShowPopup] = useState(false);
+
+  // Trigger popup when page loads
+  useEffect(() => {
+    // Show toast after 1.5 seconds
+    const showTimer = setTimeout(() => setShowPopup(true), 1500);
+    // Auto-hide toast after 8 seconds (6.5 seconds of visibility)
+    const hideTimer = setTimeout(() => setShowPopup(false), 8000);
+
+    return () => {
+       clearTimeout(showTimer);
+       clearTimeout(hideTimer);
+    };
+  }, []);
+
   return (
     <main className="min-h-screen bg-transparent text-white relative overflow-x-hidden selection:bg-[#00F0FF] selection:text-black">
+      {/* Auto-Hiding Registration Toast */}
+      {showPopup && (
+        <div className="fixed bottom-10 right-4 md:bottom-16 md:right-16 z-[100] animate-fade-in-up">
+          <div className="relative bg-black/95 backdrop-blur-xl border-[3px] border-[#00F0FF] shadow-[0_0_50px_rgba(0,240,255,0.5)] p-8 w-[90vw] md:w-[32rem] group">
+            {/* Corner accents */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-[3px] border-l-[3px] border-[#00F0FF]" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-[3px] border-r-[3px] border-[#FF003C]" />
+            
+            <div className="flex items-start gap-6">
+              <div className="w-14 h-14 rounded border-[3px] border-[#FF003C] flex items-center justify-center shrink-0 animate-pulse bg-[#FF003C]/10 mt-1">
+                <span className="text-[#FF003C] font-mono font-black text-3xl">!</span>
+              </div>
+              
+              <div className="flex-1">
+                <h4 className="text-[#00F0FF] font-mono font-black uppercase text-xl tracking-[0.2em] mb-3 drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]">
+                  System Alert
+                </h4>
+                <p className="text-white font-mono text-lg leading-relaxed mb-6">
+                  Registrations are now open to all events.
+                </p>
+                <Link href="/events" onClick={() => setShowPopup(false)}>
+                  <button className="text-sm uppercase font-mono font-black tracking-[0.25em] text-black bg-[#FF003C] px-8 py-3 hover:bg-white hover:scale-105 transition-all w-full md:w-auto text-center border-2 border-[#FF003C] shadow-[0_0_20px_rgba(255,0,60,0.6)]">
+                    Register Now &gt;
+                  </button>
+                </Link>
+              </div>
+
+              <button 
+                onClick={() => setShowPopup(false)}
+                className="text-zinc-400 hover:text-white transition-colors p-2 absolute top-4 right-4 text-xl"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* Progress Bar (Animation matched to stay duration) */}
+            <div className="absolute bottom-0 left-0 h-[4px] bg-[#FF003C] w-full" style={{ animation: 'shrink 6.5s linear forwards' }} />
+          </div>
+        </div>
+      )}
+
       {/* Background Matrix Effect */}
 
       {/* Background Matrix Effect */}

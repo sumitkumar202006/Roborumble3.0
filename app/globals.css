@@ -30,13 +30,8 @@ button,
 }
 
 @keyframes scan {
-  from {
-    transform: translateY(-100%);
-  }
-
-  to {
-    transform: translateY(200%);
-  }
+  from { transform: translateY(-100%); }
+  to { transform: translateY(200%); }
 }
 
 .animate-scan {
@@ -59,4 +54,10 @@ button,
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(230, 97, 255, 0.8);
+}
+
+/* Toast Progress */
+@keyframes shrink {
+  from { width: 100%; }
+  to { width: 0%; }
 }
