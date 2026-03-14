@@ -282,16 +282,16 @@ export default function RegistrationsPage() {
                       <StatusIcon size={14} />
                       {reg.paymentStatus.replace("_", " ").toUpperCase()}
                     </span>
-                    <div className="text-right">
-                      <p className="text-zinc-500 text-[10px] font-mono uppercase">
-                        Entry Fee
-                      </p>
-                      <p className="text-xl font-black text-white font-mono">
-                        {reg.eventId?.fees === 0
-                          ? "FREE"
-                          : `₹${reg.amountExpected || reg.eventId?.fees || 0}`}
-                      </p>
-                    </div>
+                    {reg.eventId?.fees > 0 && (
+                      <div className="text-right">
+                        <p className="text-zinc-500 text-[10px] font-mono uppercase">
+                          Entry Fee
+                        </p>
+                        <p className="text-xl font-black text-white font-mono">
+                          {`₹${reg.amountExpected || reg.eventId?.fees || 0}`}
+                        </p>
+                      </div>
+                    )}
                     {isPending && reg.eventId?.fees > 0 && (
                       <button
                         onClick={() => handlePayNow(reg)}

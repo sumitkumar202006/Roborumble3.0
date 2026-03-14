@@ -47,9 +47,8 @@ async function exportSimpleRegistrations() {
         const csvData = [];
 
         for (const reg of registrations) {
-            // Find Event Name
-            const rawEventId = reg.eventId?.toString();
-            const eventName = eventMap.get(rawEventId) || "Unknown Event";
+            // Find Event ID
+            const eventId = reg.eventId?.toString() || "Unknown ID";
 
             // Find Team & Leader Info
             let teamName = "Individual";
@@ -102,7 +101,7 @@ async function exportSimpleRegistrations() {
             }
 
             csvData.push({
-                EventName: eventName,
+                EventId: eventId,
                 TeamName: teamName,
                 LeaderName: leaderName,
                 LeaderPhone: leaderPhone,
@@ -117,9 +116,9 @@ async function exportSimpleRegistrations() {
         console.log(`Writing ${csvData.length} clean records to CSV...`);
         
         const csvWriter = createObjectCsvWriter({
-            path: 'clean_registrations_export.csv',
+            path: 'clean_registrations_export_v4.csv',
             header: [
-                { id: 'EventName', title: 'Event Name' },
+                { id: 'EventId', title: 'Event ID' },
                 { id: 'TeamName', title: 'Team Name' },
                 { id: 'LeaderName', title: 'Leader Name' },
                 { id: 'LeaderPhone', title: 'Leader Phone' },
@@ -131,7 +130,7 @@ async function exportSimpleRegistrations() {
         });
 
         await csvWriter.writeRecords(csvData);
-        console.log("✅ Successfully created clean_registrations_export.csv");
+        console.log("✅ Successfully created clean_registrations_export_v3.csv");
 
     } catch (error) {
         console.error("❌ Export failed:", error);

@@ -57,6 +57,7 @@ interface EventData {
   requiresUniversityId?: boolean;
   ticketTypes?: { [key: string]: number };
   phasedCap?: number;
+  externalRegistrationLink?: string;
 }
 
 interface RegistrationStatus {
@@ -401,24 +402,23 @@ const HorizontalEventCard = ({
             </div>
           </div>
 
-          {/* Far Right: Action Column */}
           <div className="flex md:flex-col items-center md:justify-center gap-4 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6 shrink-0 min-w-[140px]">
-            <div className="text-center">
-              <p className="text-zinc-500 text-[10px] uppercase font-mono mb-1">
-                {event.ticketTypes ? "Select" : "Entry Fee"}
-              </p>
-              <p className="text-xl font-black text-white">
-                {event.ticketTypes ? (
-                  <span className="text-xs uppercase text-[#E661FF]">
-                    Ticket Type
-                  </span>
-                ) : event.fees === 0 ? (
-                  "FREE"
-                ) : (
-                  `₹${event.fees}`
-                )}
-              </p>
-            </div>
+            {event.ticketTypes || event.fees > 0 ? (
+              <div className="text-center">
+                <p className="text-zinc-500 text-[10px] uppercase font-mono mb-1">
+                  {event.ticketTypes ? "Select" : "Entry Fee"}
+                </p>
+                <p className="text-xl font-black text-white">
+                  {event.ticketTypes ? (
+                    <span className="text-xs uppercase text-[#E661FF]">
+                      Ticket Type
+                    </span>
+                  ) : (
+                    `₹${event.fees}`
+                  )}
+                </p>
+              </div>
+            ) : null}
 
             {isPaid ? (
               <button
@@ -448,6 +448,17 @@ const HorizontalEventCard = ({
               >
                 <Loader2 size={14} className="animate-spin" /> Adding...
               </button>
+            ) : event.externalRegistrationLink ? (
+              <a
+                href={event.externalRegistrationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full"
+              >
+                <button className="w-full px-4 py-2 bg-white text-black font-black font-mono text-xs rounded-lg uppercase hover:bg-[#00F0FF] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]">
+                  <Plus size={14} /> Register Here
+                </button>
+              </a>
             ) : event.isOffline ? (
               <div className="text-center w-full">
                 <p className="text-[#E661FF] font-black font-mono text-[10px] uppercase mb-1">

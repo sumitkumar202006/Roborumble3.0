@@ -553,6 +553,7 @@ export default function Home() {
                 </h4>
                 <p className="text-white font-mono text-lg leading-relaxed mb-6">
                   Registrations are now open to all events.
+                  New Events are addded.
                 </p>
                 <Link href="/events" onClick={() => setShowPopup(false)}>
                   <button className="text-sm uppercase font-mono font-black tracking-[0.25em] text-black bg-[#FF003C] px-8 py-3 hover:bg-white hover:scale-105 transition-all w-full md:w-auto text-center border-2 border-[#FF003C] shadow-[0_0_20px_rgba(255,0,60,0.6)]">

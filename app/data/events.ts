@@ -274,8 +274,9 @@ export const events = [
     rules: [
       "Compulsory to carry your University ID to enter.",
       "Capped to 150 registrations only.",
-      "On Desk Registration Only."
+      "Register via the provided Google Form link."
     ],
+    externalRegistrationLink: "https://forms.gle/ssy8ihxQvos2hi7M7",
     image: "/silent-dj.jpeg"
   },
   {
