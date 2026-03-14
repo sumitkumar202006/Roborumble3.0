@@ -17,14 +17,6 @@ export const sponsors: SponsorData[] = [
     operationalRole: "For Robo Rumble 3.0, Nkosh serves as the primary technical consultant for robotics applications in agriculture. They are providing the telemetry datasets for the AI challenges and sponsoring the hardware kits for the Agri-Bot segment, ensuring that the student innovations have real-world utility in India's agrarian economy."
   },
   {
-    name: "RedBull",
-    image: "/redbull2.png",
-    category: "Energy Partner",
-    contribution: "Tactical Sustenance & Performance Zones",
-    about: "Red Bull is a global leader in functional beverages and a major supporter of high-stakes technology and sporting events worldwide. Known for 'giving wings' to innovative ideas, they specialize in supporting environments that require extreme mental focus and physical endurance.",
-    operationalRole: "Red Bull is the operational lead for the 'High-Performance Zones' across the arena. They provide critical hydration and energy support to the participants, ensuring that the 1000+ engineers remain alert during the intense 72-hour coding and combat cycles in the robotics pits."
-  },
-  {
     name: "CSJMIF",
     image: "/CSJMIF.jpg",
     category: "Incubation Partner",
